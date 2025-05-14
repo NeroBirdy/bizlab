@@ -21,7 +21,11 @@ class User(models.Model):
     id = models.AutoField(primary_key=True)
     email = models.EmailField(max_length=255, unique=True)  # Поле для идентификации
     password = models.CharField(max_length=100)
-    name = models.CharField(max_length=255)
+    firstName = models.CharField(max_length=255)
+    secondName = models.CharField(max_length=255)
+    lastName = models.CharField(max_length=255)
+    phoneNumber = models.CharField(max_length=11)
+    birthday = models.DateField()
     role = models.CharField(max_length=1)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -61,26 +65,6 @@ class Sale(models.Model):
         db_table = 'sales'
         managed = True
 
-
-class CompoundCollection(models.Model):
-    id = models.AutoField(primary_key=True)
-    courseId = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='compound_collections')
-
-    class Meta:
-        db_table = 'compoundCollections'
-        managed = True
-
-
-class Compound(models.Model):
-    id = models.AutoField(primary_key=True)
-    collectionId = models.ForeignKey(CompoundCollection, on_delete=models.CASCADE, related_name='compounds')
-    name = models.CharField(max_length=255)
-
-    class Meta:
-        db_table = 'compounds'
-        managed = True
-
-
 class Course(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
@@ -90,24 +74,34 @@ class Course(models.Model):
     salePrice = models.IntegerField()
     credit = models.IntegerField()
     places = models.IntegerField()
-
-    saleId = models.ForeignKey(Sale, on_delete=models.SET_NULL, null=True, blank=True)
-    compoundCollection = models.ForeignKey(CompoundCollection, on_delete=models.SET_NULL, null=True, blank=True)
+    sale = models.ForeignKey(Sale, on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         db_table = 'courses'
         managed = True
 
+class Compound(models.Model):
+    id = models.AutoField(primary_key=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='courseId')
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        db_table = 'compounds'
+        managed = True
+
+class CourseAndUser(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='userId_courseanduser')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='courseId_courseanduser')
 
 class Lesson(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
-    courseId = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lesson')
 
     class Meta:
         db_table = 'lessons'
         managed = True
-
 
 class Material(models.Model):
     id = models.AutoField(primary_key=True)
@@ -119,3 +113,9 @@ class Material(models.Model):
     class Meta:
         db_table = 'materials'
         managed = True
+
+class UserProgress(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='userId_userprogress')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='userprogress')
+    material = models.ForeignKey(Material, on_delete=models.CASCADE, related_name='matetialId')

@@ -37,7 +37,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'BizLabApp'
+    'BizLabApp',
+    'corsheaders',
+    'rest_framework',
+    'rest_framework_simplejwt',
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+AUTHENTICATION_BACKENDS = [
+    'BizLabApp.backends.EmailBackend'
 ]
 
 MIDDLEWARE = [
@@ -131,3 +144,19 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+import datetime
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=3),
+    'ROTATE_REFRESH_TOKENS': False,
+}
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.mail.ru'          
+EMAIL_PORT = 587                      
+EMAIL_USE_TLS = True                  
+EMAIL_HOST_USER = 'baraholkaugu@mail.ru'      
+EMAIL_HOST_PASSWORD = 'PZdQ8NaNa7FF8h2rFadU'       
+DEFAULT_FROM_EMAIL = 'baraholkaugu@mail.ru'
