@@ -108,7 +108,8 @@ class Material(models.Model):
     name = models.CharField(max_length=255)
     type = models.CharField(max_length=1)
     file = models.CharField(max_length=255)
-    lessonId = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='materials')
+    link = models.CharField(max_length=255)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='materials')
 
     class Meta:
         db_table = 'materials'
@@ -118,4 +119,8 @@ class UserProgress(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='userId_userprogress')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='userprogress')
-    material = models.ForeignKey(Material, on_delete=models.CASCADE, related_name='matetialId')
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='lessonId')
+    material = models.ForeignKey(Material, on_delete=models.CASCADE, related_name='materialID')
+    file = models.CharField(max_length=255)
+    needToCheck = models.BooleanField(default=False)
+    done = models.BooleanField(default=False)
