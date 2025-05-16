@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
-from .models import User, Course, CourseAndUser, UserProgress, Material, Lesson
+from .models import User, Course, CourseAndUser, UserProgress, Material, Lesson, Compound
 from django.contrib.auth import authenticate, login, logout
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.serializers import serialize
@@ -169,6 +169,46 @@ class createMaterial(APIView):
         Material.objects.create(name = name, type = type,file = f'../files/courses/{courseName}/{lessonName}/{name}', lesson = lesson)
 
         return Response(status=status.HTTP_201_CREATED)
+    
+#Создать курс
+class createCourse(APIView):
+    def post(self, request):
+        name = request.data.get('name')
+        description = request.data.get('description')
+        places = request.data.get('places')
+        price = request.data.get('price')
+        salePrice = request.data.get('salePrice')
+        sale = request.data.get('sale')
+        credit = request.data.get('credit')
+        picture = request.FILES.get('picture')
+        compounds = json.loads(request.data.get('compounds'))
+
+        if Course.objects.filter(name=name).exists():
+                return Response(
+                    {'error': 'Курс с таким названием уже существует'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        
+        ext = os.path.splitext(picture.name)[1]
+        picName = f'{name}{ext}'
+
+        target_directory = os.path.join(os.getcwd(), f'../images/courses')
+        os.makedirs(target_directory, exist_ok=True)
+
+        target_path = os.path.join(target_directory, picName)
+        
+        with open(target_path, 'wb') as destination:
+            for chunk in picture.chunks():
+                destination.write(chunk)
+
+        course = Course.objects.create(name = name, description = description, places = places, price = price,
+                              salePrice = salePrice, sale = sale, credit = credit, picture = f'../images/courses/{picName}')
+        
+        for compound in compounds:
+            Compound.objects.create(course = course, name = compound)
+
+        return Response(status=status.HTTP_201_CREATED)
+
 
 #Курсы студента
 class getCourseByUser(APIView):

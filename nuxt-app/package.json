@@ -10,8 +10,26 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "nuxt": "^3.17.3",
-    "vue": "^3.5.13",
-    "vue-router": "^4.5.1"
+    "@iconify-json/mdi": "^1.2.3",
+    "@iconify-json/uil": "^1.2.3",
+    "@nuxt/icon": "^1.10.3",
+    "@nuxtjs/auth-next": "^5.0.0-1667386184.dfbbb54",
+    "@nuxtjs/tailwindcss": "^6.13.1",
+    "@pinia/nuxt": "^0.10.1",
+    "axios": "^1.8.1",
+    "jwt-decode": "^4.0.0",
+    "nuxt": "^3.16.1",
+    "nuxt-auth-utils": "^0.5.16",
+    "pinia": "^3.0.1",
+    "pinia-plugin-persistedstate": "^4.2.0",
+    "pinia-plugin-persistedstate-2": "^2.0.29",
+    "vue": "latest",
+    "vue-material-design-icons": "^5.3.1",
+    "vue-router": "latest"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "npm:@nuxtjs/tailwindcss@nightly",
+    "sass": "^1.85.0",
+    "sass-loader": "^16.0.5"
   }
 }

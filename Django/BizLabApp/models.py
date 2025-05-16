@@ -57,24 +57,16 @@ class User(models.Model):
         db_table = 'users'
         managed = True
 
-class Sale(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255)
-
-    class Meta:
-        db_table = 'sales'
-        managed = True
-
 class Course(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     description = models.CharField(max_length=255)
     picture = models.CharField(max_length=255)
     price = models.IntegerField()
     salePrice = models.IntegerField()
     credit = models.IntegerField()
     places = models.IntegerField()
-    sale = models.ForeignKey(Sale, on_delete=models.SET_NULL, null=True, blank=True)
+    sale = models.CharField(max_length=255)
 
     class Meta:
         db_table = 'courses'
