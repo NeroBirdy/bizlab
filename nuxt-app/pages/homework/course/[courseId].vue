@@ -93,28 +93,18 @@ const downloadFile = async (fileUrl: string) => {
       throw new Error('Ошибка при получении файла')
     }
 
-
-    // Извлекаем имя файла из заголовка
-    const disposition = response.headers.get('Content-Disposition')
-    let filename = 'file'
-
-    if (disposition && disposition.includes('filename=')) {
-      const matches
-= disposition.match(/filename="?([^"]+)"?/)
-      if (matches?.[1]) {
-        filename = decodeURIComponent(matches[1])
-      }
-    }
-
     // Получаем файл как Blob
     const blob = await response.blob()
 
+    let tmp = fileUrl.split('/')
+
+    const fileName = tmp[tmp.length - 1] 
 
     // Создаём временную ссылку и "клик"
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = filename
+    a.download = fileName
     document.body.appendChild(a)
     a.click()
     a.remove()
