@@ -67,6 +67,7 @@ class Course(models.Model):
     credit = models.IntegerField()
     places = models.IntegerField()
     sale = models.CharField(max_length=255)
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='techerId')
 
     class Meta:
         db_table = 'courses'

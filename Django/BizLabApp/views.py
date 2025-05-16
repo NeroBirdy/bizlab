@@ -173,6 +173,7 @@ class createMaterial(APIView):
 #Создать курс
 class createCourse(APIView):
     def post(self, request):
+        teacherId = request.data.get('userId')
         name = request.data.get('name')
         description = request.data.get('description')
         places = request.data.get('places')
@@ -182,6 +183,7 @@ class createCourse(APIView):
         credit = request.data.get('credit')
         picture = request.FILES.get('picture')
         compounds = json.loads(request.data.get('compounds'))
+        teacher = User.objects.get(id = teacherId)
 
         if Course.objects.filter(name=name).exists():
                 return Response(
@@ -201,7 +203,7 @@ class createCourse(APIView):
             for chunk in picture.chunks():
                 destination.write(chunk)
 
-        course = Course.objects.create(name = name, description = description, places = places, price = price,
+        course = Course.objects.create(teacher = teacher, name = name, description = description, places = places, price = price,
                               salePrice = salePrice, sale = sale, credit = credit, picture = f'../images/courses/{picName}')
         
         for compound in compounds:
@@ -331,7 +333,7 @@ class getFilesForTeacher(APIView):
 #Кнопка проверки
 class checked(APIView):
     def post(self, request):
-        userProgressId = request.date.get('userProgressId')
+        userProgressId = request.data.get('userProgressId')
 
         userProgress = UserProgress.objects.get(userProgressId)
 
@@ -340,8 +342,15 @@ class checked(APIView):
         userProgress.save()
 
         return Response(status=status.HTTP_200_OK)
-    
+
+#Курсы учителя
+class getCoursesForTeacher(APIView):
+    def get(self, request):
+        teacherId = request.data.get('teacherId')
+
+
 #Учебные материалы для учителя
+
 
 
 #Редактирование учебных материалов
