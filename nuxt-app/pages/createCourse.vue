@@ -65,8 +65,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import axios from 'axios'
+import { jwtDecode } from "jwt-decode";
+
 
 // === Реактивные поля формы ===
+const userId = ref('')
 const name = ref('')
 const description = ref('')
 const places = ref<number | null>(null)
@@ -78,7 +81,6 @@ const picture = ref<File | null>(null)
 const compounds = ref<string[]>([])
 
 const config = useRuntimeConfig();
-
 const apiBase = config.public.apiBase as string;
 
 // Предварительный просмотр изображения
@@ -118,6 +120,7 @@ const handleSubmit = async () => {
   try {
     const form = new FormData()
 
+    form.append('userId', userId.value)
     form.append('name', name.value)
     form.append('description', description.value)
     form.append('places', String(places.value))
@@ -145,6 +148,24 @@ const handleSubmit = async () => {
     alert('Ошибка при создании курса. Пожалуйста, попробуйте снова.')
   }
 }
+
+const fetchUserData = async () => {
+  const token = useCookie<string | null>("auth_token").value;
+  try {
+    const token = useCookie<string | null>("auth_token").value;
+    const decodedToken: any = jwtDecode(token!);
+
+    userId.value = decodedToken.user_id || null;
+  } catch (error) {
+    console.error("Ошибка при получении данных:", error);
+  }
+};
+
+
+onMounted(() => {
+  fetchUserData();
+});
+
 </script>
 
 <style scoped>

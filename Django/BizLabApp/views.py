@@ -14,6 +14,7 @@ from django.core.mail import EmailMessage
 import os
 from django.http import FileResponse, Http404
 from django.conf import settings
+from urllib.parse import quote
 
 class Registration(APIView):
     def post(self, request):
@@ -41,15 +42,24 @@ class Registration(APIView):
             birthday = birthday,
             role=role
         )
-        email_message = EmailMessage(
-                'Регистрация студента',
-                f'Для авторизации вам понадобится ваш email и пароль - {password}, желаю потратить побольше денег на курсы искатель',
+        if role == 0:
+            email_message = EmailMessage(
+                    'Регистрация студента',
+                    f'Для авторизации вам понадобится ваш email и пароль - {password}, желаю потратить побольше денег на курсы искатель',
+                    to=[email]
+                )
+        else:
+            email_message = EmailMessage(
+                'Регистрация учителя',
+                f'Для авторизации вам понадобится ваш email и пароль - {password}, желаю приобрести побольше денег на родителях бедных детишек',
                 to=[email]
             )
+        
         email_message.send()
 
         return Response({'message': 'Регистрация успешна',},
                          status=status.HTTP_201_CREATED)
+                         
 
     def generatePassword(self, length=12):
         lower = string.ascii_lowercase
@@ -69,8 +79,6 @@ class Registration(APIView):
         random.shuffle(password)
 
         return ''.join(password)
-    
-
     
 class Login(APIView):
     def post(self, request):
@@ -98,16 +106,21 @@ class Logout(APIView):
     
 class getUsersByCourse(APIView):
     def get(self, request):
-        users = []
-        usrs = User.objects.all()
+        courseId = request.query_params.get('courseId')
 
+        course = Course.objects.get(id = courseId)
+
+        existing_user_ids = CourseAndUser.objects.filter(course=course).values_list('user_id', flat=True)
+        usrs = User.objects.exclude(id__in=existing_user_ids).filter(role = 1)
+        users = []
+    
         for user in usrs:
             users.append({
                 'id': user.id,
                 'FIO': f'{user.secondName} {user.firstName} {user.lastName}',
                 'email': user.email
             })
-
+        print(users)
         return Response({'users': users}, status=status.HTTP_200_OK)
     
 #Добавить пользователя на курс
@@ -123,7 +136,10 @@ class inviteUserOnCourse(APIView):
         lessons = Lesson.objects.filter(course = course)
 
         for lesson in lessons:
-            UserProgress.objects.create(user = user, course = course, lesson = lesson)
+            materials = Material.objects.filter(lesson = lesson)
+            for material in materials:
+                print(1)
+                UserProgress.objects.create(user = user, course = course, lesson = lesson, material = material)
         
         return Response(status=status.HTTP_201_CREATED)
 
@@ -194,7 +210,7 @@ class createCourse(APIView):
         ext = os.path.splitext(picture.name)[1]
         picName = f'{name}{ext}'
 
-        target_directory = os.path.join(os.getcwd(), f'../images/courses')
+        target_directory = os.path.join(os.getcwd(), f'../nuxt-app/public/images/courses')
         os.makedirs(target_directory, exist_ok=True)
 
         target_path = os.path.join(target_directory, picName)
@@ -204,7 +220,7 @@ class createCourse(APIView):
                 destination.write(chunk)
 
         course = Course.objects.create(teacher = teacher, name = name, description = description, places = places, price = price,
-                              salePrice = salePrice, sale = sale, credit = credit, picture = f'../images/courses/{picName}')
+                              salePrice = salePrice, sale = sale, credit = credit, picture = f'/images/courses/{picName}')
         
         for compound in compounds:
             Compound.objects.create(course = course, name = compound)
@@ -270,22 +286,36 @@ class getCourseForUser(APIView):
 #Скачать файл
 class downloadFile(APIView):
     def post(self, request):
-        filePath = request.data.get('path')
-        
-        if os.path.exists(filePath):
-            return FileResponse(open(filePath, 'rb'), as_attachment=True)
-        else:
+        file_path = request.data.get('path')
+
+        if not os.path.exists(file_path):
             raise Http404("Файл не найден")
+
+        # Получаем имя файла из пути
+        file_name = os.path.basename(file_path)
+
+        # Открываем файл
+        file = open(file_path, 'rb')
+
+        # Создаём ответ с файлом
+        response = FileResponse(file)
+
+        # Устанавливаем Content-Disposition для скачивания с оригинальным названием
+        response['Content-Disposition'] = f'attachment; filename="{quote(file_name)}'
+
+        return response
         
 #Прикрепить файл
 class uploadFile(APIView):
     def post(self, request):
         userId = request.data.get('userId')
         lessonId = request.data.get('lessonId')
+        materialId = request.data.get('materialId')
         file = request.FILES.get('file')
 
-        user = Lesson.objects.get(id = userId)
+        user = User.objects.get(id = userId)
         lesson = Lesson.objects.get(id = lessonId)
+        material = Material.objects.get(id = materialId)
         lessonName = lesson.name
         courseName = lesson.course.name
 
@@ -298,8 +328,8 @@ class uploadFile(APIView):
             for chunk in file.chunks():
                 destination.write(chunk)
         
-        userProgress = UserProgress.objects.get(user = user, lesson = lesson)
-        userProgress.file = f'./files/users/{userId}/{courseName}/{lessonName}/{file.name}'
+        userProgress = UserProgress.objects.get(user = user, lesson = lesson, material = material)
+        userProgress.file = f'../files/users/{userId}/{courseName}/{lessonName}/{file.name}'
         userProgress.needToCheck = True
         userProgress.save()
 
@@ -346,7 +376,23 @@ class checked(APIView):
 #Курсы учителя
 class getCoursesForTeacher(APIView):
     def get(self, request):
-        teacherId = request.data.get('teacherId')
+        teacherId = request.query_params.get('teacherId')
+        teacher = User.objects.get(id = teacherId)
+
+        crs = Course.objects.filter(teacher = teacher)
+
+        courses = []
+
+        for course in crs:
+            needToCheck = UserProgress.objects.filter(course = course, needToCheck = True).count()
+            courses.append({
+                'id': course.id,
+                'name': course.name,
+                'needToCheck': needToCheck,
+                'picture': course.picture
+            })
+        
+        return Response({'courses': courses}, status=status.HTTP_200_OK)
 
 
 #Учебные материалы для учителя
