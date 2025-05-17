@@ -1,13 +1,15 @@
 <template>
-    <div class="teacher-courses">
+    <div v-if="role == 1" class="teacher-courses">
         <h2>МОИ КУРСЫ</h2>
-
+        <button @click="navigateTo('/createCourse')">Создать курс</button>
+        <button @click="openStudentRegistrationModal">Зарегистрировать студента</button>
+        <AddStudentModal ref="addStudentModalRef" />
         <!-- Список курсов -->
         <div v-if="courses.length > 0" class="courses-list">
             <div v-for="course in courses" :key="course.id" class="course-card">
                 <!-- Картинка курса -->
                 <img :src="course.picture" alt="Картинка курса" class="course-image"
-                    @click="navigateTo(`/homework/course/${courseId}`)" />
+                    @click="navigateTo(`/course/${course.id}`)" />
 
                 <!-- Название курса -->
                 <div class="course-info">
@@ -22,7 +24,19 @@
         <p v-else class="no-courses">{{ loading ? 'Загрузка...' : 'Нет доступных курсов' }}</p>
 
         <!-- Модальное окно -->
-        <AddUserOnCourse ref="addUserModalRef" :courseId="selectedCourseId" />
+        <AddUserOnCourse ref="addUserModalRef" />
+    </div>
+    <div v-if="role == 0">
+        <div v-if="coursesForStudent.length > 0" class="courses-list">
+            <div v-for="course in coursesForStudent" class="course-card">
+                <img :src="course.picture" alt="Картинка курса" class="course-image"
+                    @click="navigateTo(`/courseForStudent/${course.id}`)" />
+                <div class="course-info">
+                    <h3 style="cursor: pointer;">{{ course.name }}</h3>
+                    <p> Прогресс{{ course.progress }} %</p>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -30,12 +44,14 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import { jwtDecode } from 'jwt-decode'
-
+import AddStudentModal from '../components/AddStudent.vue'
 // === Переменные ===
+const addStudentModalRef = ref()
 const courses = ref([])
 const userId = ref<number | null>(null)
 const loading = ref(true)
-const selectedCourseId = ref<number | null>(null)
+const role = ref()
+const coursesForStudent = ref()
 
 // === Подключение модального окна ===
 const addUserModalRef = ref()
@@ -43,6 +59,17 @@ const addUserModalRef = ref()
 // === Получение данных пользователя из токена ===
 const config = useRuntimeConfig()
 const apiBase = config.public.apiBase as string
+
+// === Обработчик клика по кнопке "Зарегистрировать студента" ===
+const openStudentRegistrationModal = () => {
+    addStudentModalRef.value?.openModal()
+}
+
+const getCoursesByUser = async () => {
+    const response = await axios.post(`${apiBase}/api/getCourseByUser`, { 'userId': userId.value })
+
+    coursesForStudent.value = response.data.courses
+};
 
 const fetchUserData = async () => {
     const token = useCookie('auth_token').value
@@ -56,6 +83,14 @@ const fetchUserData = async () => {
     try {
         const decodedToken = jwtDecode(token)
         userId.value = decodedToken.user_id || null
+
+        const response = await axios.post(`${apiBase}/api/getUser`, { 'userId': userId.value })
+
+        role.value = response.data.role
+        if (role.value == 0) {
+            getCoursesByUser()
+        }
+
     } catch (error) {
         console.error('Ошибка при декодировании токена:', error)
     }
@@ -82,8 +117,7 @@ const getTeacherCourses = async () => {
 
 // === Обработчик клика по курсу ===
 const openUserModal = (courseId: number) => {
-    selectedCourseId.value = courseId
-    addUserModalRef.value?.openModal()
+    addUserModalRef.value?.openModal(courseId)
 }
 
 // === Инициализация ===

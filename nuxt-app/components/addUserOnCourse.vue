@@ -42,11 +42,12 @@ const searchQuery = ref('')
 const showDropdown = ref(false)
 const selectedOptionIndex = ref<number | null>(null)
 const selectedUser = ref<{ id: number; FIO: string; email: string } | null>(null)
+const selectedCourse = ref()
 
 // === Получение пользователей с сервера ===
-const getUsers = async () => {
+const getUsers = async (courseId: number) => {
     try {
-        const response = await axios.get(`${apiBase}/api/getUsersByCourse?courseId=${props.courseId}`)
+        const response = await axios.get(`${apiBase}/api/getUsersByCourse?courseId=${courseId}`)
         users.value = response.data.users || []
     } catch (error) {
         console.error('Ошибка при загрузке пользователей:', error)
@@ -110,14 +111,14 @@ const selectUserFromList = (user: { id: number; FIO: string; email: string }) =>
 
 // === Добавление пользователя на курс (по кнопке) ===
 const addSelectedUser = async () => {
-    if (!selectedUser.value || !props.courseId) {
+    if (!selectedUser.value || !selectedCourse.value) {
         alert('Выберите пользователя')
         return
     }
 
     try {
         await axios.post(`${apiBase}/api/inviteUserOnCourse`, {
-            courseId: props.courseId,
+            courseId: selectedCourse.value,
             userId: selectedUser.value.id
         })
 
@@ -130,12 +131,13 @@ const addSelectedUser = async () => {
 }
 
 // === Открытие/закрытие модального окна ===
-const openModal = () => {
+const openModal = (courseId: number) => {
+    console.log(courseId)
+    selectedCourse.value = courseId
     showModal.value = true
     selectedOptionIndex.value = null
     selectedUser.value = null
-    console.log(props.courseId)
-    if (users.value.length === 0) getUsers()
+    if (users.value.length === 0) getUsers(courseId)
 
     // Автофокус
     nextTick(() => {
@@ -158,10 +160,6 @@ const hideDropdownWithDelay = () => {
     }, 200)
 }
 
-// === Принимаем ID курса из родителя ===
-const props = defineProps<{
-    courseId: number
-}>()
 
 // Для фокуса
 const searchInput = ref<HTMLInputElement | null>(null)

@@ -21,9 +21,7 @@ class Registration(APIView):
         firstName = request.data.get('firstName')
         secondName = request.data.get('secondName')
         lastName = request.data.get('lastName')
-        phoneNumber = request.data.get('phoneNumber')
         email = request.data.get('email')
-        birthday = request.data.get('birthday')
         role=request.data.get('role')
 
         if User.objects.filter(email=email).exists():
@@ -36,10 +34,8 @@ class Registration(APIView):
             firstName=firstName,
             secondName=secondName,
             lastName=lastName,
-            phoneNumber=phoneNumber,
             email=email,
             password=hashed_password,
-            birthday = birthday,
             role=role
         )
         if role == 0:
@@ -111,7 +107,7 @@ class getUsersByCourse(APIView):
         course = Course.objects.get(id = courseId)
 
         existing_user_ids = CourseAndUser.objects.filter(course=course).values_list('user_id', flat=True)
-        usrs = User.objects.exclude(id__in=existing_user_ids).filter(role = 1)
+        usrs = User.objects.exclude(id__in=existing_user_ids).filter(role = 0)
         users = []
     
         for user in usrs:
@@ -122,6 +118,14 @@ class getUsersByCourse(APIView):
             })
         print(users)
         return Response({'users': users}, status=status.HTTP_200_OK)
+    
+class getUser(APIView):
+    def post(self, request):
+        userId = request.data.get('userId')
+
+        user = User.objects.get(id = userId)
+
+        return Response({'role': user.role}, status=status.HTTP_200_OK)
     
 #Добавить пользователя на курс
 class inviteUserOnCourse(APIView):
@@ -138,7 +142,6 @@ class inviteUserOnCourse(APIView):
         for lesson in lessons:
             materials = Material.objects.filter(lesson = lesson)
             for material in materials:
-                print(1)
                 UserProgress.objects.create(user = user, course = course, lesson = lesson, material = material)
         
         return Response(status=status.HTTP_201_CREATED)
@@ -157,34 +160,49 @@ class createTask(APIView):
 #Создать материал
 class createMaterial(APIView):
     def post(self, request):
-        lessonId = request.data.get('lessonId')
+        courseId = request.data.get('courseId')
+        lessonName = request.data.get('lessonName')
         type = request.data.get('type')
         name = request.data.get('name')
         file = request.FILES.get('file')
 
-        ext = os.path.splitext(file.name)[1]
-        name = f'{name}{ext}'
+        course = Course.objects.get(id = courseId)
 
-        if type == 3:
+        lesson = Lesson.objects.get(course = course, name = lessonName)
+
+
+        if type == '4':
             link = request.data.get('link')
-            Material.objects.create(name = name, type = type, link = link, lesson = lesson)
-            Response(status=status.HTTP_201_CREATED)
+            material = Material.objects.create(name = name, type = type, link = link, lesson = lesson)
 
-        lesson = Lesson.objects.get(id = lessonId)
+            return Response(status=status.HTTP_201_CREATED)
+
+        ext = os.path.splitext(file.name)[1]
+        fileName = f'{name}{ext}'
+
         lessonName = lesson.name
         courseName = lesson.course.name
 
         target_directory = os.path.join(os.getcwd(), f'../files/courses/{courseName}/{lessonName}')
         os.makedirs(target_directory, exist_ok=True)
 
-        target_path = os.path.join(target_directory, name)
+        target_path = os.path.join(target_directory, fileName)
         
         with open(target_path, 'wb') as destination:
             for chunk in file.chunks():
                 destination.write(chunk)
-        Material.objects.create(name = name, type = type,file = f'../files/courses/{courseName}/{lessonName}/{name}', lesson = lesson)
+        material = Material.objects.create(name = name, type = type,file = f'../files/courses/{courseName}/{lessonName}/{fileName}', lesson = lesson)
+        if type != 1:
+            usersOnCourse = CourseAndUser.objects.filter(course = course)
+            for userOnCourse in usersOnCourse:
+                UserProgress.objects.create(user = userOnCourse.user, course = course, lesson = lesson, material = material)
 
-        return Response(status=status.HTTP_201_CREATED)
+        tmp = {
+            'name': name,
+            'type': type,
+            'id': material.id
+        }
+        return Response({'material': tmp},status=status.HTTP_201_CREATED)
     
 #Создать курс
 class createCourse(APIView):
@@ -230,8 +248,8 @@ class createCourse(APIView):
 
 #Курсы студента
 class getCourseByUser(APIView):
-    def get(self, request):
-        userId = request.query_params.get('userId')
+    def post(self, request):
+        userId = request.data.get('userId')
         user = User.objects.get(id = userId)
 
         courses = []
@@ -239,15 +257,18 @@ class getCourseByUser(APIView):
 
         for courseAndUser in crs:
             course = courseAndUser.course
-            userProgress = UserProgress.objects.filter(user = user, course = course, type__in = [1,2])
-            done = userProgress.filter(done = True)
-            progress = len(done) / len(userProgress) * 100
-            courses.append({
-                'id': course.id,
-                'picture': course.picture,
-                'name': course.name,
-                'progress': progress
-            })
+            check = UserProgress.objects.filter(user=user,course=course).exists()
+            if check:
+            
+                userProgress = UserProgress.objects.filter(user = user, course = course)
+                done = userProgress.filter(done = True)
+                progress = len(done) / len(userProgress) * 100
+                courses.append({
+                    'id': course.id,
+                    'picture': course.picture,
+                    'name': course.name,
+                    'progress': progress
+                })
         
         return Response({'courses': courses}, status=status.HTTP_200_OK)
 
@@ -260,12 +281,12 @@ class getCourseForUser(APIView):
         crs = Course.objects.get(id = courseId)
         
         course = {}
-        lessons = Lesson.filter(course = crs)
+        lessons = Lesson.objects.filter(course = crs)
         for lesson in lessons:
             mtrls = Material.objects.filter(lesson = lesson)
             materials = []
             for material in mtrls:
-                if material.type == 3:
+                if material.type == '4':
                     materials.append({
                         'id': material.id,
                         'name': material.name,
@@ -309,13 +330,12 @@ class downloadFile(APIView):
 class uploadFile(APIView):
     def post(self, request):
         userId = request.data.get('userId')
-        lessonId = request.data.get('lessonId')
         materialId = request.data.get('materialId')
         file = request.FILES.get('file')
 
         user = User.objects.get(id = userId)
-        lesson = Lesson.objects.get(id = lessonId)
         material = Material.objects.get(id = materialId)
+        lesson = material.lesson
         lessonName = lesson.name
         courseName = lesson.course.name
 
@@ -365,7 +385,7 @@ class checked(APIView):
     def post(self, request):
         userProgressId = request.data.get('userProgressId')
 
-        userProgress = UserProgress.objects.get(userProgressId)
+        userProgress = UserProgress.objects.get(id = userProgressId)
 
         userProgress.needToCheck = False
         userProgress.done = True
@@ -396,7 +416,55 @@ class getCoursesForTeacher(APIView):
 
 
 #Учебные материалы для учителя
+class getCourseForTeacher(APIView):
+    def post(self, request):
+        courseId = request.data.get('courseId')
+        crs = Course.objects.get(id = courseId)
 
+        course = {}
+        lessons = Lesson.objects.filter(course = crs)
+        for lesson in lessons:
+            mtrls = Material.objects.filter(lesson = lesson)
+            materials = []
+            for material in mtrls:
+                materials.append({
+                    'id': material.id,
+                    'name': material.name,
+                    'type': material.type,
+                    
+                })
+               
+            course[lesson.name] = materials
+
+
+        return Response({'course': course}, status=status.HTTP_200_OK)
+    
+class updateLesson(APIView):
+    def post(self, request):
+        courseId = request.data.get('courseId')
+        lessonName = request.data.get('oldName')
+        newName = request.data.get('newName')
+        print(courseId)
+        course = Course.objects.get(id = courseId)
+
+        lesson = Lesson.objects.get(course = course,name = lessonName)
+        lesson.name = newName
+
+        lesson.save()
+
+        return Response(status=status.HTTP_200_OK)
+    
+class updateMaterial(APIView):
+    def post(self, request):
+        materialId = request.data.get('materialId')
+        newName = request.data.get('newName')
+
+        material = Material.objects.get(id = materialId)
+        material.name = newName
+
+        material.save()
+
+        return Response(status=status.HTTP_200_OK)
 
 
 #Редактирование учебных материалов

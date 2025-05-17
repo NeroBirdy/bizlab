@@ -24,8 +24,6 @@ class User(models.Model):
     firstName = models.CharField(max_length=255)
     secondName = models.CharField(max_length=255)
     lastName = models.CharField(max_length=255)
-    phoneNumber = models.CharField(max_length=11)
-    birthday = models.DateField()
     role = models.CharField(max_length=1)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -89,7 +87,7 @@ class CourseAndUser(models.Model):
 
 class Lesson(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lesson')
 
     class Meta:
@@ -117,3 +115,7 @@ class UserProgress(models.Model):
     file = models.CharField(max_length=255)
     needToCheck = models.BooleanField(default=False)
     done = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'UserProgress'
+        managed = True
