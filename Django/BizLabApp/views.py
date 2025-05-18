@@ -302,7 +302,8 @@ class getCourseForUser(APIView):
                 })
             course[lesson.name] = materials
 
-            return Response({'course': course}, status=status.HTTP_200_OK)
+
+        return Response({'course': course}, status=status.HTTP_200_OK)
 
 #Скачать файл
 class downloadFile(APIView):
@@ -467,7 +468,20 @@ class updateMaterial(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-#Редактирование учебных материалов
+class getDoneUserProgress(APIView):
+    def post(self, request):
+        userId = request.data.get('userId')
+
+        user = User.objects.get(id = userId)
+
+        userProgress = UserProgress.objects.filter(user = user, done = True)
+
+        materials = [progress.material.id for progress in userProgress]
+
+        return Response({'materials': materials}, status=status.HTTP_200_OK)
+
+
+
         
 
 

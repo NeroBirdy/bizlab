@@ -21,14 +21,15 @@
                         <span>{{ material.name }}</span>
 
                         <div v-if="['1', '2'].includes(material.type)">
-                            <button @click="downloadFile(material.file)" class="download-button">
+                            <button v-if="!done.includes(material.id)" @click="downloadFile(material.file)" class="download-button">
                                 Скачать
                             </button>
-                            <input type="file" :id="'fileInput-' + material.id"
+                            <input v-if="!done.includes(material.id)" type="file" :id="'fileInput-' + material.id"
                                 @change="handleFileUpload($event, material)" style="display: none" />
-                            <label :for="'fileInput-' + material.id" class="attach-button">
-                                {{ uploadedFiles[material.id] ? uploadedFiles[material.id] : 'Прикрепить' }}
+                            <label v-if="!done.includes(material.id)" :for="'fileInput-' + material.id" class="attach-button">
+                                Прикрепить
                             </label>
+                            <h1 v-if="done.includes(material.id)">Выполнено</h1>
                         </div>
 
                         <a v-else-if="material.type == 4" :href="material.link" target="_blank"
@@ -55,6 +56,7 @@ const apiBase = config.public.apiBase as string
 
 const loading = ref(true)
 const userId = ref<number | null>(null)
+const done = ref([])
 const courseName = ref('')
 const course = ref<{
     [lessonName: string]: Array<{
@@ -67,6 +69,12 @@ const course = ref<{
 }>()
 
 const uploadedFiles = ref<{ [materialId: number]: string }>({})
+
+const getDone = async() => {
+    const response = await axios.post(`${apiBase}/api/getDone`, {'userId': userId.value})
+
+    done.value = response.data.materials;
+};
 
 const handleFileUpload = async (event: Event, material: any) => {
   const target = event.target as HTMLInputElement
@@ -158,6 +166,7 @@ const downloadFile = async (fileUrl: string) => {
 // === Инициализация ===
 onMounted(async () => {
     await getCourseDetails()
+    await getDone()
 })
 </script>
 

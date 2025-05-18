@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import Registration, Login, Logout, downloadFile, getUser, getCourseByUser, getCourseForUser, checked, getCourseForTeacher, updateLesson, updateMaterial, uploadFile, createCourse, getCoursesForTeacher, createMaterial, getUsersByCourse, createTask, inviteUserOnCourse, getFilesForTeacher
+from .views import Registration, Login, Logout, downloadFile, getUser, getCourseByUser, getDoneUserProgress, getCourseForUser, checked, getCourseForTeacher, updateLesson, updateMaterial, uploadFile, createCourse, getCoursesForTeacher, createMaterial, getUsersByCourse, createTask, inviteUserOnCourse, getFilesForTeacher
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -27,4 +27,5 @@ urlpatterns = [
     path('getUser', getUser.as_view(), name='getUser'),
     path('getCourseByUser', getCourseByUser.as_view(), name='getCourseByUser'),
     path('getCourseForUser', getCourseForUser.as_view(), name='getCourseForUser'),
+    path('getDone', getDoneUserProgress.as_view(), name='getDone'),
 ]
