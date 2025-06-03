@@ -479,6 +479,53 @@ class getDoneUserProgress(APIView):
         materials = [progress.material.id for progress in userProgress]
 
         return Response({'materials': materials}, status=status.HTTP_200_OK)
+    
+class getCourseForMain(APIView):
+    def get(self, request):
+        crss = Course.objects.all()
+
+        courses = []
+        for crs in crss:
+            courses.append(
+                {
+                    'name': crs.name,
+                    'description': crs.description,
+                    'picture': crs.picture,
+                    'price': crs.price,
+                    'salePrice': crs.salePrice,
+                    'credit': crs.credit,
+                    'places': crs.places,
+                    'sale': crs.sale
+                }
+            )
+
+        return Response(courses,status=status.HTTP_200_OK)
+    
+class sendEmailToAdmin(APIView):
+    def post(self, request):
+        fio = request.data.get('fio')
+        number = request.data.get('number')
+
+        email_message = EmailMessage(
+                    'Анкета',
+                    f'Подали заявку телефон - {number}, ФИО - {fio}',
+                    to=['vladi.popova2004@yandex.ru'])
+        
+        email_message.send()
+        
+        return Response(status=status.HTTP_200_OK)
+    
+class deleteTeacher(APIView):
+    def post(self, request):
+        id = request.data.get('id')
+
+        user = User.objects.get(id=id)
+
+        user.delete()
+
+        return Response(status=status.HTTP_200_OK)
+
+
 
 
 
