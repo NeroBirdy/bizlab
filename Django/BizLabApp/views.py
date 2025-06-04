@@ -524,7 +524,21 @@ class deleteTeacher(APIView):
         user.delete()
 
         return Response(status=status.HTTP_200_OK)
+    
+class getTeachers(APIView):
+    def get(self, request):
+        tchrs = User.objects.filter(role=1)
+        teachers = []
 
+        for teacher in tchrs:
+            teachers.append(
+                {
+                    'id': teacher.id,
+                    'FIO': f'{teacher.secondName} {teacher.firstName} {teacher.lastName}',
+                    'email': teacher.email
+                }
+            )
+        return Response(teachers, status=status.HTTP_200_OK)
 
 
 

@@ -44,7 +44,7 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import { jwtDecode } from 'jwt-decode'
-import AddStudentModal from '../components/AddStudent.vue'
+import AddStudentModal from '../../components/AddStudent.vue'
 // === Переменные ===
 const addStudentModalRef = ref()
 const courses = ref([])
