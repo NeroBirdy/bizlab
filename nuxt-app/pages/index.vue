@@ -26,11 +26,13 @@
   </header>
   <main class="mainStyle">
     <Welcome />
+    <Courses />
     <Teachers />
     <Reviews />
   </main>
   <footer></footer>
 </template>
+
 
 <style lang="scss">
 @font-face {

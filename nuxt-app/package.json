@@ -23,9 +23,11 @@
     "jwt-decode": "^4.0.0",
     "nuxt": "^3.16.1",
     "nuxt-auth-utils": "^0.5.16",
+    "nuxt-swiper": "^2.0.1",
     "pinia": "^3.0.1",
     "pinia-plugin-persistedstate": "^4.2.0",
     "pinia-plugin-persistedstate-2": "^2.0.29",
+    "swiper": "^11.2.8",
     "vue": "latest",
     "vue-material-design-icons": "^5.3.1",
     "vue-router": "latest"

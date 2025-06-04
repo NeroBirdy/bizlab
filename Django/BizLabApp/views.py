@@ -486,6 +486,13 @@ class getCourseForMain(APIView):
 
         courses = []
         for crs in crss:
+            compounds=[]
+            cmpnds = Compound.objects.filter(course=crs)
+            for compound in cmpnds:
+                compounds.append({
+                    'id':compound.id,
+                    'name':compound.name
+                })
             courses.append(
                 {
                     'name': crs.name,
@@ -495,9 +502,10 @@ class getCourseForMain(APIView):
                     'salePrice': crs.salePrice,
                     'credit': crs.credit,
                     'places': crs.places,
-                    'sale': crs.sale
+                    'sale': crs.sale,
+                    'compounds': compounds
                 }
-            )
+            )   
 
         return Response(courses,status=status.HTTP_200_OK)
     

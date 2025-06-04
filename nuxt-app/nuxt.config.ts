@@ -17,6 +17,7 @@ export default defineNuxtConfig({
     "nuxt-auth-utils",
     "@pinia/nuxt",
     "pinia-plugin-persistedstate/nuxt",
+    "nuxt-swiper",
   ],
   icon: {
     serverBundle: {
