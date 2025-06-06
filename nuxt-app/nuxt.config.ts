@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import type { NuxtPage } from "nuxt/schema";
+import Aura from '@primeuix/themes/aura';
 export default defineNuxtConfig({
   css: ["~/assets/scss/main.scss"],
   app: {
@@ -13,12 +14,27 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
     "@nuxtjs/tailwindcss",
+    '@primevue/nuxt-module',
     "@nuxt/icon",
     "nuxt-auth-utils",
     "@pinia/nuxt",
     "pinia-plugin-persistedstate/nuxt",
     "nuxt-swiper",
   ],
+  primevue: {
+    autoImport: false,
+    options: {
+
+      theme: {
+        preset: Aura,
+        options: {
+          prefix: 'p',
+          darkModeSelector: 'white',
+          cssLayer: false
+        }
+      }
+    }
+  },
   icon: {
     serverBundle: {
       collections: ["mdi"],
@@ -30,6 +46,6 @@ export default defineNuxtConfig({
     },
   },
   hooks: {
-    
+
   },
 });

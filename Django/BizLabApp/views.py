@@ -259,16 +259,17 @@ class getCourseByUser(APIView):
             course = courseAndUser.course
             check = UserProgress.objects.filter(user=user,course=course).exists()
             if check:
-            
                 userProgress = UserProgress.objects.filter(user = user, course = course)
                 done = userProgress.filter(done = True)
                 progress = len(done) / len(userProgress) * 100
-                courses.append({
-                    'id': course.id,
-                    'picture': course.picture,
-                    'name': course.name,
-                    'progress': progress
-                })
+            else:
+                progress = 0
+            courses.append({
+                'id': course.id,
+                'picture': course.picture,
+                'name': course.name,
+                'progress': progress
+            })
         
         return Response({'courses': courses}, status=status.HTTP_200_OK)
 

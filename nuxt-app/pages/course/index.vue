@@ -5,7 +5,7 @@
         <button @click="openStudentRegistrationModal">Зарегистрировать студента</button>
         <AddStudentModal ref="addStudentModalRef" />
         <!-- Список курсов -->
-        <div v-if="courses.length > 0" class="courses-list">
+        <div v-if="courses.length > 0" class="courses-list" id="courses-list">
             <div v-for="course in courses" :key="course.id" class="course-card">
                 <!-- Картинка курса -->
                 <img :src="course.picture" alt="Картинка курса" class="course-image"
@@ -27,17 +27,31 @@
         <AddUserOnCourse ref="addUserModalRef" />
     </div>
     <div v-if="role == 0">
-        <div v-if="coursesForStudent.length > 0" class="courses-list">
-            <div v-for="course in coursesForStudent" class="course-card">
-                <img :src="course.picture" alt="Картинка курса" class="course-image"
-                    @click="navigateTo(`/courseForStudent/${course.id}`)" />
-                <div class="course-info">
+        <div class="header flex">
+            <div class="logo flex">
+                <img class="logo" src="/assets/images/bizlap-logo.svg" alt="bizlab" />
+                <h1>МОИ КУРСЫ</h1>
+            </div>
+            <p>ВЫЙТИ ИЗ ЛИЧНОГО КАБИНЕТА</p>
+        </div>
+
+
+        <div v-if="coursesForStudent.length > 0" v-for="(course, index) in coursesForStudent" class="courses-list">
+            <div @click="navigateTo(`/courseForStudent/${course.id}`)" class="course-card">
+                <div class="image">
+                    <img :src="course.picture" alt="Картинка курса" class="course-image" />
+                    <h3 style="cursor: pointer;">Курс {{ index + 1 }}</h3>
                     <h3 style="cursor: pointer;">{{ course.name }}</h3>
-                    <p> Прогресс{{ course.progress }} %</p>
+                </div>
+                <div class="course-info">
+                    <h1>ТЕКУЩИЙ ПРОГРЕСС КУРСА</h1>
+                    <ProgressBar :show-value=false :value="course.progress"></ProgressBar>
+                    <p> {{ parseInt(course.progress) }} %</p>
                 </div>
             </div>
         </div>
     </div>
+
 </template>
 
 <script setup lang="ts">
@@ -45,6 +59,9 @@ import { ref } from 'vue'
 import axios from 'axios'
 import { jwtDecode } from 'jwt-decode'
 import AddStudentModal from '../../components/AddStudent.vue'
+import ProgressBar from 'primevue/progressbar';
+
+
 // === Переменные ===
 const addStudentModalRef = ref()
 const courses = ref([])
@@ -127,7 +144,7 @@ onMounted(async () => {
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .teacher-courses {
     max-width: 800px;
     margin: 20px auto;
@@ -138,34 +155,45 @@ onMounted(async () => {
     flex-wrap: wrap;
     gap: 20px;
 }
+.image {
+    width: 30%;
+}
+
+.header {
+    justify-content: space-between;
+}
 
 .course-card {
+    width: 65% !important;
+    margin-left: auto;
+    margin-right: auto;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    border: 1px solid #ccc;
     padding: 10px;
     border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease-in-out;
     width: calc(50% - 10px);
+    cursor: pointer;
     background-color: #fff;
 }
 
-.course-card:hover {
-    transform: scale(1.02);
-}
-
 .course-image {
-    width: 100%;
-    height: 200px;
+    height: 170px;
     object-fit: cover;
     margin-bottom: 10px;
-    cursor: pointer;
+
+    border-radius: 15px;
 }
 
 .course-info {
+    width: 65%;
+    font-size: 30px;
     text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    align-items: center;
+    justify-content: center;
 }
 
 .no-courses {
