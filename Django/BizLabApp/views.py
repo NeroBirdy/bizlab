@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
-from .models import User, Course, CourseAndUser, UserProgress, Material, Lesson, Compound
+from .models import User, Course, CourseAndUser, UserProgress, Material, Lesson, Compound, Feedback
 from django.contrib.auth import authenticate, login, logout
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.serializers import serialize
@@ -547,6 +547,35 @@ class getTeachers(APIView):
                 }
             )
         return Response(teachers, status=status.HTTP_200_OK)
+    
+class getFeedback(APIView):
+    def get(self, request):
+        fds = Feedback.objects.filter(visible=True)
+        feedbacks = []
+        for feedback in fds:
+            feedbacks.append(
+                {
+                    'id': feedback.id,
+                    'sender': feedback.sender,
+                    'text': feedback.text
+                }
+            )
+        
+        return Response(feedbacks, status=status.HTTP_200_OK)
+
+class createComment(APIView):
+    def post(self, request):
+        sender = request.data.get('sender')
+        text = request.data.get('text')
+
+        all = Feedback.objects.all().count()
+        if all >= 3:
+            third = Feedback.objects.order_by('-id')[2:3].first()
+            third.visible = False
+            third.save()
+        Feedback.objects.create(sender=sender, text=text)
+
+        return Response(status=status.HTTP_200_OK)
 
 
 

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import Registration, Login, Logout, downloadFile, getTeachers, deleteTeacher, getCourseForMain, sendEmailToAdmin, getUser, getCourseByUser, getDoneUserProgress, getCourseForUser, checked, getCourseForTeacher, updateLesson, updateMaterial, uploadFile, createCourse, getCoursesForTeacher, createMaterial, getUsersByCourse, createTask, inviteUserOnCourse, getFilesForTeacher
+from .views import Registration, Login, Logout, downloadFile, getTeachers, deleteTeacher, createComment, getFeedback, getCourseForMain, sendEmailToAdmin, getUser, getCourseByUser, getDoneUserProgress, getCourseForUser, checked, getCourseForTeacher, updateLesson, updateMaterial, uploadFile, createCourse, getCoursesForTeacher, createMaterial, getUsersByCourse, createTask, inviteUserOnCourse, getFilesForTeacher
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -32,4 +32,6 @@ urlpatterns = [
     path('sendEmailToAdmin', sendEmailToAdmin.as_view(), name='sendEmailToAdmin'),
     path('getTeachers', getTeachers.as_view(), name='getTeachers'),
     path('deleteTeacher', deleteTeacher.as_view(), name='deleteTeacher'),
+    path('getFeedback', getFeedback.as_view(), name='getFeedback'),
+    path('createComment', createComment.as_view(), name='createComment'),
 ]

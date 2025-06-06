@@ -81,36 +81,29 @@ const login = async () => {
 </script>
 
 <template>
-  <div class="HelloText">
-    <h1 class="flex justify-center">
-      Приветствуем вас на
-      <p>Барахолке</p>
-    </h1>
-    <h1>
-      Здесь могут покупать и продавать свои вещи, предлагать услуги и искать
-      попутчиков.
-    </h1>
-    <h1>Просим соблюдать правила площадки и быть вежливым в чатах!</h1>
+  <div class="flex justify-center">
+    <img class="back" src="../../assets/images/back-login.svg" alt="" />
   </div>
-  <div class="log-form shadow-md">
-    <div class="logo" @click="goHome()">
+  <div class="log-form">
+    <div class="logo flex" @click="goHome()">
       <img
-        class="h-24 self-center"
-        src="../../assets/image/logo.png"
+        class="h-12 self-center"
+        src="../../assets/images/bizlap-logo.svg"
         alt="Logo"
       />
+      <h1 class="mb-10">АВТОРИЗАЦИЯ</h1>
     </div>
     <form @submit.prevent="login" class="login-form">
       <input
         type="email"
-        placeholder="почта"
+        placeholder="E-mail"
         v-model="email"
         class="input"
         required
       />
       <input
         type="password"
-        placeholder="пароль"
+        placeholder="Пароль"
         v-model="pass"
         class="input"
         required
@@ -118,7 +111,7 @@ const login = async () => {
       <div v-if="errorMessage" class="error-message text-red-500 text-sm">
         {{ errorMessage }}
       </div>
-      <div class="flex justify-between">
+      <div class="flex justify-center">
         <button type="submit" class="btn log">вход</button>
       </div>
     </form>
@@ -128,13 +121,24 @@ const login = async () => {
 <style lang="scss" scoped>
 @use "~/assets/scss/main.scss" as main;
 @use "sass:color";
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+.back {
+  margin-top: 5%;
+  position: absolute;
+  opacity: 30%;
+}
 
 h1 {
   text-align: center;
-  color: main.$second-color;
+  color: #328862;
   display: flex;
+  letter-spacing: 2px;
   justify-content: center;
   width: 100%;
+  font-family: "Inter";
+  font-weight: 600;
+  font-size: 28px;
 }
 
 p {
@@ -143,60 +147,68 @@ p {
   font-weight: bold;
 }
 
-.HelloText {
-  font-size: 2rem;
-  line-height: 2rem;
-  font-weight: 600;
-  display: flex;
-  flex-direction: column;
+.logo {
   justify-content: center;
-  padding: 1rem 4rem;
+  flex-direction: column;
 }
 
 .login-form {
   @apply flex flex-col space-y-1 self-center;
   width: 70%;
+  align-items: center;
 }
 
 input {
-  border: 2px solid main.$second-color;
+  border: 2px solid #328862;
   font-size: 20px;
+  width: 70%;
+  padding-left: 15px;
+  background-color: white;
+  border-radius: 20px;
+  font-family: "Inter";
   &::placeholder {
-    color: main.$second-color;
+    color: #328862;
     font-weight: 600;
   }
 
   &:focus {
-    border-color: color.adjust(main.$second-color, $lightness: -10%);
+    background-color: white;
+    color: black;
+    border: 3px solid #46c089;
+    outline: none;
+
+    &::placeholder {
+      color: #46c089;
+    }
   }
 }
 
 .btn {
-  width: 65%;
+  width: 130px !important;
   font-weight: 600;
   text-align: center;
   align-items: center;
   font-size: 20px;
+  border-radius: 30px;
 }
 
 .log {
-  background-color: main.$second-color;
+  background-color: #3840a9;
   width: 100%;
+  color: white;
+  font-family: "Uncage";
 
   &:hover {
-    background-color: color.adjust(main.$second-color, $lightness: -5%);
+    background-color: color.adjust(#3840a9, $lightness: -5%);
   }
 }
 
 .log-form {
   @apply flex items-center;
-  background-color: color.scale(
-    main.$window-color,
-    $lightness: +15%,
-    $alpha: -10%
-  );
+  flex-direction: column;
   width: 70%;
   margin: auto;
+  margin-top: 30px;
   position: relative;
   top: calc(100vh / 4);
   border-radius: 10px;
@@ -222,6 +234,7 @@ input {
     height: 400px;
     top: 5vh;
     padding: 50px;
+
     * {
       margin-left: auto;
       margin-right: auto;
@@ -233,6 +246,7 @@ input {
       font-size: 16px;
       height: 50px;
     }
+
     .btn {
       width: 230px;
       margin: 0;
@@ -262,6 +276,7 @@ input {
     height: 330px;
     top: 2vh;
     padding: 20px;
+
     * {
       margin-left: auto;
       margin-right: auto;
@@ -277,6 +292,7 @@ input {
         height: 40px;
       }
     }
+
     .btn {
       width: 420px;
       margin: 5px 0 0 0;
@@ -308,6 +324,7 @@ input {
     padding-left: 0;
     padding-right: 0;
   }
+
   .log-form,
   .btn,
   .login-form,

@@ -21,12 +21,23 @@
 
       <div class="form-group">
         <label for="price">Цена:</label>
-        <input type="number" id="price" step="0.01" v-model.number="price" required />
+        <input
+          type="number"
+          id="price"
+          step="0.01"
+          v-model.number="price"
+          required
+        />
       </div>
 
       <div class="form-group">
         <label for="salePrice">Цена со скидкой:</label>
-        <input type="number" id="salePrice" step="0.01" v-model.number="salePrice" />
+        <input
+          type="number"
+          id="salePrice"
+          step="0.01"
+          v-model.number="salePrice"
+        />
       </div>
 
       <div class="form-group">
@@ -42,18 +53,42 @@
       <!-- Загрузка изображения -->
       <div class="form-group">
         <label for="picture">Изображение:</label>
-        <input type="file" id="picture" @change="handleFileUpload" accept="image/*" required />
-        <img v-if="previewImage" :src="previewImage" alt="Предпросмотр изображения" class="preview-image" />
+        <input
+          type="file"
+          id="picture"
+          @change="handleFileUpload"
+          accept="image/*"
+          required
+        />
+        <img
+          v-if="previewImage"
+          :src="previewImage"
+          alt="Предпросмотр изображения"
+          class="preview-image"
+        />
       </div>
 
       <!-- Составляющие курса -->
       <div class="form-group">
         <label>Составляющие:</label>
-        <div v-for="(compound, index) in compounds" :key="index" class="compound-item">
-          <input type="text" v-model="compounds[index]" placeholder="Введите составляющую" required />
-          <button @click="removeCompound(index)" class="remove-button">Удалить</button>
+        <div
+          v-for="(compound, index) in compounds"
+          :key="index"
+          class="compound-item"
+        >
+          <input
+            type="text"
+            v-model="compounds[index]"
+            placeholder="Введите составляющую"
+            required
+          />
+          <button @click="removeCompound(index)" class="remove-button">
+            Удалить
+          </button>
         </div>
-        <button @click="addCompound" class="add-button">Добавить составляющую</button>
+        <button @click="addCompound" class="add-button">
+          Добавить составляющую
+        </button>
       </div>
 
       <!-- Кнопка отправки -->
@@ -63,91 +98,90 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import axios from 'axios'
+import { ref } from "vue";
+import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
-
 // === Реактивные поля формы ===
-const userId = ref('')
-const name = ref('')
-const description = ref('')
-const places = ref<number | null>(null)
-const price = ref<number | null>(null)
-const salePrice = ref<number | null>(null)
-const sale = ref('')
-const credit = ref<number | null>(null)
-const picture = ref<File | null>(null)
-const compounds = ref<string[]>([])
+const userId = ref("");
+const name = ref("");
+const description = ref("");
+const places = ref<number | null>(null);
+const price = ref<number | null>(null);
+const salePrice = ref<number | null>(null);
+const sale = ref("");
+const credit = ref<number | null>(null);
+const picture = ref<File | null>(null);
+const compounds = ref<string[]>([]);
 
 const config = useRuntimeConfig();
 const apiBase = config.public.apiBase as string;
 
 // Предварительный просмотр изображения
-const previewImage = ref<string | null>(null)
+const previewImage = ref<string | null>(null);
 
 // === Обработчики ===
 
 // Добавление новой составляющей
 const addCompound = () => {
-  compounds.value.push('')
-}
+  compounds.value.push("");
+};
 
 // Удаление составляющей
 const removeCompound = (index: number) => {
-  compounds.value.splice(index, 1)
-}
+  compounds.value.splice(index, 1);
+};
 
 // Обработчик загрузки файла
 const handleFileUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0] || null
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0] || null;
 
   if (file) {
-    picture.value = file
+    picture.value = file;
 
     // Предварительный просмотр изображения
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = (e) => {
-      previewImage.value = e.target?.result as string
-    }
-    reader.readAsDataURL(file)
+      previewImage.value = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   }
-}
+};
 
 // Отправка формы
 const handleSubmit = async () => {
   try {
-    const form = new FormData()
+    const form = new FormData();
 
-    form.append('userId', userId.value)
-    form.append('name', name.value)
-    form.append('description', description.value)
-    form.append('places', String(places.value))
-    form.append('price', String(price.value))
-    form.append('salePrice', String(salePrice.value))
-    form.append('sale', sale.value)
-    form.append('credit', String(credit.value))
+    form.append("userId", userId.value);
+    form.append("name", name.value);
+    form.append("description", description.value);
+    form.append("places", String(places.value));
+    form.append("price", String(price.value));
+    form.append("salePrice", String(salePrice.value));
+    form.append("sale", sale.value);
+    form.append("credit", String(credit.value));
 
     if (picture.value) {
-      form.append('picture', picture.value)
+      form.append("picture", picture.value);
     }
 
-    form.append('compounds', JSON.stringify(compounds.value))
+    form.append("compounds", JSON.stringify(compounds.value));
 
     const response = await axios.post(`${apiBase}/api/createCourse`, form, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
-    })
+    });
 
-    console.log('Курс успешно создан:', response.data)
-    alert('Курс успешно создан!')
+    console.log("Курс успешно создан:", response.data);
+    alert("Курс успешно создан!");
   } catch (error) {
-    console.error('Ошибка при создании курса:', error)
-    alert('Ошибка при создании курса. Пожалуйста, попробуйте снова.')
+    console.error("Ошибка при создании курса:", error);
+    alert("Ошибка при создании курса. Пожалуйста, попробуйте снова.");
   }
-}
+};
 
 const fetchUserData = async () => {
   const token = useCookie<string | null>("auth_token").value;
@@ -161,11 +195,9 @@ const fetchUserData = async () => {
   }
 };
 
-
 onMounted(() => {
   fetchUserData();
 });
-
 </script>
 
 <style scoped>
@@ -225,5 +257,9 @@ onMounted(() => {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+}
+
+#description {
+  white-space: pre-wrap;
 }
 </style>

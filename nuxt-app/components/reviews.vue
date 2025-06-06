@@ -4,21 +4,10 @@
       <h1 class="text-center">ОТЗЫВЫ НАШИХ клиентов</h1>
       <div class="cards">
         <Review
+          v-for="comment in comments"
           color="#F0AC02"
-          name="Татьяна Шелковицина"
-          review="С учебным центром «BIZLAB» сотрудничаем более 6 лет.
-Прекрасные преподаватели, внимательный персонал. Хорошие
-программы для больших и маленьких."
-        />
-        <Review
-          color="blue"
-          name="Татьяна Шелковицина"
-          review="Всем привет всем пока какиккак"
-        />
-        <Review
-          color="#E25D35"
-          name="Татьяна Шелковицина"
-          review="Всем привет всем пока какиккак"
+          :name="comment.sender"
+          :review="comment.text"
         />
       </div>
     </div>
@@ -34,6 +23,27 @@
     />
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref } from "vue";
+import axios from "axios";
+
+const config = useRuntimeConfig();
+const apiBase = config.public.apiBase as string;
+
+const comments = ref();
+
+const getComments = async () => {
+  const response = await axios.get(`${apiBase}/api/getFeedback`);
+
+  comments.value = response.data;
+  console.log(comments);
+};
+
+onMounted(() => {
+  getComments();
+});
+</script>
 
 <style lang="scss" scoped>
 .cards {

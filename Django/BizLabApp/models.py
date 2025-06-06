@@ -58,7 +58,7 @@ class User(models.Model):
 class Course(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, unique=True)
-    description = models.CharField(max_length=255)
+    description = models.TextField()
     picture = models.CharField(max_length=255)
     price = models.IntegerField()
     salePrice = models.IntegerField()
@@ -69,6 +69,16 @@ class Course(models.Model):
 
     class Meta:
         db_table = 'courses'
+        managed = True
+
+class Feedback(models.Model):
+    id = models.AutoField(primary_key=True)
+    sender = models.CharField(max_length=50)
+    text = models.CharField(max_length=100)
+    visible = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'feedback'
         managed = True
 
 class Compound(models.Model):
