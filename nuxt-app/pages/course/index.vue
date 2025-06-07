@@ -29,10 +29,10 @@
     <div v-if="role == 0">
         <div class="header flex">
             <div class="logo flex">
-                <img class="logo" src="/assets/images/bizlap-logo.svg" alt="bizlab" />
-                <h1>МОИ КУРСЫ</h1>
+                <img class="logo h-10 mt-3 ml-5" src="/assets/images/bizlap-logo.svg" alt="bizlab" />
+                <h1 class="ml-20 mt-10">МОИ КУРСЫ</h1>
             </div>
-            <p>ВЫЙТИ ИЗ ЛИЧНОГО КАБИНЕТА</p>
+            <p class="logout" @click="logout">ВЫЙТИ ИЗ ЛИЧНОГО КАБИНЕТА</p>
         </div>
 
 
@@ -80,7 +80,12 @@ const apiBase = config.public.apiBase as string
 // === Обработчик клика по кнопке "Зарегистрировать студента" ===
 const openStudentRegistrationModal = () => {
     addStudentModalRef.value?.openModal()
-}
+};
+
+const logout = async () => {
+    const response = await axios.post(`${apiBase}/api/auth/logout`);
+    navigateTo('/');
+};
 
 const getCoursesByUser = async () => {
     const response = await axios.post(`${apiBase}/api/getCourseByUser`, { 'userId': userId.value })
@@ -148,6 +153,12 @@ onMounted(async () => {
 .teacher-courses {
     max-width: 800px;
     margin: 20px auto;
+}
+
+.logout{
+    display: flex;
+    width: 100px;
+    color: #E15D34;
 }
 
 .courses-list {
