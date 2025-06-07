@@ -667,6 +667,52 @@ class parseFile(APIView):
             else:
                 i += 1
         return Response(test_data,status=status.HTTP_200_OK)
+    
+class welcomeToTeacher(APIView):
+    def post(self, request):
+        userId = request.data.get('userId')
+        matId = request.data.get('matId')
+        answers = request.data.get('test')
+        questions = request.data.get('questions')
+
+        user = User.objects.get(id = userId)
+        userName = f'{user.secondName} {user.firstName[0]}.{user.lastName[0]}.'
+
+        material = Material.objects.get(id=matId)
+        materialName = material.name
+
+        filePath = f'../files/courses/{material.lesson.course.name}/{material.lesson.name}/тесты/'
+
+        if not os.path.exists(filePath):
+            os.makedirs(filePath)
+
+        doc = Document()
+
+        doc.add_heading('Тест', level=1)
+        doc.add_heading(f'«{materialName}»', level=2)
+
+        p = doc.add_paragraph()
+        p.add_run(f'Студент « {userName} »').italic = True
+        for i, (question, answer) in enumerate(zip(questions, answers), start=1):
+            doc.add_paragraph(f'Вопрос {i}: {question}')
+            doc.add_paragraph('Ответ:')
+
+            if isinstance(answer, list):
+                for option in answer:
+                    marker = '+' if option['correct'] else '-'
+                    doc.add_paragraph(f' {marker}  {option["text"]}')
+            elif isinstance(answer, dict):
+                marker = '+' if answer['correct'] else '-'
+                doc.add_paragraph(f' {marker}  {answer["text"]}')
+
+        doc.save(f'{filePath}{userName}_{materialName}.docx')
+
+        userProgress = UserProgress.objects.get(user = user, lesson = material.lesson, material = material)
+        userProgress.file = f'{filePath}{userName}_{materialName}.docx'
+        userProgress.needToCheck = True
+        userProgress.save()
+        
+        return Response(status=status.HTTP_200_OK)
 
 
 
