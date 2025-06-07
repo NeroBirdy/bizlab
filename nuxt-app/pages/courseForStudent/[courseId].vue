@@ -34,7 +34,7 @@
 
                         <a v-else-if="material.type == 4" :href="material.link" target="_blank"
                             rel="noopener noreferrer" class="external-link">Перейти по ссылке</a>
-                        <a v-else-if="material.type == 3" :href="material.link" target="_blank" class="test-link">
+                        <a v-else-if="material.type == 3" :href="material.link" target="_blank" class="test-link" @click="navigateTo(`/test/${material.id}`)">
                             Перейти к тесту
                         </a>
                     </li>

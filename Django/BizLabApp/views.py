@@ -15,6 +15,7 @@ import os
 from django.http import FileResponse, Http404
 from django.conf import settings
 from urllib.parse import quote
+from docx import Document
 
 class Registration(APIView):
     def post(self, request):
@@ -577,7 +578,95 @@ class createComment(APIView):
         Feedback.objects.create(sender=sender, text=text)
 
         return Response(status=status.HTTP_200_OK)
+    
+class parseFile(APIView):
+    def post(self, request):
+        matId = request.data.get('matId')
+        material = Material.objects.get(id=matId)
+        materialName = material.name
+        doc = Document(material.file)
+        lines = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
 
+        image_folder = f'../nuxt-app/public/images/tests/{materialName}'
+        if not os.path.exists(image_folder):
+            os.makedirs(image_folder)
+
+        image_relations = []
+        
+        for rel in doc.part._rels.values():
+            if "image" in rel.target_ref:
+                image_relations.append(rel)
+
+        saved_images = []
+
+        test_data = []
+        i = 0
+        image_index = 0  
+
+        while i < len(lines):
+            line = lines[i]
+
+            if line.startswith("Вопрос"):
+                question = {
+                    "question": "",
+                    "type": "",
+                    "image": "",
+                    "answers": []
+                }
+
+                question["question"] = line.split(":", 1)[1].strip('«»"\' ')
+                i += 1
+
+                if i < len(lines) and lines[i].startswith("Тип вопроса"):
+                    q_type = lines[i].split(":", 1)[1].strip().lower()
+                    if 'открытый' in q_type:
+                        question["type"] = "open"
+                    elif 'один' in q_type or 'single' in q_type:
+                        question["type"] = "single"
+                    elif 'несколько' in q_type or 'multiple' in q_type:
+                        question["type"] = "multiple"
+                    else:
+                        question["type"] = "unknown"
+                    i += 1
+                else:
+                    question["type"] = "unknown"
+
+                if i < len(lines) and lines[i].startswith("Изображение"):
+                    img_flag = lines[i].split(":", 1)[1].strip().strip('«»"\' ')
+                    print(i,img_flag)
+                    if img_flag == "+" and image_index < len(image_relations):
+                        rel = image_relations[image_index]
+                        image_blob = rel.target_part.blob
+                        ext = rel.target_part.content_type.split("/")[-1]
+                        img_filename = f"{image_folder}/img_{image_index}.{ext}"
+                        with open(img_filename, "wb") as f:
+                            f.write(image_blob)
+                        question["image"] = f'/images/tests/{materialName}/img_{image_index}.{ext}'
+                        saved_images.append(img_filename)
+                        image_index += 1
+                    elif img_flag == "-" or img_flag == "":
+                        question["image"] = "-"
+                    else:
+                        question["image"] = "Ошибка: не найдено изображение"
+                    i += 1
+
+                if i < len(lines) and lines[i] == "Ответы:":
+                    i += 1
+                    while i < len(lines) and lines[i].startswith(("+", "-")):
+                        answer_text = lines[i][2:].strip()
+                        is_correct = lines[i][0] == "+"
+                        question["answers"].append({
+                            "text": answer_text,
+                            "correct": is_correct
+                        })
+                        i += 1
+                else:
+                    i += 1
+
+                test_data.append(question)
+            else:
+                i += 1
+        return Response(test_data,status=status.HTTP_200_OK)
 
 
 
