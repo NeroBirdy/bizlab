@@ -11,7 +11,7 @@ export const useAuthStore = defineStore("auth", {
   actions: {
     loginUser() {
       this.isAuth = true;
-      navigateTo("/");
+      navigateTo("/course");
     },
     logoutUser() {
       this.isAuth = false;

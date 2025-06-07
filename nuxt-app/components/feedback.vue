@@ -34,6 +34,12 @@
             </label>
           </div>
           <button type="submit" class="btn">ОТПРАВИТЬ</button>
+          <NuxtLink
+            :to="userInfo.isAuth ? '/course' : '/auth/login'"
+            class="self-center"
+          >
+            уже с нами?
+          </NuxtLink>
         </form>
       </div>
     </div>
@@ -46,7 +52,7 @@ import axios from "axios";
 
 const config = useRuntimeConfig();
 const apiBase = config.public.apiBase as string;
-
+const userInfo = useAuthStore();
 const fio = ref();
 const number = ref();
 

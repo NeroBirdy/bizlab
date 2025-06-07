@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import type { NuxtPage } from "nuxt/schema";
-import Aura from '@primeuix/themes/aura';
+import Aura from "@primeuix/themes/aura";
 export default defineNuxtConfig({
   css: ["~/assets/scss/main.scss"],
   app: {
@@ -14,7 +14,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
     "@nuxtjs/tailwindcss",
-    '@primevue/nuxt-module',
+    "@primevue/nuxt-module",
     "@nuxt/icon",
     "nuxt-auth-utils",
     "@pinia/nuxt",
@@ -24,16 +24,15 @@ export default defineNuxtConfig({
   primevue: {
     autoImport: false,
     options: {
-
       theme: {
         preset: Aura,
         options: {
-          prefix: 'p',
-          darkModeSelector: 'white',
-          cssLayer: false
-        }
-      }
-    }
+          prefix: "p",
+          darkModeSelector: "white",
+          cssLayer: false,
+        },
+      },
+    },
   },
   icon: {
     serverBundle: {
@@ -46,6 +45,20 @@ export default defineNuxtConfig({
     },
   },
   hooks: {
+    "pages:extend"(pages) {
+      function setMiddleware(pagesArray: any[]) {
+        for (const page of pagesArray) {
+          page.meta = page.meta || {};
+          page.meta.middleware = ["auth"];
 
+          // Рекурсия для дочерних страниц
+          if (page.children && page.children.length > 0) {
+            setMiddleware(page.children);
+          }
+        }
+      }
+
+      setMiddleware(pages);
+    },
   },
 });

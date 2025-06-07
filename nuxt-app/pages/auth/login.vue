@@ -78,6 +78,12 @@ const login = async () => {
     }
   }
 };
+
+onMounted(() => {
+  if (userInfo.isAuth) {
+    navigateTo("/course");
+  }
+});
 </script>
 
 <template>

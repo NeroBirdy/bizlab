@@ -1,7 +1,7 @@
 <template>
   <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
     <div class="modal">
-      <h3>Создание урока</h3>
+      <h1>Создание урока</h1>
 
       <!-- Поле ввода -->
       <input
@@ -15,73 +15,80 @@
       <!-- Кнопки управления -->
       <div class="modal-buttons">
         <button @click="closeModal">Отмена</button>
-        <button @click="createLesson" :disabled="!newLessonName">Создать</button>
+        <button @click="createLesson" :disabled="!newLessonName">
+          Создать
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, defineExpose, nextTick } from 'vue'
-import axios from 'axios'
+import { ref, defineProps, defineEmits, defineExpose, nextTick } from "vue";
+import axios from "axios";
 
-const config = useRuntimeConfig()
-const apiBase = config.public.apiBase as string
+const config = useRuntimeConfig();
+const apiBase = config.public.apiBase as string;
 
 // === Props ===
 const props = defineProps<{
-  courseId: number
-}>()
+  courseId: number;
+}>();
 
 // === Emits ===
 const emit = defineEmits<{
-  (e: 'lesson-created', lessonName: string): void
-}>()
+  (e: "lesson-created", lessonName: string): void;
+}>();
 
 // === Локальное состояние ===
-const showModal = ref(false)
-const newLessonName = ref('')
-const lessonNameInput = ref<HTMLInputElement | null>(null)
+const showModal = ref(false);
+const newLessonName = ref("");
+const lessonNameInput = ref<HTMLInputElement | null>(null);
 
 // === Открытие/закрытие модального окна ===
 const openModal = () => {
-  showModal.value = true
-  newLessonName.value = ''
+  showModal.value = true;
+  newLessonName.value = "";
   nextTick(() => {
-    lessonNameInput.value?.focus()
-  })
-}
+    lessonNameInput.value?.focus();
+  });
+};
 
 const closeModal = () => {
-  showModal.value = false
-  newLessonName.value = ''
-}
+  showModal.value = false;
+  newLessonName.value = "";
+};
 
 // === Создание урока ===
 const createLesson = async () => {
-  if (!newLessonName.value.trim()) return
+  if (!newLessonName.value.trim()) return;
 
   try {
     const response = await axios.post(`${apiBase}/api/createTask`, {
       courseId: props.courseId,
       name: newLessonName.value,
-    })
+    });
 
-    const newLessonNameResult = response.data.lessonName || newLessonName.value
+    const newLessonNameResult = response.data.lessonName || newLessonName.value;
 
-    closeModal()
-    emit('lesson-created', newLessonNameResult)
+    closeModal();
+    emit("lesson-created", newLessonNameResult);
   } catch (error) {
-    console.error('Ошибка при создании урока:', error)
-    alert('Не удалось создать урок')
+    console.error("Ошибка при создании урока:", error);
+    alert("Не удалось создать урок");
   }
-}
+};
 
 // === Экспорт методов для вызова извне ===
-defineExpose({ openModal })
+defineExpose({ openModal });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+h1 {
+  font-size: 24px;
+  font-family: "Uncage";
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;

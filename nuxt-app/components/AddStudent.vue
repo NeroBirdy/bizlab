@@ -1,7 +1,7 @@
 <template>
   <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
     <div class="modal">
-      <h3>Регистрация студента</h3>
+      <h1>Регистрация студента</h1>
 
       <!-- Фамилия -->
       <label for="lastName">Фамилия:</label>
@@ -46,30 +46,32 @@
       <!-- Кнопки управления -->
       <div class="modal-buttons">
         <button @click="closeModal">Отмена</button>
-        <button @click="registerStudent" :disabled="!isValidForm">Зарегистрировать</button>
+        <button @click="registerStudent" :disabled="!isValidForm">
+          Зарегистрировать
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineExpose } from 'vue'
-import axios from 'axios'
+import { ref, defineProps, defineExpose } from "vue";
+import axios from "axios";
 
-const config = useRuntimeConfig()
-const apiBase = config.public.apiBase as string
+const config = useRuntimeConfig();
+const apiBase = config.public.apiBase as string;
 
 // === Props ===
 const props = defineProps<{
-  courseId: number
-}>()
+  courseId: number;
+}>();
 
 // === Локальное состояние ===
-const showModal = ref(false)
-const firstName = ref('')
-const secondName = ref('')
-const lastName = ref('')
-const email = ref('')
+const showModal = ref(false);
+const firstName = ref("");
+const secondName = ref("");
+const lastName = ref("");
+const email = ref("");
 
 // === Проверка формы ===
 const isValidForm = computed(() => {
@@ -78,8 +80,8 @@ const isValidForm = computed(() => {
     secondName.value.trim() &&
     lastName.value.trim() &&
     email.value.trim()
-  )
-})
+  );
+});
 
 // === Регистрация студента ===
 const registerStudent = async () => {
@@ -90,34 +92,39 @@ const registerStudent = async () => {
       lastName: lastName.value,
       email: email.value,
       role: 0, // Роль студента
-    })
+    });
 
-    closeModal()
-    alert('Студент успешно зарегистрирован')
+    closeModal();
+    alert("Студент успешно зарегистрирован");
   } catch (error) {
-    console.error('Ошибка при регистрации студента:', error)
-    alert('Не удалось зарегистрировать студента')
+    console.error("Ошибка при регистрации студента:", error);
+    alert("Не удалось зарегистрировать студента");
   }
-}
+};
 
 // === Открытие/закрытие модального окна ===
 const openModal = () => {
-  showModal.value = true
-}
+  showModal.value = true;
+};
 
 const closeModal = () => {
-  showModal.value = false
-  firstName.value = ''
-  secondName.value = ''
-  lastName.value = ''
-  email.value = ''
-}
+  showModal.value = false;
+  firstName.value = "";
+  secondName.value = "";
+  lastName.value = "";
+  email.value = "";
+};
 
 // === Экспорт методов для вызова извне ===
-defineExpose({ openModal })
+defineExpose({ openModal });
 </script>
 
 <style scoped>
+h1 {
+  font-size: 24px;
+  font-family: "Uncage";
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;

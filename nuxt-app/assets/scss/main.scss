@@ -1,5 +1,30 @@
 @use "sass:color";
 
+@font-face {
+  font-family: "Uncage";
+  src: url(/fonts/UNCAGE-SemiBold.ttf);
+}
+
+@font-face {
+  font-family: "AcherusFeral-Bold";
+  src: url(/fonts/AcherusFeral-Bold.otf);
+}
+
+@font-face {
+  font-family: "AcherusFeral-Light";
+  src: url(/fonts/AcherusFeral-Light.otf);
+}
+
+@font-face {
+  font-family: "UnboundedRegular";
+  src: url(/public/fonts/Unbounded-Regular.ttf);
+}
+
+@font-face {
+  font-family: "UnboundedSemiBold";
+  src: url(/public/fonts/Unbounded-SemiBold.ttf);
+}
+
 $primary-color: #008d49;
 $second-color: #00569d;
 $window-color: #d9d9d9;
