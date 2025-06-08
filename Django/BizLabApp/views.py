@@ -154,9 +154,11 @@ class createTask(APIView):
         name = request.data.get('name')
 
         course = Course.objects.get(id = courseId)
-        Lesson.objects.create(name = name, course = course)
+        if Lesson.objects.filter(course=course, name=name).exists():
+            return Response({'message': 'Урок с таким названием уже есть'}, status=status.HTTP_400_BAD_REQUEST)
+        lesson = Lesson.objects.create(name = name, course = course)
 
-        return Response(status=status.HTTP_201_CREATED)
+        return Response({'lessonId': lesson.id},status=status.HTTP_201_CREATED)
 
 #Создать материал
 class createMaterial(APIView):
@@ -171,6 +173,8 @@ class createMaterial(APIView):
 
         lesson = Lesson.objects.get(course = course, name = lessonName)
 
+        if Material.objects.filter(lesson = lesson, name=name).exists():
+            return Response({'message': 'Материал с таким названием уже есть'}, status=status.HTTP_400_BAD_REQUEST)
 
         if type == '4':
             link = request.data.get('link')
@@ -242,7 +246,8 @@ class createCourse(APIView):
                               salePrice = salePrice, sale = sale, credit = credit, picture = f'/images/courses/{picName}')
         
         for compound in compounds:
-            Compound.objects.create(course = course, name = compound)
+            if (compound.strip() !=''):
+                Compound.objects.create(course = course, name = compound)
 
         return Response(status=status.HTTP_201_CREATED)
 
@@ -437,10 +442,9 @@ class getCourseForTeacher(APIView):
                     
                 })
                
-            course[lesson.name] = materials
+            course[lesson.id] = {'id': lesson.id, 'name': lesson.name, 'materials':materials}
 
-
-        return Response({'course': course}, status=status.HTTP_200_OK)
+        return Response({'course': course, 'courseName': crs.name}, status=status.HTTP_200_OK)
     
 class updateLesson(APIView):
     def post(self, request):
@@ -714,6 +718,28 @@ class welcomeToTeacher(APIView):
         
         return Response(status=status.HTTP_200_OK)
 
+class deleteMaterial(APIView):
+    def post(self, request):
+        matId = request.data.get('matId')
+        material = Material.objects.get(id=matId)
+        material.delete()
+        return Response(status=status.HTTP_200_OK)
+
+class deleteLesson(APIView):
+    def post(self, request):
+        lesId = request.data.get('lesId')
+        courseId = request.data.get('courseId')
+        course = Course.objects.get(id=courseId)
+        lesson = Lesson.objects.get(id=lesId, course=course)
+        lesson.delete()
+        return Response(status=status.HTTP_200_OK)
+
+class deleteCourse(APIView):
+    def post(self, request):
+        courseId = request.data.get('courseId')
+        course = Course.objects.get(id=courseId)
+        course.delete()
+        return Response(status=status.HTTP_200_OK)
 
 
         

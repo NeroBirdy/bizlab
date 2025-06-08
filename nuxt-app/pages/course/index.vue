@@ -1,8 +1,12 @@
 <template>
   <Backimages :variable="1" />
-  <p class="logout" @click="logout">ВЫЙТИ ИЗ ЛИЧНОГО КАБИНЕТА</p>
-  <img src="/assets/images/bizlap-logo.svg" alt="logo" class="bizlab-logo" />
-  <div v-if="role == 1" class="teacher-courses">
+  <div class="logout">
+    <p class="logout-btn" @click="logout">ВЫЙТИ ИЗ ЛИЧНОГО КАБИНЕТА</p>
+    <a v-if="role == 2" class="logout-btn admin" href="/admin">Админка</a>
+  </div>
+
+  <BizlabLogo />
+  <div v-if="role == 1 || role == 2" class="teacher-courses">
     <div class="flex gap-10 mb-10">
       <h1 class="teacher-link text-[#3840a9] items-center text-center flex">
         Мои курсы
@@ -116,7 +120,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import AddStudentModal from "../../components/AddStudent.vue";
 import ProgressBar from "primevue/progressbar";
-// === Переменные ===
+
 const addStudentModalRef = ref();
 const courses = ref([]);
 const userId = ref<number | null>(null);
@@ -125,20 +129,6 @@ const role = ref();
 const coursesForStudent = ref();
 const userStore = useAuthStore();
 const addUserModalRef = ref();
-
-const positions = ref([]);
-
-const images = [
-  { src: "images/vectors/zigzak.png", width: 150 },
-  { src: "images/vectors/town.png", width: 200 },
-  { src: "images/vectors/vector.svg", width: 200 },
-  { src: "images/vectors/grown.png", width: 200 },
-  { src: "images/vectors/zigzak.png", width: 150 },
-  { src: "images/vectors/town.png", width: 200 },
-  { src: "images/vectors/grown.png", width: 200 },
-  { src: "images/vectors/zigzak.png", width: 150 },
-  { src: "images/vectors/town.png", width: 200 },
-];
 
 const config = useRuntimeConfig();
 const apiBase = config.public.apiBase as string;
@@ -207,20 +197,21 @@ const getTeacherCourses = async () => {
   }
 };
 
-// === Обработчик клика по курсу ===
 const openUserModal = (courseId: number) => {
   addUserModalRef.value?.openModal(courseId);
 };
 
-// === Инициализация ===
 onMounted(async () => {
-  window.addEventListener("resize", initPositions);
   await fetchUserData();
   await getTeacherCourses();
 });
 </script>
 
 <style lang="scss" scoped>
+.p-progressbar {
+  background: #3288624a !important;
+}
+
 .background-vectors {
   z-index: -1;
   position: absolute;
@@ -255,11 +246,6 @@ onMounted(async () => {
   }
 }
 
-.bizlab-logo {
-  margin-left: 5%;
-  margin-top: 2%;
-}
-
 .teacher-courses {
   max-width: 1000px;
   margin: 20px auto;
@@ -279,11 +265,13 @@ onMounted(async () => {
 }
 
 .logout {
-  cursor: pointer;
   position: absolute;
   top: 2%;
   right: 2%;
-  display: flex;
+}
+
+.logout-btn {
+  cursor: pointer;
   width: 100px;
   font-family: "Uncage";
   color: #e15d34;
@@ -291,6 +279,11 @@ onMounted(async () => {
   &:hover {
     transform: translateX(-10px);
   }
+}
+
+.admin {
+  color: var(--p-cyan-400);
+  display: block;
 }
 
 .courses-list {
@@ -307,7 +300,7 @@ onMounted(async () => {
 }
 
 .course-card {
-  background-color: rgba(223, 235, 247, 0.418);
+  background-color: rgb(223, 235, 247);
   width: 100% !important;
   padding: 15px 30px;
   border-radius: 5px;

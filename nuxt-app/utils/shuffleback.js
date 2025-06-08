@@ -25,19 +25,18 @@ export function initPositions(images) {
   const windowSize = ref({ width: 0, height: 0 });
   const { innerWidth: width, innerHeight: height } = window;
   windowSize.value = { width, height };
-
+  var images_copy = images;
   const positioned = [];
   const attemptsLimit = 100;
 
-  shuffleArray(images);
+  shuffleArray(images_copy);
 
-  for (const img of images) {
+  for (const img of images_copy) {
     let x, y;
     let attempts = 0;
     let collision = false;
 
     do {
-      // Генерируем случайные x и y
       x = Math.random() * (width - img.width);
       y = Math.random() * (height - img.width);
 
@@ -59,8 +58,6 @@ export function initPositions(images) {
         x,
         y,
       });
-    } else {
-      console.warn("Не удалось разместить изображение без пересечения:", img);
     }
   }
 

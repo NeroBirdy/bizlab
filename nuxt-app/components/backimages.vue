@@ -27,45 +27,41 @@ import { initPositions } from "~/utils/shuffleback";
 const props = defineProps(["variable"]);
 
 const positions = ref([]);
+var images;
 
-const images1 = [
-  { src: "/images/vectors/zigzak.png", width: 150 },
-  { src: "/images/vectors/town.png", width: 200 },
-  { src: "/images/vectors/vector.svg", width: 200 },
-  { src: "/images/vectors/grown.png", width: 200 },
-  { src: "/images/vectors/zigzak.png", width: 150 },
-  { src: "/images/vectors/town.png", width: 200 },
-  { src: "/images/vectors/grown.png", width: 200 },
-  { src: "/images/vectors/zigzak.png", width: 150 },
-  { src: "/images/vectors/town.png", width: 200 },
-];
-
-const images2 = [
-  { src: "/images/vectors/21.png", width: 150 },
-  { src: "/images/vectors/22.png", width: 200 },
-  { src: "/images/vectors/23.png", width: 200 },
-  { src: "/images/vectors/24.png", width: 200 },
-  { src: "/images/vectors/21.png", width: 150 },
-  { src: "/images/vectors/22.png", width: 200 },
-];
-
-const images3 = [
-  { src: "/images/vectors/31.png", width: 150 },
-  { src: "/images/vectors/32.png", width: 200 },
-  { src: "/images/vectors/33.png", width: 200 },
-  { src: "/images/vectors/34.png", width: 200 },
-  { src: "/images/vectors/31.png", width: 150 },
-  { src: "/images/vectors/32.png", width: 200 },
-];
+if (props.variable == 1) {
+  images = [
+    { src: "/images/vectors/zigzak.png", width: 150 },
+    { src: "/images/vectors/town.png", width: 200 },
+    { src: "/images/vectors/vector.svg", width: 200 },
+    { src: "/images/vectors/grown.png", width: 200 },
+    { src: "/images/vectors/zigzak.png", width: 150 },
+    { src: "/images/vectors/town.png", width: 200 },
+    { src: "/images/vectors/grown.png", width: 200 },
+    { src: "/images/vectors/zigzak.png", width: 150 },
+    { src: "/images/vectors/town.png", width: 200 },
+  ];
+} else if (props.variable == 2) {
+  images = [
+    { src: "/images/vectors/21.png", width: 150 },
+    { src: "/images/vectors/22.png", width: 200 },
+    { src: "/images/vectors/23.png", width: 200 },
+    { src: "/images/vectors/24.png", width: 200 },
+    { src: "/images/vectors/21.png", width: 150 },
+    { src: "/images/vectors/22.png", width: 200 },
+  ];
+} else {
+  images = [
+    { src: "/images/vectors/31.png", width: 150 },
+    { src: "/images/vectors/32.png", width: 200 },
+    { src: "/images/vectors/33.png", width: 200 },
+    { src: "/images/vectors/34.png", width: 200 },
+    { src: "/images/vectors/31.png", width: 150 },
+    { src: "/images/vectors/32.png", width: 200 },
+  ];
+}
 
 onMounted(() => {
-  if (props.variable == 1) {
-    positions.value = initPositions(images1);
-  } else if (props.variable == 2) {
-    positions.value = initPositions(images2);
-  } else {
-    positions.value = initPositions(images3);
-  }
-  window.addEventListener("resize", initPositions);
+  positions.value = initPositions(images);
 });
 </script>

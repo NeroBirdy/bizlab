@@ -1,10 +1,30 @@
 <template>
   <Backimages :variable="2" />
-  <img src="/assets/images/bizlap-logo.svg" alt="logo" class="bizlab-logo" />
+  <BizlabLogo />
+  <DeleteModal
+    ref="deleteElementRef"
+    :course="course"
+    :elementId="elementId"
+    :type="type"
+    :toDelete="toDelete"
+  />
+
+  <div v-if="showModal" class="modal-overlay">
+    <div class="modal">
+      <h1 class="h1-modal">Вы уверены что хотите отметить данную работу?</h1>
+      <div class="modal-buttons">
+        <button class="btn" @click="closeModal">Нет</button>
+        <button class="btn" @click="markAsChecked(tempWorkId)">Да</button>
+      </div>
+    </div>
+  </div>
+
   <div class="course-page">
-    <header class="header">
-      <h1>{{ courseName }}</h1>
-      <nav>
+    <header
+      class="header flex-col flex items-center justify-center mr-auto ml-auto"
+    >
+      <h1>Курс {{ courseName }}</h1>
+      <nav class="nav-buttons">
         <button
           @click="chooseHomework = false"
           :class="{ active: !chooseHomework }"
@@ -49,54 +69,62 @@
         <!-- Список уроков -->
         <div v-if="course" class="lessons-container">
           <div
-            v-for="(materials, lessonName) in course"
-            :key="lessonName"
+            v-for="(lesson, lessonId, index) in course"
+            :key="lessonId"
             class="lesson-card"
           >
             <div class="lesson-header">
               <!-- Режим редактирования -->
-              <div v-if="editingLesson === lessonName" class="edit-mode">
+              <div v-if="editingLesson === lessonId" class="edit-mode">
                 <input
                   v-model="editedLessonName"
                   type="text"
                   placeholder="Название урока"
                   class="lesson-name-input"
                 />
-                <button @click="saveLesson(lessonName)" class="save-button">
+                <button @click="saveLesson(lessonId)" class="save-button btn">
                   Сохранить
                 </button>
               </div>
 
               <!-- Обычный режим -->
-              <span v-else>{{ lessonName }}</span>
+              <div v-else class="lesson-text">
+                <span>Урок {{ index + 1 }} {{ lesson.name }}</span>
+                <p class="text-black">
+                  {{ Object.keys(lesson.materials).length }} материала
+                </p>
+              </div>
 
               <!-- Кнопки управления -->
               <div class="lesson-actions">
                 <button
-                  v-if="editingLesson !== lessonName"
-                  @click="editLesson(lessonName)"
-                  class="edit-button"
+                  v-if="editingLesson !== lessonId"
+                  @click="editLesson(lessonId)"
+                  class="edit-button btn"
                 >
                   Редактировать
                 </button>
                 <button
-                  v-if="editingLesson === lessonName"
-                  @click="removeLesson(lessonName)"
-                  class="delete-button"
+                  v-if="editingLesson === lessonId"
+                  @click="deleteElement(lessonId, NaN, 2)"
+                  class="delete-button btn"
                 >
-                  Удалить
+                  удалить
                 </button>
               </div>
             </div>
 
             <!-- Список материалов -->
-            <ul class="material-list">
+            <ul
+              v-if="editingLesson && editingLesson === lessonId"
+              class="material-list"
+            >
               <li
-                v-for="material in materials"
+                v-for="material in lesson.materials"
                 :key="material.id"
                 class="material-item"
               >
-                <div v-if="editingLesson === lessonName" class="edit-material">
+                <div v-if="editingLesson === lessonId" class="edit-material">
                   <input
                     v-model="editedMaterials[material.id]"
                     type="text"
@@ -105,9 +133,10 @@
                 </div>
                 <span v-else>{{ material.name }}</span>
                 <button
-                  v-if="editingLesson === lessonName"
-                  @click="deleteMaterial(material.id)"
-                  class="delete-button"
+                  v-if="editingLesson === lessonId"
+                  @click="deleteElement(material.id, lessonId, 0)"
+                  @element-deleted="handleChanges"
+                  class="delete-button btn"
                 >
                   Удалить
                 </button>
@@ -122,31 +151,50 @@
         <div v-if="homeworks.length === 0" class="no-homeworks">
           Нет домашних работ для проверки
         </div>
-        <div v-else class="homework-list">
+        <div v-else class="homework-list flex">
           <div
             v-for="homework in homeworks"
             :key="homework.id"
             class="homework-item"
           >
             <div class="homework-info">
-              <p><strong>ФИО:</strong> {{ homework.fio }}</p>
-              <p><strong>Урок:</strong> {{ homework.lessonName }}</p>
-              <p><strong>Материал:</strong> {{ homework.materialName }}</p>
+              <p class="name"><strong>ФИО:</strong> {{ homework.fio }}</p>
+              <p class="info-item">
+                <strong>Урок:</strong>
+                {{ homework.lessonName }}
+              </p>
+              <p class="info-item">
+                <strong>Материал:</strong>
+                {{ homework.materialName }}
+              </p>
             </div>
 
             <div class="buttons">
-              <button @click="downloadFile(homework.file)">Скачать</button>
-              <button @click="markAsChecked(homework.id)">проверено</button>
+              <button
+                @click="downloadFile(homework.file)"
+                class="btn bg-[#3840A9]"
+              >
+                Скачать
+              </button>
+              <button @click="openModal(homework.id)" class="btn bg-[#328862]">
+                проверено
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+  <div class="flex justify-center">
+    <button class="btn delete-button" @click="deleteElement(courseId, 1, 1)">
+      Удалить курс
+    </button>
+  </div>
 </template>
 
 <script setup lang="ts">
 import AddLessonModal from "../../components/AddLessonModal.vue";
+import DeleteModal from "../../components/deleteModal.vue";
 import { ref, onMounted } from "vue";
 import axios from "axios";
 
@@ -168,10 +216,16 @@ const homeworks = ref<
 const courseId = Number(useRoute().params.courseId);
 const courseName = ref("");
 const chooseHomework = ref(false);
-const editingLesson = ref<string | null>(null);
+const editingLesson = ref<number | null>(null);
 const editedLessonName = ref("");
 const editedMaterials = ref<{ [materialId: number]: string }>({});
 const addLessonModal = ref();
+const deleteElementRef = ref();
+const elementId = ref();
+const type = ref();
+const toDelete = ref();
+const tempWorkId = ref();
+const showModal = ref(false);
 
 const addMaterialModal = ref();
 
@@ -179,12 +233,22 @@ const openAddMaterialModal = () => {
   addMaterialModal.value.openModal();
 };
 
-const onMaterialCreated = (lessonName: string, material: any) => {
-  // Добавляем новый материал к соответствующему уроку
-  if (!course.value[lessonName]) {
-    course.value[lessonName] = [];
-  }
-  course.value[lessonName].push({
+const openAddLessonModal = () => {
+  addLessonModal.value.openModal();
+};
+
+function openModal(id) {
+  tempWorkId.value = id;
+  showModal.value = true;
+}
+
+function closeModal() {
+  showModal.value = false;
+  tempWorkId.value = null;
+}
+
+const onMaterialCreated = (lessonId: number, material: any) => {
+  course.value[lessonId].materials.push({
     id: material.id,
     name: material.name,
     type: material.type,
@@ -193,21 +257,24 @@ const onMaterialCreated = (lessonName: string, material: any) => {
 
 // Данные курса
 const course = ref<{
-  [lessonName: string]: {
+  [lessonId: number]: {
     id: number;
     name: string;
-    type: string;
-  }[];
+    materials: {
+      id: number;
+      name: string;
+      type: string;
+    }[];
+  };
 }>({});
 
-const openAddLessonModal = () => {
-  addLessonModal.value.openModal();
+const handleChanges = (courseCopy: Object) => {
+  // course.value = courseCopy;
 };
 
-const onLessonCreated = (lessonName: string) => {
-  course.value[lessonName] = [];
+const onLessonCreated = (lessonId: number, lessonName: string) => {
+  course.value[lessonId] = { id: lessonId, name: lessonName, materials: [] };
   alert(`Урок "${lessonName}" успешно создан`);
-  // здесь можно обновить интерфейс
 };
 
 // === Получение данных курса ===
@@ -216,8 +283,9 @@ const getCourseDetails = async () => {
     const response = await axios.post(`${apiBase}/api/getCourseForTeacher`, {
       courseId,
     });
-    courseName.value = response.data.course.name;
+    courseName.value = response.data.courseName;
     course.value = response.data.course;
+    console.log(course.value);
   } catch (error) {
     console.error("Ошибка при получении данных курса:", error);
   } finally {
@@ -236,6 +304,22 @@ const getHomeworks = async () => {
 };
 
 // === Обработчики событий ===
+
+const deleteElement = (elId: number, lessonId: number, tp: number) => {
+  console.log(deleteElementRef.value.openModal());
+  type.value = tp;
+  if (tp == 0) {
+    toDelete.value = "материал";
+    elementId.value = { materialId: elId, lessonId: lessonId };
+  } else if (tp == 2) {
+    toDelete.value = "урок";
+    elementId.value = { lessonId: elId, courseId: courseId };
+  } else {
+    toDelete.value = "курс";
+    elementId.value = elId;
+  }
+  deleteElementRef.value.openModal();
+};
 
 // Скачивание файла
 const downloadFile = async (fileUrl: string) => {
@@ -272,18 +356,17 @@ const markAsChecked = async (homeworkId: number) => {
   if (response.status === 200) {
     homeworks.value = homeworks.value.filter((h) => h.id !== homeworkId);
   }
+  closeModal();
 };
 
-// Редактирование урока — активация
-const editLesson = (lessonName: string) => {
-  if (editingLesson.value === lessonName) {
+const editLesson = (lessonId: number) => {
+  if (editingLesson.value === lessonId) {
     editingLesson.value = null;
   } else {
-    editingLesson.value = lessonName;
-    editedLessonName.value = lessonName;
+    editingLesson.value = lessonId;
+    editedLessonName.value = course.value[lessonId].name;
 
-    // Инициализируем редактирование названий материалов
-    const materials = course.value[lessonName];
+    const materials = course.value[lessonId].materials;
     const temp: { [materialId: number]: string } = {};
     materials.forEach((m) => {
       temp[m.id] = m.name;
@@ -292,43 +375,38 @@ const editLesson = (lessonName: string) => {
   }
 };
 
-// Сохранение изменённого названия урока
-const saveLesson = async (originalLessonName: string) => {
+const saveLesson = async (lessonId: number) => {
   try {
     const newLessonName = editedLessonName.value.trim();
 
-    // --- Локальное обновление ---
-    const updatedCourse = { ...course.value };
-
-    // Обновляем названия материалов локально
-    updatedCourse[originalLessonName].forEach((m) => {
-      m.name = editedMaterials.value[m.id] || m.name;
+    const oldName = course.value[lessonId].name;
+    const flag = Object.values(course.value).some((lesson) => {
+      if (newLessonName == lesson.name && lessonId != lesson.id) {
+        return true;
+      }
+      return false;
     });
 
-    // Переименовываем урок локально (если нужно)
-    if (newLessonName && newLessonName !== originalLessonName) {
-      updatedCourse[newLessonName] = updatedCourse[originalLessonName];
-      delete updatedCourse[originalLessonName];
+    if (oldName != newLessonName && !flag) {
+      course.value[lessonId].name = newLessonName;
     }
 
-    course.value = updatedCourse;
     editingLesson.value = null;
 
-    // --- Запросы на сервер ---
-
-    // 1. Обновление названий материалов
-    for (const material of course.value[newLessonName || originalLessonName]) {
-      await axios.post(`${apiBase}/api/updateMaterial`, {
-        materialId: material.id,
-        newName: material.name,
-      });
+    for (const material of course.value[lessonId].materials) {
+      if (editedMaterials.value[material.id] != material.name) {
+        await axios.post(`${apiBase}/api/updateMaterial`, {
+          materialId: material.id,
+          newName: editedMaterials.value[material.id],
+        });
+        material.name = editedMaterials.value[material.id];
+      }
     }
 
-    // 2. Переименование урока (если было изменено)
-    if (newLessonName && newLessonName !== originalLessonName) {
+    if (newLessonName && newLessonName !== oldName) {
       await axios.post(`${apiBase}/api/updateLesson`, {
         courseId: courseId,
-        oldName: originalLessonName,
+        oldName: oldName,
         newName: newLessonName,
       });
     }
@@ -338,29 +416,6 @@ const saveLesson = async (originalLessonName: string) => {
   }
 };
 
-// Удаление урока
-const removeLesson = (lessonName: string) => {
-  const updatedCourse = { ...course.value };
-  delete updatedCourse[lessonName];
-  course.value = updatedCourse;
-};
-
-// Удаление материала
-const deleteMaterial = async (materialId: number) => {
-  try {
-    await axios.post(`${apiBase}/api/deleteMaterial`, { materialId });
-
-    for (let lesson in course.value) {
-      course.value[lesson] = course.value[lesson].filter(
-        (m: any) => m.id !== materialId
-      );
-    }
-  } catch (error) {
-    console.error("Ошибка при удалении материала:", error);
-  }
-};
-
-// === Инициализация ===
 onMounted(async () => {
   await getCourseDetails();
   await getHomeworks();
@@ -368,12 +423,127 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.bizlab-logo {
-  margin-left: 5%;
-  margin-top: 2%;
+.h1-modal {
+  text-align: center;
+  font-size: 18px;
+  font-family: "Uncage";
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.modal-buttons button {
+  padding: 10px 20px;
+  background-color: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-buttons button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+.modal {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 100%;
+  position: relative;
+}
+
+.btn {
+  font-family: "Uncage";
+  font-size: 18px;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 25px;
+  cursor: pointer;
+
+  transition: all 0.2s;
+  &:hover {
+    transform: translateY(-5px) scale(1.05);
+    opacity: 70%;
+  }
+}
+
+.lesson-text {
+  font-family: "Inter";
+  width: 100%;
+
+  p,
+  span {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  span {
+    font-size: 24px;
+  }
+  p {
+    font-size: 20px;
+  }
+}
+
+.nav-buttons {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+
+  button {
+    font-family: "Uncage";
+    font-size: 24px;
+    color: #ff7f50;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .active {
+    background-color: #e25d35;
+    border-radius: 20px;
+    color: white;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
 }
 
 .course-page {
+  background-color: rgb(236, 236, 236);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 800px;
   margin: 20px auto;
   font-family: Arial, sans-serif;
@@ -393,12 +563,20 @@ onMounted(async () => {
   width: 100%;
 }
 
+.loading {
+  font-family: "Uncage";
+  font-size: 24px;
+  width: 100%;
+  text-align: center;
+}
+
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 0;
   border-bottom: 1px solid #ccc;
+  height: max-content;
 }
 
 .header img {
@@ -410,48 +588,34 @@ onMounted(async () => {
   margin: 0;
 }
 
-.header nav button {
-  background-color: #ff7f50;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-left: 10px;
-}
-
-.header nav .active {
-  background-color: #2c3e50;
-}
-
 .actions {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
-}
+  margin-bottom: 10px;
+  justify-content: space-evenly;
+  margin-top: 10px;
+  .create-lesson,
+  .upload-material {
+    font-family: "Uncage";
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    &:hover {
+      transform: translateY(-5px) scale(1.05);
+      opacity: 70%;
+    }
+  }
 
-.create-lesson {
-  background-color: #2ecc71;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 5px;
-  cursor: pointer;
-}
+  .create-lesson {
+    background-color: #328862;
+  }
 
-.upload-material {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.lessons-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
+  .upload-material {
+    background-color: #3840a9;
+  }
 }
 
 .lesson-card {
@@ -459,6 +623,7 @@ onMounted(async () => {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
 }
 
 .lesson-header {
@@ -487,15 +652,20 @@ onMounted(async () => {
   gap: 8px;
 }
 
-.edit-button,
-.save-button,
+.edit-button {
+  background-color: var(--p-sky-600);
+  font-size: 16px;
+}
+
 .delete-button {
   background-color: #e74c3c;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
+  font-size: 16px;
+}
+
+.save-button {
+  background-color: #328862;
+  font-size: 16px;
+  margin-right: 5px;
 }
 
 .material-list {
@@ -514,24 +684,42 @@ onMounted(async () => {
   flex-grow: 1;
 }
 
-.buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.buttons button {
-  padding: 8px 16px;
-  background-color: #2c3e50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
 .no-homeworks {
   text-align: center;
   font-size: 18px;
+  font-family: "Uncage";
   margin-top: 50px;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.homework-item {
+  margin-top: 10px;
+  width: 100%;
+  display: flex;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+
+  .buttons {
+    width: 20%;
+  }
+  .homework-info {
+    width: 80%;
+    font-family: "Inter";
+
+    .name {
+      font-size: 20px;
+    }
+    .info-item {
+      font-size: 18px;
+    }
+  }
 }
 </style>

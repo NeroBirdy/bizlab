@@ -1,76 +1,101 @@
 <template>
+  <Backimages :variable="3" />
+  <BizlabLogo />
   <div class="create-course">
-    <h2>Создать курс</h2>
+    <h1>Создать курс</h1>
 
-    <!-- Форма для ввода данных -->
     <form @submit.prevent="handleSubmit">
-      <div class="form-group">
-        <label for="name">Название:</label>
-        <input type="text" id="name" v-model="name" required />
-      </div>
+      <div class="form-image">
+        <div class="image-name">
+          <div class="image-alt" @click="triggerFileInput">
+            <img
+              v-if="picturePreview"
+              :src="picturePreview"
+              alt="Превью товара"
+            />
+            <span v-else>Загрузите <br />фото <br />курса</span>
+          </div>
+          <input
+            type="file"
+            id="product-photo"
+            style="display: none"
+            ref="fileInput"
+            @change="onFileChange"
+          />
+        </div>
+        <div class="description">
+          <div class="form-group">
+            <label for="name">Название:</label>
+            <input type="text" id="name" v-model="name" required />
+          </div>
 
-      <div class="form-group">
-        <label for="description">Описание:</label>
-        <textarea id="description" v-model="description" required></textarea>
+          <div class="form-group">
+            <label for="description">Описание:</label>
+            <textarea
+              id="description"
+              v-model="description"
+              required
+            ></textarea>
+          </div>
+        </div>
       </div>
-
-      <div class="form-group">
-        <label for="places">Места:</label>
-        <input type="number" id="places" v-model.number="places" required />
+      <div class="option-buttons">
+        <button
+          class="btn"
+          type="button"
+          @click="commonInfo = true"
+          :class="commonInfo ? 'active' : ''"
+        >
+          Общая информация
+        </button>
+        <button
+          class="btn"
+          type="button"
+          @click="commonInfo = false"
+          :class="commonInfo ? '' : 'active'"
+        >
+          О чём курс
+        </button>
       </div>
+      <div class="field-option" v-if="commonInfo">
+        <div class="form-group">
+          <label for="places">Количество мест:</label>
+          <input type="number" id="places" v-model.number="places" required />
+        </div>
 
-      <div class="form-group">
-        <label for="price">Цена:</label>
-        <input
-          type="number"
-          id="price"
-          step="0.01"
-          v-model.number="price"
-          required
-        />
+        <div class="form-group">
+          <label for="price">Цена:</label>
+          <input
+            type="number"
+            id="price"
+            step="0.01"
+            v-model.number="price"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="salePrice">Цена со скидкой:</label>
+          <input
+            type="number"
+            id="salePrice"
+            step="0.01"
+            v-model.number="salePrice"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="sale">Причина акции:</label>
+          <input type="text" id="sale" v-model="sale" />
+        </div>
+
+        <div class="form-group">
+          <label for="credit">Стоймость в рассрочку:</label>
+          <input type="number" id="credit" v-model.number="credit" />
+        </div>
       </div>
-
-      <div class="form-group">
-        <label for="salePrice">Цена со скидкой:</label>
-        <input
-          type="number"
-          id="salePrice"
-          step="0.01"
-          v-model.number="salePrice"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="sale">Акция:</label>
-        <input type="text" id="sale" v-model="sale" />
-      </div>
-
-      <div class="form-group">
-        <label for="credit">Кредиты:</label>
-        <input type="number" id="credit" v-model.number="credit" />
-      </div>
-
-      <!-- Загрузка изображения -->
-      <div class="form-group">
-        <label for="picture">Изображение:</label>
-        <input
-          type="file"
-          id="picture"
-          @change="handleFileUpload"
-          accept="image/*"
-          required
-        />
-        <img
-          v-if="previewImage"
-          :src="previewImage"
-          alt="Предпросмотр изображения"
-          class="preview-image"
-        />
-      </div>
-
       <!-- Составляющие курса -->
-      <div class="form-group">
-        <label>Составляющие:</label>
+      <div class="form-group" v-else>
         <div
           v-for="(compound, index) in compounds"
           :key="index"
@@ -86,13 +111,17 @@
             Удалить
           </button>
         </div>
-        <button @click="addCompound" class="add-button">
+        <button @click="addCompound" type="button" class="add-button">
           Добавить составляющую
         </button>
       </div>
 
       <!-- Кнопка отправки -->
-      <button type="submit" class="submit-button">Создать курс</button>
+      <div class="flex justify-end">
+        <button type="submit" class="submit-button" v-if="allFieldsFilled">
+          Создать курс
+        </button>
+      </div>
     </form>
   </div>
 </template>
@@ -112,15 +141,33 @@ const salePrice = ref<number | null>(null);
 const sale = ref("");
 const credit = ref<number | null>(null);
 const picture = ref<File | null>(null);
-const compounds = ref<string[]>([]);
-
+const compounds = ref<string[]>([""]);
+const picturePreview = ref<string | null>(null);
 const config = useRuntimeConfig();
 const apiBase = config.public.apiBase as string;
+const commonInfo = ref(true);
+
+const allFieldsFilled = computed(() => {
+  return (
+    !!name.value.trim() &&
+    !!description.value.trim() &&
+    places.value !== null &&
+    price.value !== null &&
+    salePrice.value !== null &&
+    !!sale.value.trim() &&
+    credit.value !== null &&
+    picture.value !== null
+  );
+});
 
 // Предварительный просмотр изображения
 const previewImage = ref<string | null>(null);
 
 // === Обработчики ===
+const fileInput = ref(null);
+const triggerFileInput = () => {
+  fileInput.value.click();
+};
 
 // Добавление новой составляющей
 const addCompound = () => {
@@ -130,23 +177,6 @@ const addCompound = () => {
 // Удаление составляющей
 const removeCompound = (index: number) => {
   compounds.value.splice(index, 1);
-};
-
-// Обработчик загрузки файла
-const handleFileUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0] || null;
-
-  if (file) {
-    picture.value = file;
-
-    // Предварительный просмотр изображения
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      previewImage.value = e.target?.result as string;
-    };
-    reader.readAsDataURL(file);
-  }
 };
 
 // Отправка формы
@@ -178,8 +208,21 @@ const handleSubmit = async () => {
     console.log("Курс успешно создан:", response.data);
     alert("Курс успешно создан!");
   } catch (error) {
-    console.error("Ошибка при создании курса:", error);
-    alert("Ошибка при создании курса. Пожалуйста, попробуйте снова.");
+    if (error.response.data.error == "Курс с таким названием уже существует") {
+      alert("Курс с таким названием уже существует");
+    } else {
+      alert("Ошибка при создании курса. Пожалуйста, попробуйте снова.");
+    }
+  }
+};
+
+const onFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files[0]) {
+    const file = target.files[0];
+
+    picturePreview.value = URL.createObjectURL(file);
+    picture.value = file;
   }
 };
 
@@ -200,10 +243,32 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .create-course {
-  max-width: 600px;
+  background-color: rgb(236, 236, 236);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
   margin: 20px auto;
+  font-family: "Inter";
+
+  h1 {
+    font-family: "Uncage";
+    font-size: 24px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+  }
+}
+
+.btn {
+  height: 80%;
+  border-radius: 5px 5px 0px 0px;
+  margin-left: 10px;
+  margin-top: 1px;
+  padding: 5px 10px;
+  font-family: "Uncage";
+  font-size: 16px;
 }
 
 .form-group {
@@ -214,6 +279,19 @@ onMounted(() => {
   display: block;
   font-weight: bold;
   margin-bottom: 5px;
+}
+
+.option-buttons {
+  background-color: #3288624a;
+  border-radius: 5px;
+  height: 40px;
+  display: flex;
+  align-items: end;
+  margin-bottom: 10px;
+  .active {
+    background-color: rgba(255, 255, 255, 0.712);
+    box-shadow: 0px -2px 8px 0px rgba(34, 60, 80, 0.2);
+  }
 }
 
 .form-group input,
@@ -261,5 +339,72 @@ onMounted(() => {
 
 #description {
   white-space: pre-wrap;
+}
+
+form-image,
+.form-info {
+  height: 100%;
+
+  @media (max-width: 768px) {
+    width: 100% !important;
+    height: auto;
+  }
+}
+
+.form-info {
+  width: 80%;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+}
+
+.image-alt {
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 24px;
+  font-weight: bold;
+  color: black;
+  border: 2px solid #328862;
+  border-radius: 15px;
+  height: 260px;
+  width: 280px;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 300px;
+    height: 200px;
+    margin: 0 auto;
+    font-size: 18px;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    border-radius: 10px;
+    object-fit: contain;
+  }
+}
+
+.form-image {
+  display: flex;
+  .description {
+    width: 60%;
+
+    #description {
+      min-height: 150px;
+      max-height: 600px;
+    }
+  }
+  .image-name {
+    width: 40%;
+  }
 }
 </style>

@@ -37,7 +37,7 @@ const props = defineProps<{
 
 // === Emits ===
 const emit = defineEmits<{
-  (e: "lesson-created", lessonName: string): void;
+  (e: "lesson-created", lessonId: number, lessonName: string): void;
 }>();
 
 // === Локальное состояние ===
@@ -69,13 +69,18 @@ const createLesson = async () => {
       name: newLessonName.value,
     });
 
-    const newLessonNameResult = response.data.lessonName || newLessonName.value;
+    const newLessonNameResult = newLessonName.value;
+    const lessonId = response.data.lessonId;
 
     closeModal();
-    emit("lesson-created", newLessonNameResult);
+    emit("lesson-created", lessonId, newLessonNameResult);
   } catch (error) {
-    console.error("Ошибка при создании урока:", error);
-    alert("Не удалось создать урок");
+    if (error.response.data.message == "Урок с таким названием уже есть") {
+      alert("Урок с таким названием уже есть");
+    } else {
+      console.error("Ошибка при создании урока:", error);
+      alert("Не удалось создать урок");
+    }
   }
 };
 
@@ -83,12 +88,12 @@ const createLesson = async () => {
 defineExpose({ openModal });
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 h1 {
-  font-size: 24px;
+  text-align: center;
+  font-size: 18px;
   font-family: "Uncage";
 }
-
 .modal-overlay {
   position: fixed;
   top: 0;

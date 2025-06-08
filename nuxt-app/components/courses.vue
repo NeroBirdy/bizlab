@@ -10,7 +10,11 @@
           <img src="/assets/images/welcomePage/arrow-prev.svg" />
         </button>
         <ClientOnly>
-          <swiper-container ref="containerRef" class="swiper-container">
+          <swiper-container
+            ref="containerRef"
+            class="swiper-container"
+            pagination="true"
+          >
             <swiper-slide
               lazy="true"
               v-for="(course, idx) in courses"
@@ -148,8 +152,6 @@ const fixprice = (price) => {
 </script>
 
 <style lang="scss" scoped>
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
-
 .course-link {
   background-color: #328862;
   font-size: 24px;
