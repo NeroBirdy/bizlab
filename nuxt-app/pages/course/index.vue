@@ -7,7 +7,7 @@
 
     <BizlabLogo />
     <div class="bg-template">
-      <Backimages :variable="1" />
+      <Backimages :variable="2" />
     </div>
 
     <div v-if="role == 1 || role == 2" class="teacher-courses">
