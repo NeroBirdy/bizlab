@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
-from .models import User, Course, CourseAndUser, UserProgress, Material, Lesson, Compound, Feedback
+from .models import User, Course, CourseAndUser, UserProgress, Material, Lesson, Compound, Feedback, CourseAndTeacher
 from django.contrib.auth import authenticate, login, logout
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.serializers import serialize
@@ -120,6 +120,25 @@ class getUsersByCourse(APIView):
         print(users)
         return Response({'users': users}, status=status.HTTP_200_OK)
     
+class getTeachersForCourse(APIView):
+    def get(self, request):
+        courseId = request.query_params.get('courseId')
+
+        course = Course.objects.get(id = courseId)
+
+        existing_user_ids = CourseAndTeacher.objects.filter(course=course).values_list('teacher_id', flat=True)
+        usrs = User.objects.exclude(id__in=existing_user_ids).filter(role__in=[1, 2])
+        users = []
+    
+        for user in usrs:
+            users.append({
+                'id': user.id,
+                'FIO': f'{user.secondName} {user.firstName} {user.lastName}',
+                'email': user.email
+            })
+        print(users)
+        return Response({'users': users}, status=status.HTTP_200_OK)
+    
 class getUser(APIView):
     def post(self, request):
         userId = request.data.get('userId')
@@ -133,9 +152,14 @@ class inviteUserOnCourse(APIView):
     def post(self, request):
         userId = request.data.get('userId')
         courseId = request.data.get('courseId')
+        role = request.data.get('role')
         user = User.objects.get(id = userId)
         course = Course.objects.get(id = courseId)
 
+        if role != 0:
+            CourseAndTeacher.objects.create(teacher = user, course = course)
+            return Response(status=status.HTTP_201_CREATED)
+        
         CourseAndUser.objects.create(user = user, course = course)
 
         lessons = Lesson.objects.filter(course = course)
@@ -244,6 +268,8 @@ class createCourse(APIView):
 
         course = Course.objects.create(teacher = teacher, name = name, description = description, places = places, price = price,
                               salePrice = salePrice, sale = sale, credit = credit, picture = f'/images/courses/{picName}')
+        
+        CourseAndTeacher.objects.create(teacher=teacher, course=course)
         
         for compound in compounds:
             if (compound.strip() !=''):
@@ -407,7 +433,8 @@ class getCoursesForTeacher(APIView):
         teacherId = request.query_params.get('teacherId')
         teacher = User.objects.get(id = teacherId)
 
-        crs = Course.objects.filter(teacher = teacher)
+        crs = CourseAndTeacher.objects.filter(teacher = teacher)
+        crs = [CAT.course for CAT in crs]
 
         courses = []
 
@@ -740,6 +767,54 @@ class deleteCourse(APIView):
         course = Course.objects.get(id=courseId)
         course.delete()
         return Response(status=status.HTTP_200_OK)
+    
+class accessForCorse(APIView):
+    def post(self, request):
+        teacherId = request.data.get('userId')
+        courseId = request.data.get('courseId')
+
+        user = User.objects.get(id = teacherId)
+        course = Course.objects.get(id = courseId)
+
+        if course == None:
+            return Response(False, status=status.HTTP_200_OK)
+        
+        res = CourseAndTeacher.objects.filter(teacher = user, course = course).exists()
+
+        return Response(res, status=status.HTTP_200_OK)
+    
+class accessForCorseForStudent(APIView):
+    def post(self, request):
+        userId = request.data.get('userId')
+        courseId = request.data.get('courseId')
+
+        user = User.objects.get(id = userId)
+
+        course = Course.objects.get(id = courseId)
+
+        if course == None:
+            return Response(False, status=status.HTTP_200_OK)
+
+        res = CourseAndUser.objects.filter(user = user, course = course).exists()
+
+        return Response(res, status=status.HTTP_200_OK)
+    
+class accessForTest(APIView):
+    def post(self, request):
+        materialId = request.data.get('materialId')
+        userId = request.data.get('userId')
+
+        user = User.objects.get(id = userId)
+        material = Material.objects.get(id = materialId)
+
+        if material == None:
+            return Response(False, status=status.HTTP_200_OK)
+
+        course = material.lesson.course
+
+        res = CourseAndUser.objects.filter(user = user, course = course).exists()
+
+        return Response(res, status=status.HTTP_200_OK)
 
 
         

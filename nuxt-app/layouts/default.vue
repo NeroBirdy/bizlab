@@ -1,5 +1,5 @@
 <template>
-  <main class="main"">
+  <main class="main">
     <slot></slot>
   </main>
   <!-- <footer class="footer relative mt-20">
@@ -30,11 +30,8 @@
       </div>
     </div>
     <img src="/assets/images/bot.png" class="bot" />
-<<<<<<< HEAD
   </footer> -->
-=======
-  </footer>-->
->>>>>>> 0f7f584d7c12ba3c16891faeda434e0cdd561b38
+
 </template>
 
 <style lang="scss" scooped>

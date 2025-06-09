@@ -4,30 +4,16 @@
       <h1>Добавление пользователя на курс</h1>
 
       <!-- Поле поиска -->
-      <input
-        ref="searchInput"
-        type="text"
-        v-model="searchQuery"
-        placeholder="Искать по ФИО или email"
-        class="input"
-        @focus="showDropdown = true"
-        @blur="hideDropdownWithDelay"
-        @keydown.down="onArrowDown"
-        @keydown.up="onArrowUp"
-        @keydown.enter="onEnter"
-      />
+      <input ref="searchInput" type="text" v-model="searchQuery" placeholder="Искать по ФИО или email" class="input"
+        @focus="showDropdown = true" @blur="hideDropdownWithDelay" @keydown.down="onArrowDown" @keydown.up="onArrowUp"
+        @keydown.enter="onEnter" />
 
       <!-- Выпадающий список -->
       <div v-if="showDropdown && filteredUsers.length > 0" class="dropdown">
         <div class="dropdown-list">
-          <div
-            v-for="(user, index) in filteredUsers"
-            :key="user.id"
-            class="dropdown-item"
-            :class="{ selected: selectedOptionIndex === index }"
-            @click="selectUserFromList(user)"
-            @mouseenter="selectedOptionIndex = index"
-          >
+          <div v-for="(user, index) in filteredUsers" :key="user.id" class="dropdown-item"
+            :class="{ selected: selectedOptionIndex === index }" @click="selectUserFromList(user)"
+            @mouseenter="selectedOptionIndex = index">
             {{ user.FIO }} — {{ user.email }}
           </div>
         </div>
@@ -62,12 +48,24 @@ const selectedUser = ref<{ id: number; FIO: string; email: string } | null>(
 );
 const selectedCourse = ref();
 
+const props = defineProps<{
+  role: Number
+}>();
+
 // === Получение пользователей с сервера ===
 const getUsers = async (courseId: number) => {
   try {
-    const response = await axios.get(
-      `${apiBase}/api/getUsersByCourse?courseId=${courseId}`
-    );
+    let response;
+    if (props.role == 0) {
+      response = await axios.get(
+        `${apiBase}/api/getUsersByCourse?courseId=${courseId}`
+      );
+    } else {
+      response = await axios.get(
+        `${apiBase}/api/getTeachersForCourse?courseId=${courseId}`
+      );
+    }
+
     users.value = response.data.users || [];
   } catch (error) {
     console.error("Ошибка при загрузке пользователей:", error);
@@ -155,6 +153,7 @@ const addSelectedUser = async () => {
     await axios.post(`${apiBase}/api/inviteUserOnCourse`, {
       courseId: selectedCourse.value,
       userId: selectedUser.value.id,
+      role: props.role
     });
 
     alert(`Пользователь ${selectedUser.value.FIO} успешно добавлен на курс`);

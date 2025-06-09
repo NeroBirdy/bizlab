@@ -1,13 +1,7 @@
 <template>
   <Backimages :variable="2" />
   <BizlabLogo />
-  <DeleteModal
-    ref="deleteElementRef"
-    :course="course"
-    :elementId="elementId"
-    :type="type"
-    :toDelete="toDelete"
-  />
+  <DeleteModal ref="deleteElementRef" :course="course" :elementId="elementId" :type="type" :toDelete="toDelete" />
 
   <div v-if="showModal" class="modal-overlay">
     <div class="modal">
@@ -20,21 +14,13 @@
   </div>
 
   <div class="course-page">
-    <header
-      class="header flex-col flex items-center justify-center mr-auto ml-auto"
-    >
+    <header class="header flex-col flex items-center justify-center mr-auto ml-auto">
       <h1>Курс {{ courseName }}</h1>
       <nav class="nav-buttons">
-        <button
-          @click="chooseHomework = false"
-          :class="{ active: !chooseHomework }"
-        >
+        <button @click="chooseHomework = false" :class="{ active: !chooseHomework }">
           Учебные материалы
         </button>
-        <button
-          @click="chooseHomework = true"
-          :class="{ active: chooseHomework }"
-        >
+        <button @click="chooseHomework = true" :class="{ active: chooseHomework }">
           Домашние работы
         </button>
       </nav>
@@ -49,39 +35,27 @@
           <button class="create-lesson" @click="openAddLessonModal">
             Создать урок
           </button>
-          <AddLessonModal
-            ref="addLessonModal"
-            :courseId="courseId"
-            @lesson-created="onLessonCreated"
-          />
+          <AddLessonModal ref="addLessonModal" :courseId="courseId" @lesson-created="onLessonCreated" />
           <button class="upload-material" @click="openAddMaterialModal">
             Загрузить материал
           </button>
 
           <!-- Подключение модала -->
-          <AddMaterialModal
-            ref="addMaterialModal"
-            :course="course"
-            :courseId="courseId"
-            @material-created="onMaterialCreated"
-          />
+          <AddMaterialModal ref="addMaterialModal" :course="course" :courseId="courseId"
+            @material-created="onMaterialCreated" />
+          <button class="add-prepod" @click="openUserModal(courseId)">
+            Добавить преподавателя
+          </button>
+          <AddUserOnCourse :role="1" ref="addUserModalRef" />
+
         </div>
         <!-- Список уроков -->
         <div v-if="course" class="lessons-container">
-          <div
-            v-for="(lesson, lessonId, index) in course"
-            :key="lessonId"
-            class="lesson-card"
-          >
+          <div v-for="(lesson, lessonId, index) in course" :key="lessonId" class="lesson-card">
             <div class="lesson-header">
               <!-- Режим редактирования -->
               <div v-if="editingLesson === lessonId" class="edit-mode">
-                <input
-                  v-model="editedLessonName"
-                  type="text"
-                  placeholder="Название урока"
-                  class="lesson-name-input"
-                />
+                <input v-model="editedLessonName" type="text" placeholder="Название урока" class="lesson-name-input" />
                 <button @click="saveLesson(lessonId)" class="save-button btn">
                   Сохранить
                 </button>
@@ -97,47 +71,25 @@
 
               <!-- Кнопки управления -->
               <div class="lesson-actions">
-                <button
-                  v-if="editingLesson !== lessonId"
-                  @click="editLesson(lessonId)"
-                  class="edit-button btn"
-                >
+                <button v-if="editingLesson !== lessonId" @click="editLesson(lessonId)" class="edit-button btn">
                   Редактировать
                 </button>
-                <button
-                  v-if="editingLesson === lessonId"
-                  @click="deleteElement(lessonId, NaN, 2)"
-                  class="delete-button btn"
-                >
+                <button v-if="editingLesson === lessonId" @click="deleteElement(lessonId, NaN, 2)"
+                  class="delete-button btn">
                   удалить
                 </button>
               </div>
             </div>
 
             <!-- Список материалов -->
-            <ul
-              v-if="editingLesson && editingLesson === lessonId"
-              class="material-list"
-            >
-              <li
-                v-for="material in lesson.materials"
-                :key="material.id"
-                class="material-item"
-              >
+            <ul v-if="editingLesson && editingLesson === lessonId" class="material-list">
+              <li v-for="material in lesson.materials" :key="material.id" class="material-item">
                 <div v-if="editingLesson === lessonId" class="edit-material">
-                  <input
-                    v-model="editedMaterials[material.id]"
-                    type="text"
-                    class="material-name-input"
-                  />
+                  <input v-model="editedMaterials[material.id]" type="text" class="material-name-input" />
                 </div>
                 <span v-else>{{ material.name }}</span>
-                <button
-                  v-if="editingLesson === lessonId"
-                  @click="deleteElement(material.id, lessonId, 0)"
-                  @element-deleted="handleChanges"
-                  class="delete-button btn"
-                >
+                <button v-if="editingLesson === lessonId" @click="deleteElement(material.id, lessonId, 0)"
+                  @element-deleted="handleChanges" class="delete-button btn">
                   Удалить
                 </button>
               </li>
@@ -152,11 +104,7 @@
           Нет домашних работ для проверки
         </div>
         <div v-else class="homework-list flex">
-          <div
-            v-for="homework in homeworks"
-            :key="homework.id"
-            class="homework-item"
-          >
+          <div v-for="homework in homeworks" :key="homework.id" class="homework-item">
             <div class="homework-info">
               <p class="name"><strong>ФИО:</strong> {{ homework.fio }}</p>
               <p class="info-item">
@@ -170,10 +118,7 @@
             </div>
 
             <div class="buttons">
-              <button
-                @click="downloadFile(homework.file)"
-                class="btn bg-[#3840A9]"
-              >
+              <button @click="downloadFile(homework.file)" class="btn bg-[#3840A9]">
                 Скачать
               </button>
               <button @click="openModal(homework.id)" class="btn bg-[#328862]">
@@ -226,6 +171,7 @@ const type = ref();
 const toDelete = ref();
 const tempWorkId = ref();
 const showModal = ref(false);
+const addUserModalRef = ref();
 
 const addMaterialModal = ref();
 
@@ -267,6 +213,10 @@ const course = ref<{
     }[];
   };
 }>({});
+
+const openUserModal = (courseId: number) => {
+  addUserModalRef.value?.openModal(courseId);
+};
 
 const handleChanges = (courseCopy: Object) => {
   // course.value = courseCopy;
@@ -483,6 +433,7 @@ onMounted(async () => {
   cursor: pointer;
 
   transition: all 0.2s;
+
   &:hover {
     transform: translateY(-5px) scale(1.05);
     opacity: 70%;
@@ -504,6 +455,7 @@ onMounted(async () => {
   span {
     font-size: 24px;
   }
+
   p {
     font-size: 20px;
   }
@@ -595,7 +547,8 @@ onMounted(async () => {
   justify-content: space-evenly;
   margin-top: 10px;
   .create-lesson,
-  .upload-material {
+  .upload-material,
+  .add-prepod {
     font-family: "Uncage";
     color: white;
     border: none;
@@ -616,7 +569,12 @@ onMounted(async () => {
   .upload-material {
     background-color: #3840a9;
   }
+
+  .add-prepod {
+    background-color: #f0ac02;
+  }
 }
+
 
 .lesson-card {
   background-color: white;
@@ -710,6 +668,7 @@ onMounted(async () => {
   .buttons {
     width: 20%;
   }
+
   .homework-info {
     width: 80%;
     font-family: "Inter";
@@ -717,9 +676,162 @@ onMounted(async () => {
     .name {
       font-size: 20px;
     }
+
     .info-item {
       font-size: 18px;
     }
   }
 }
+
+@media (max-width: 820px) {
+  .course-page {
+    margin: 20px;
+  }
+
+  .nav-buttons {
+    button {
+      font-size: 3vw;
+    }
+  }
+}
+
+@media (max-width: 580px) {
+  .lesson-card {
+    position: relative;
+
+    .edit-button {
+      display: none;
+    }
+  }
+
+  .save-button {
+    display: none;
+  }
+
+  .material-item {
+    gap: 10px;
+    justify-content: inherit;
+
+    .edit-material {
+      width: 100%;
+    }
+  }
+
+  .mobile-edit-btn {
+    display: flex;
+    position: absolute;
+    right: -10px;
+    top: -5px;
+  }
+
+  .lesson-header {
+    gap: 10px;
+  }
+
+  .actions {
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 500px) {
+  .nav-buttons {
+    button {
+      font-size: 4vw;
+    }
+  }
+
+  .hide-block {
+    display: none;
+  }
+
+  .mobile-save-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: max-content;
+  }
+
+  .save-button,
+  .delete-button {
+    margin-left: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .save-button {
+    display: none;
+  }
+
+  .material-item {
+    justify-content: start;
+  }
+
+  .save-button {
+    margin-left: 0;
+  }
+
+  .homework-item {
+    flex-direction: column;
+
+    .buttons {
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .homework-info {
+      text-align: center;
+      width: 100%;
+      strong {
+        display: block;
+      }
+    }
+  }
+}
+
+@media (max-width: 425px) {
+  .nav-buttons {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .lesson-text {
+    span,
+    p {
+      align-items: start;
+    }
+  }
+
+  .lesson-header,
+  .material-item {
+    gap: 0;
+  }
+  .lesson-name-input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 385px) {
+}
+
+@media (max-width: 375px) {
+  .nav-buttons {
+    button {
+      font-size: 5vw;
+    }
+  }
+}
+
+@media (max-width: 320px) {
+  .course-page {
+    margin: 20px 0;
+  }
+}
+
 </style>

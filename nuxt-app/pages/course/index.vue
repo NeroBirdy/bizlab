@@ -81,7 +81,7 @@
         {{ loading ? "Загрузка..." : "Нет доступных курсов" }}
       </p>
 
-      <AddUserOnCourse ref="addUserModalRef" />
+      <AddUserOnCourse :role="0" ref="addUserModalRef" />
     </div>
     <div v-if="role == 0" class="teacher-courses">
       <div class="header flex">
