@@ -7,24 +7,24 @@
         <h1>АДМИНИСТРАТОР</h1>
       </header>
       <div class="buttons-div">
-        <button class="btn bg-[#328862]" @click="openRegisterTeacherModal">
+        <button class="btn bg-[#328862] btn-add" @click="openRegisterTeacherModal">
           добавить преподавателя
         </button>
         <AddTeacher ref="registerTeacherRef" />
-        <button class="btn bg-[#E15D34]" @click="openDeleteTeacherModal">
+        <button class="btn bg-[#E15D34] btn-delete" @click="openDeleteTeacherModal">
           удалить преподавателя
         </button>
         <deleteTeacher ref="deleteTeacherRef" />
       </div>
-      <div class="flex justify-center flex-col">
+      <div class="flex justify-center flex-col ">
         <h2>Создание отзывов</h2>
         <form @submit.prevent="handlerComment" class="flex flex-col">
           <label for="sender" class="form-title">Отправитель:</label>
           <input type="text" id="sender" v-model="sender" required />
           <label for="comment" class="form-title">Текст комментария:</label>
           <textarea id="comment" v-model="text" required class="textarea" />
-          <div class="flex justify-end">
-            <button type="submit" class="btn bg-[#3840A9] w-40 mt-5">
+          <div class="flex justify-end btn-div">
+            <button type="submit" class="btn bg-[#3840A9] w-40 mt-5 btn-submit">
               Отправить
             </button>
           </div>
@@ -106,6 +106,7 @@ textarea {
 
 .buttons-div {
   display: flex;
+  // flex-wrap: wrap;
   justify-content: space-evenly;
   padding-bottom: 10px;
   border-bottom: 1px solid #ccc;
@@ -186,5 +187,41 @@ h2 {
 .form-title {
   font-family: "Itern";
   font-size: 20px;
+}
+
+@media (max-width: 1025px) {
+  .window-card{
+    width: 95%;
+  }
+  .btn-add, .btn-delete {
+    @apply w-60;
+  }
+}
+
+@media (max-width: 650px) {
+  .buttons-div{
+    @apply gap-4;
+    align-items: center;
+    flex-direction: column;
+  }
+  .btn-add, .btn-delete {
+    @apply w-80;
+  }
+  .btn-div{
+    @apply justify-center;
+  }
+}
+
+@media (max-width: 375px) {
+  #sender {
+    height: 40px
+  }
+  .btn-add, .btn-delete {
+    @apply w-60;
+    font-size: 15px;
+  }
+  h1, h2 {
+    font-size: 22px !important;
+  }
 }
 </style>
