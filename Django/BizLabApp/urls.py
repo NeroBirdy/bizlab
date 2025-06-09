@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import Registration, Login, Logout, deleteMaterial, accessForCorse, accessForCorseForStudent, accessForTest, getTeachersForCourse, deleteLesson, deleteCourse, welcomeToTeacher, parseFile, downloadFile, getTeachers, deleteTeacher, createComment, getFeedback, getCourseForMain, sendEmailToAdmin, getUser, getCourseByUser, getDoneUserProgress, getCourseForUser, checked, getCourseForTeacher, updateLesson, updateMaterial, uploadFile, createCourse, getCoursesForTeacher, createMaterial, getUsersByCourse, createTask, inviteUserOnCourse, getFilesForTeacher
+from .views import Registration, Login, Logout, deleteMaterial, accessForCourse, accessForCourseForStudent, accessForTest, getTeachersForCourse, deleteLesson, deleteCourse, welcomeToTeacher, parseFile, downloadFile, getTeachers, deleteTeacher, createComment, getFeedback, getCourseForMain, sendEmailToAdmin, getUser, getCourseByUser, getDoneUserProgress, getCourseForUser, checked, getCourseForTeacher, updateLesson, updateMaterial, uploadFile, createCourse, getCoursesForTeacher, createMaterial, getUsersByCourse, createTask, inviteUserOnCourse, getFilesForTeacher
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -43,7 +43,7 @@ urlpatterns = [
     path('deleteCourse', deleteCourse.as_view(), name='deleteCourse'),
     path('welcomeToTeacher', welcomeToTeacher.as_view(), name='welcomeToTeacher'),
     path('getTeachersForCourse', getTeachersForCourse.as_view(), name='getTeachersForCourse'),
-    path('accessForCorse', accessForCorse.as_view(), name='accessForCorse'),
-    path('accessForCorseForStudent', accessForCorseForStudent.as_view(), name='accessForCorseForStudent'),
+    path('accessForCourse', accessForCourse.as_view(), name='accessForCourse'),
+    path('accessForCourseForStudent', accessForCourseForStudent.as_view(), name='accessForCourseForStudent'),
     path('accessForTest', accessForTest.as_view(), name='accessForTest'),
 ]

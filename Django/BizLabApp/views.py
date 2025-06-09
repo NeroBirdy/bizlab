@@ -768,7 +768,7 @@ class deleteCourse(APIView):
         course.delete()
         return Response(status=status.HTTP_200_OK)
     
-class accessForCorse(APIView):
+class accessForCourse(APIView):
     def post(self, request):
         teacherId = request.data.get('userId')
         courseId = request.data.get('courseId')
@@ -783,7 +783,7 @@ class accessForCorse(APIView):
 
         return Response(res, status=status.HTTP_200_OK)
     
-class accessForCorseForStudent(APIView):
+class accessForCourseForStudent(APIView):
     def post(self, request):
         userId = request.data.get('userId')
         courseId = request.data.get('courseId')

@@ -35,7 +35,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
       method: "POST",
       body: { token: authCookie.value },
     });
-    isAuth();
+    return isAuth();
   } catch {
     try {
       const response = await $fetch<TokenRefreshResponse>(
@@ -61,32 +61,73 @@ export default defineNuxtRouteMiddleware(async (to) => {
     }
   }
 
-  function isAuth() {
+  async function isAuth() {
     const decodedToken = jwtDecode(authCookie.value!);
     const userId = decodedToken.user_id || null;
 
     var temp_arr = to.path.split("/");
 
     if (temp_arr[1] == "course" && temp_arr.length == 3) {
-      if (isPositiveInteger(temp_arr[2])) {
+      if (!isPositiveInteger(temp_arr[2])) {
         return false;
       }
       try {
         const response = await $fetch(
-        `${apiBase}/api/accessForCorse`,
-        {
-          method: "POST",
-          body: {userId : userId,courseId:temp_arr[2] },
-        }
-
-      
-      );
-      
-      }
-    }
-
-    if (!userStore.isAuth) {
-      userStore.loginUser();
+          `${apiBase}/api/accessForCourse`,
+          {
+            method: "POST",
+            body: { userId: userId, courseId: temp_arr[2] },
+          });
+        if (response) {
+          if (!userStore.isAuth) {
+            userStore.loginUser();
+          }
+          return true;
+        } else return false;
+      } catch (e) {
+        console.error(e)
+        return false;
+      } 
+    } else if (temp_arr[1] == 'courseForStudent'  && temp_arr.length == 3) {
+       if (!isPositiveInteger(temp_arr[2])) {
+        return false;
+      } try {
+        const response = await $fetch(
+          `${apiBase}/api/accessForCourseForStudent`,
+          {
+            method: "POST",
+            body: { userId: userId, courseId: temp_arr[2] },
+          });
+        if (response) {
+          if (!userStore.isAuth) {
+            userStore.loginUser();
+          }
+          return true;
+        } else return false;
+      } catch (e) {
+        console.error(e)
+        return false;
+      } 
+    } else if (temp_arr[1] == 'test'  && temp_arr.length == 3) {
+       if (!isPositiveInteger(temp_arr[2])) {
+        return false;
+      } try {
+        const response = await $fetch(
+          `${apiBase}/api/accessForTest`,
+          {
+            method: "POST",
+            body: { userId: userId, materialId: temp_arr[2] },
+          });
+        if (response) {
+          if (!userStore.isAuth) {
+            userStore.loginUser();
+          }
+          return true;
+        } else return false;
+      } catch (e) {
+        console.error(e)
+        return false;
+      } 
     }
   }
 
