@@ -1,5 +1,5 @@
 <template>
-  <Backimages :variable="3" />
+  <Backimages :variable="2" />
   <BizlabLogo />
   <div class="create-course">
     <h1>Создать курс</h1>

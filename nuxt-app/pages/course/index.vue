@@ -1,5 +1,5 @@
 <template>
-  <Backimages :variable="1" />
+  <Backimages :variable="2" />
   <div class="logout">
     <p class="logout-btn" @click="logout">ВЫЙТИ ИЗ ЛИЧНОГО КАБИНЕТА</p>
     <a v-if="role == 2" class="logout-btn admin" href="/admin">Админка</a>

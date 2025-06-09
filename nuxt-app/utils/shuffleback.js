@@ -21,45 +21,73 @@ function isOverlapping(rect1, rect2) {
   );
 }
 
+
+
 export function initPositions(images) {
-  const windowSize = ref({ width: 0, height: 0 });
   const { innerWidth: width, innerHeight: height } = window;
-  windowSize.value = { width, height };
-  var images_copy = images;
   const positioned = [];
-  const attemptsLimit = 100;
+  const attemptsLimit = 1000; // Разумное число попыток на объект
+  const minDistance = 150; // Увеличенное минимальное расстояние между центрами объектов
 
-  shuffleArray(images_copy);
+  // Зоны по бокам
+  const sideWidth = width * 0.2;
+  const leftZone = { x: 0, width: sideWidth };
+  const rightZone = { x: width - sideWidth, width: sideWidth };
 
-  for (const img of images_copy) {
-    let x, y;
+  // Делим картинки строго пополам
+  const half = Math.ceil(images.length / 2);
+  const leftImages = images.slice(0, half);
+  const rightImages = images.slice(half);
+
+  // Функция для генерации позиции внутри заданной зоны
+  function tryPlaceImage(zone, img, others) {
     let attempts = 0;
-    let collision = false;
 
-    do {
-      x = Math.random() * (width - img.width);
-      y = Math.random() * (height - img.width);
+    while (attempts < attemptsLimit) {
+      const x = zone.x + Math.random() * (zone.width - img.width);
+      const y = Math.random() * (height - img.height); // Случайная вертикальная позиция
 
-      collision = positioned.some((pos) =>
-        isOverlapping(
-          { x, y, width: img.width, height: img.height },
-          { x: pos.x, y: pos.y, width: pos.width, height: pos.height }
-        )
-      );
+      const collision = others.some((pos) => {
+        const dx = Math.abs(x + img.width / 2 - (pos.x + pos.width / 2));
+        const dy = Math.abs(y + img.height / 2 - (pos.y + pos.height / 2));
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        return (
+          distance < minDistance ||
+          isOverlapping(
+            { x, y, width: img.width, height: img.height },
+            { x: pos.x, y: pos.y, width: pos.width, height: pos.height }
+          )
+        );
+      });
+
+      if (!collision) {
+        return { ...img, x, y };
+      }
 
       attempts++;
-    } while (collision && attempts < attemptsLimit);
-
-    if (attempts < attemptsLimit) {
-      positioned.push({
-        src: img.src,
-        width: img.width,
-        height: img.height,
-        x,
-        y,
-      });
     }
+
+    // Если не нашли место, всё равно пытаемся положить без проверки
+    const x = zone.x + Math.random() * (zone.width - img.width);
+    const y = Math.random() * (height - img.height);
+    return { ...img, x, y };
   }
 
-  return positioned;
+  // Размещаем сначала левые
+  const placedLeft = [];
+  for (let i = 0; i < leftImages.length; i++) {
+    const img = leftImages[i];
+    const placed = tryPlaceImage(leftZone, img, placedLeft);
+    placedLeft.push(placed);
+  }
+
+  // Размещаем правые
+  const placedRight = [];
+  for (let i = 0; i < rightImages.length; i++) {
+    const img = rightImages[i];
+    const placed = tryPlaceImage(rightZone, img, placedRight);
+    placedRight.push(placed);
+  }
+
+  return [...placedLeft, ...placedRight];
 }
