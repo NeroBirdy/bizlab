@@ -1,37 +1,43 @@
+<script setup lang="ts">
+import { ClientOnly } from "#components";
+</script>
+
 <template>
-  <header>
-    <div class="flex w-full h-full justify-between items-center relative">
-      <img class="logo" src="/assets/images/bizlap-logo.svg" alt="bizlab" />
-      <nav class="navigate">
-        <a href="#">О нас</a>
-        <a href="#">Курсы</a>
-        <a href="#">Команда</a>
-        <a href="#">Отзывы</a>
-        <a href="#">Записаться</a>
-        <a href="#">Контакты</a>
-      </nav>
-      <div class="social-links">
-        <a href="tel:+79995554443"
-          ><img src="/assets/images/links/number.svg" alt="Номер телефона"
-        /></a>
-        <a href="#"
-          ><img src="/assets/images/links/whatsApp.svg" alt="WhatsApp"
-        /></a>
-        <a href="#"><img src="/assets/images/links/vk.svg" alt="VK" /></a>
-        <a href="#"
-          ><img src="/assets/images/links/instagram.svg" alt="Instagram"
-        /></a>
+  <ClientOnly>
+    <header>
+      <div class="flex w-full h-full justify-between items-center relative">
+        <img class="logo" src="/assets/images/bizlap-logo.svg" alt="bizlab" />
+        <nav class="navigate">
+          <a href="#">О нас</a>
+          <a href="#">Курсы</a>
+          <a href="#">Команда</a>
+          <a href="#">Отзывы</a>
+          <a href="#">Записаться</a>
+          <a href="#">Контакты</a>
+        </nav>
+        <div class="social-links">
+          <a href="tel:+79995554443"
+            ><img src="/assets/images/links/number.svg" alt="Номер телефона"
+          /></a>
+          <a href="#"
+            ><img src="/assets/images/links/whatsApp.svg" alt="WhatsApp"
+          /></a>
+          <a href="#"><img src="/assets/images/links/vk.svg" alt="VK" /></a>
+          <a href="#"
+            ><img src="/assets/images/links/instagram.svg" alt="Instagram"
+          /></a>
+        </div>
       </div>
-    </div>
-  </header>
-  <main class="mainStyle">
-    <Welcome />
-    <Courses />
-    <Teachers />
-    <Reviews />
-    <Feedback />
-    <Contacts />
-  </main>
+    </header>
+    <main class="mainStyle">
+      <Welcome />
+      <Courses />
+      <Teachers />
+      <Reviews />
+      <Feedback />
+      <Contacts />
+    </main>
+  </ClientOnly>
 </template>
 
 <style lang="scss">

@@ -36,6 +36,7 @@
                         Описание
                       </p>
                       <p
+                        v-if="course.compounds.length != 0"
                         @click="description = false"
                         :class="{ active: !description }"
                       >
@@ -142,6 +143,7 @@ const getCourses = async () => {
 
 onMounted(() => {
   getCourses();
+  console.log(courses);
 });
 
 const fixprice = (price) => {

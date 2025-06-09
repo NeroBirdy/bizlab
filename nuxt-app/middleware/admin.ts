@@ -22,10 +22,12 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
     const role = response.data.role;
     console.warn(role);
-    if (role != 2) {
-      return navigateTo("/");
+    if (role == 2) {
+      return true;
+    } else if (role == 1 || role == 0) {
+      return navigateTo("/course");
     }
-    return true;
+    return navigateTo("/");
   } catch (error) {
     console.error("Ошибка при декодировании токена:", error);
   }
