@@ -336,7 +336,7 @@ class getCourseForUser(APIView):
             course[lesson.name] = materials
 
 
-        return Response({'course': course}, status=status.HTTP_200_OK)
+        return Response({'course': course,'courseName':crs.name}, status=status.HTTP_200_OK)
 
 #Скачать файл
 class downloadFile(APIView):
@@ -697,7 +697,7 @@ class parseFile(APIView):
                 test_data.append(question)
             else:
                 i += 1
-        return Response(test_data,status=status.HTTP_200_OK)
+        return Response({'test_data':test_data,'test_name':materialName},status=status.HTTP_200_OK)
     
 class welcomeToTeacher(APIView):
     def post(self, request):

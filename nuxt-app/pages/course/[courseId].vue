@@ -1,5 +1,5 @@
 <template>
-  <Backimages :variable="2" />
+  <Backimages />
   <BizlabLogo />
   <DeleteModal ref="deleteElementRef" :course="course" :elementId="elementId" :type="type" :toDelete="toDelete" />
 
@@ -14,8 +14,12 @@
   </div>
 
   <div class="course-page">
-    <header class="header flex-col flex items-center justify-center mr-auto ml-auto">
-      <h1>Курс {{ courseName }}</h1>
+    <header
+      class="header flex-col flex items-center justify-center mr-auto ml-auto"
+    >
+      <h1>
+        Курс <strong>{{ courseName }}</strong>
+      </h1>
       <nav class="nav-buttons">
         <button @click="chooseHomework = false" :class="{ active: !chooseHomework }">
           Учебные материалы
@@ -51,19 +55,43 @@
         </div>
         <!-- Список уроков -->
         <div v-if="course" class="lessons-container">
-          <div v-for="(lesson, lessonId, index) in course" :key="lessonId" class="lesson-card">
+          <div
+            v-for="(lesson, lessonId, index) in course"
+            :key="lessonId"
+            class="lesson-card"
+          >
+            <button
+              v-if="editingLesson !== lessonId"
+              class="mobile-edit-btn"
+              @click="editLesson(lessonId)"
+            >
+              <Icon name="material-symbols:edit" class="icon" size="32"></Icon>
+            </button>
+            <button
+              v-if="editingLesson == lessonId"
+              class="mobile-edit-btn save-cl"
+              @click="saveLesson(lessonId)"
+            >
+              <Icon
+                name="material-symbols:save-rounded"
+                class="icon"
+                size="32"
+              ></Icon>
+            </button>
             <div class="lesson-header">
               <!-- Режим редактирования -->
               <div v-if="editingLesson === lessonId" class="edit-mode">
-                <input v-model="editedLessonName" type="text" placeholder="Название урока" class="lesson-name-input" />
-                <button @click="saveLesson(lessonId)" class="save-button btn">
-                  Сохранить
-                </button>
+                <input
+                  v-model="editedLessonName"
+                  type="text"
+                  placeholder="Название урока"
+                  class="lesson-name-input"
+                />
               </div>
 
               <!-- Обычный режим -->
               <div v-else class="lesson-text">
-                <span>Урок {{ index + 1 }} {{ lesson.name }}</span>
+                <span>Урок {{ index + 1 }}: {{ lesson.name }}</span>
                 <p class="text-black">
                   {{ Object.keys(lesson.materials).length }} материала
                 </p>
@@ -74,9 +102,26 @@
                 <button v-if="editingLesson !== lessonId" @click="editLesson(lessonId)" class="edit-button btn">
                   Редактировать
                 </button>
-                <button v-if="editingLesson === lessonId" @click="deleteElement(lessonId, NaN, 2)"
-                  class="delete-button btn">
-                  удалить
+                <button
+                  v-if="editingLesson === lessonId"
+                  @click="deleteElement(lessonId, NaN, 2)"
+                  class="delete-button btn"
+                >
+                  <div class="mobile-save-btn">
+                    <Icon
+                      name="material-symbols:delete-forever"
+                      class="icon"
+                      size="32"
+                    ></Icon>
+                  </div>
+                  <div class="hide-block">удалить</div>
+                </button>
+                <button
+                  v-if="editingLesson == lessonId"
+                  @click="saveLesson(lessonId)"
+                  class="save-button btn hide-block"
+                >
+                  Сохранить
                 </button>
               </div>
             </div>
@@ -88,9 +133,20 @@
                   <input v-model="editedMaterials[material.id]" type="text" class="material-name-input" />
                 </div>
                 <span v-else>{{ material.name }}</span>
-                <button v-if="editingLesson === lessonId" @click="deleteElement(material.id, lessonId, 0)"
-                  @element-deleted="handleChanges" class="delete-button btn">
-                  Удалить
+                <button
+                  v-if="editingLesson === lessonId"
+                  @click="deleteElement(material.id, lessonId, 0)"
+                  @element-deleted="handleChanges"
+                  class="delete-button btn"
+                >
+                  <div class="mobile-save-btn">
+                    <Icon
+                      name="material-symbols:delete-forever"
+                      class="icon"
+                      size="32"
+                    ></Icon>
+                  </div>
+                  <div class="hide-block">удалить</div>
                 </button>
               </li>
             </ul>
@@ -118,11 +174,17 @@
             </div>
 
             <div class="buttons">
-              <button @click="downloadFile(homework.file)" class="btn bg-[#3840A9]">
+              <button
+                @click="downloadFile(homework.file)"
+                class="btn download-btn bg-[#3840A9]"
+              >
                 Скачать
               </button>
-              <button @click="openModal(homework.id)" class="btn bg-[#328862]">
-                проверено
+              <button
+                @click="openModal(homework.id)"
+                class="btn correct-btn bg-[#328862]"
+              >
+                Проверить
               </button>
             </div>
           </div>
@@ -131,7 +193,7 @@
     </div>
   </div>
   <div class="flex justify-center">
-    <button class="btn delete-button" @click="deleteElement(courseId, 1, 1)">
+    <button class="btn course-del-btn" @click="deleteElement(courseId, 1, 1)">
       Удалить курс
     </button>
   </div>
@@ -201,7 +263,6 @@ const onMaterialCreated = (lessonId: number, material: any) => {
   });
 };
 
-// Данные курса
 const course = ref<{
   [lessonId: number]: {
     id: number;
@@ -227,7 +288,6 @@ const onLessonCreated = (lessonId: number, lessonName: string) => {
   alert(`Урок "${lessonName}" успешно создан`);
 };
 
-// === Получение данных курса ===
 const getCourseDetails = async () => {
   try {
     const response = await axios.post(`${apiBase}/api/getCourseForTeacher`, {
@@ -243,7 +303,6 @@ const getCourseDetails = async () => {
   }
 };
 
-// === Получение домашних работ ===
 const getHomeworks = async () => {
   try {
     const response = await axios.post(`${apiBase}/api/homework`, { courseId });
@@ -252,8 +311,6 @@ const getHomeworks = async () => {
     console.error("Ошибка при получении домашних работ:", error);
   }
 };
-
-// === Обработчики событий ===
 
 const deleteElement = (elId: number, lessonId: number, tp: number) => {
   console.log(deleteElementRef.value.openModal());
@@ -271,7 +328,6 @@ const deleteElement = (elId: number, lessonId: number, tp: number) => {
   deleteElementRef.value.openModal();
 };
 
-// Скачивание файла
 const downloadFile = async (fileUrl: string) => {
   const response = await fetch(`${apiBase}/api/download`, {
     method: "POST",
@@ -298,7 +354,6 @@ const downloadFile = async (fileUrl: string) => {
   window.URL.revokeObjectURL(url);
 };
 
-// Пометить домашнюю работу как проверенную
 const markAsChecked = async (homeworkId: number) => {
   const response = await axios.post(`${apiBase}/api/homework/checked`, {
     userProgressId: homeworkId,
@@ -373,6 +428,30 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.course-del-btn {
+  background-color: #e74c3c;
+  font-size: 16px;
+}
+
+.mobile-save-btn {
+  display: none;
+}
+
+.mobile-edit-btn {
+  background-color: var(--p-sky-600);
+  border-radius: 50%;
+  width: 40px;
+  color: white;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+}
+
+.save-cl {
+  background-color: #328862;
+}
+
 .h1-modal {
   text-align: center;
   font-size: 18px;
@@ -529,15 +608,20 @@ onMounted(async () => {
   padding: 10px 0;
   border-bottom: 1px solid #ccc;
   height: max-content;
-}
 
-.header img {
-  width: 150px;
-}
+  img {
+    width: 150px;
+  }
 
-.header h1 {
-  font-size: 24px;
-  margin: 0;
+  h1 {
+    font-size: 24px;
+    font-family: "Inter";
+    margin: 0;
+  }
+
+  strong {
+    font-family: "Uncage";
+  }
 }
 
 .actions {
@@ -585,6 +669,7 @@ onMounted(async () => {
 }
 
 .lesson-header {
+  gap: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -833,5 +918,4 @@ onMounted(async () => {
     margin: 20px 0;
   }
 }
-
 </style>

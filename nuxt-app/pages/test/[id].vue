@@ -1,8 +1,11 @@
 <template>
   <BizlabLogo />
-  <Backimages :variable="3" />
+  <Backimages />
+  <div class="egg">Братух(Сеструх) обнови телефон</div>
   <div class="text-container">
-    <h1 class="text-center text-name">Тест</h1>
+    <h1 class="text-center text-name">
+      Тест <strong>{{ testName }}</strong>
+    </h1>
     <div class="question" v-for="(question, index) in test">
       <h1 class="quest-id">Вопрос {{ index + 1 }}</h1>
       <h1 class="pl-5 quest-question">{{ question.question }}</h1>
@@ -14,7 +17,7 @@
           alt=""
           preview
         />
-        <div class="flex flex-col gap-2">
+        <div class="image-questions">
           <div
             class="question-answers pl-10"
             v-if="question.type != 'open'"
@@ -71,6 +74,7 @@ const materialId = route.params.id;
 const test = ref();
 const selectedAnswers = ref([]);
 const userId = ref();
+const testName = ref();
 
 const fetchUserData = async () => {
   const token = useCookie("auth_token").value;
@@ -122,7 +126,8 @@ const handleOpenAnswer = (index, input) => {
 const getTest = async (matId) => {
   const response = await axios.post(`${apiBase}/api/parseFile`, { matId });
 
-  test.value = response.data;
+  test.value = response.data.test_data;
+  testName.value = response.data.test_name;
   console.log(test.value);
 };
 
@@ -147,7 +152,15 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
-.quest-question {
+.image-question {
+  @apply flex flex-col gap-2;
+}
+
+.egg {
+  display: none;
+}
+
+.quest-questions {
   border-bottom: 1px solid #ccc;
   margin-bottom: 10px;
   border-top: 1px solid #ccc;
@@ -286,10 +299,99 @@ onMounted(async () => {
     padding: 0;
   }
 
-  img {
+  .p-image {
     width: 40%;
     height: 40%;
-    border-radius: 5px;
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 1440px) {
+  .text-container {
+    width: 100%;
+  }
+}
+
+@media (max-width: 830px) {
+  .text-container {
+    margin: 20px;
+    width: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .image-block {
+    flex-direction: column;
+
+    .question-image {
+      width: 40vw;
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    span {
+      margin-bottom: 10px;
+      * {
+        border-radius: 5px;
+      }
+    }
+
+    .image-questions {
+      padding-left: 2.5rem;
+    }
+  }
+}
+
+@media (max-width: 520px) {
+  .question {
+    margin: 0;
+    width: 100%;
+  }
+
+  .btn {
+    height: 50px;
+  }
+
+  .image-block {
+    .question-image {
+      width: 90%;
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    .image-questions {
+      padding-left: 0px;
+    }
+  }
+
+  .quest-question {
+    padding: 0 !important;
+  }
+
+  .question-answers {
+    padding-left: 10px !important;
+  }
+
+  .question-input {
+    margin-top: 10px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 320px) {
+  .text-container {
+    margin: 20px 0;
+    padding: 0;
+  }
+}
+
+@media (max-width: 300px) {
+  .text-container {
+    display: none;
+  }
+
+  .egg {
+    display: block;
   }
 }
 </style>

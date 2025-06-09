@@ -1,5 +1,7 @@
 // middleware/auth.ts
 import { useRuntimeConfig, useCookie, navigateTo } from "#imports";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 interface TokenRefreshResponse {
   access: string;
@@ -60,8 +62,36 @@ export default defineNuxtRouteMiddleware(async (to) => {
   }
 
   function isAuth() {
+    const decodedToken = jwtDecode(authCookie.value!);
+    const userId = decodedToken.user_id || null;
+
+    var temp_arr = to.path.split("/");
+
+    if (temp_arr[1] == "course" && temp_arr.length == 3) {
+      if (isPositiveInteger(temp_arr[2])) {
+        return false;
+      }
+      try {
+        const response = await $fetch(
+        `${apiBase}/api/accessForCorse`,
+        {
+          method: "POST",
+          body: {userId : userId,courseId:temp_arr[2] },
+        }
+
+      
+      );
+      
+      }
+    }
+
     if (!userStore.isAuth) {
       userStore.loginUser();
     }
+  }
+
+  function isPositiveInteger(str) {
+    const regex = /^\d+$/;
+    return regex.test(str);
   }
 });

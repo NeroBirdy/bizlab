@@ -31,7 +31,6 @@
     </div>
     <img src="/assets/images/bot.png" class="bot" />
   </footer> -->
-
 </template>
 
 <style lang="scss" scooped>

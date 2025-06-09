@@ -1,10 +1,13 @@
 <template>
-  <Backimages :variable="2" />
+  <Backimages />
   <BizlabLogo />
   <div class="student-course-page">
     <!-- Шапка -->
     <header class="header">
-      <h1>Курс {{ courseName }}</h1>
+      <h1>
+        Курс
+        <span>{{ courseName }}</span>
+      </h1>
     </header>
 
     <!-- Основной контент -->
@@ -27,7 +30,10 @@
           >
             <span>{{ material.name }}</span>
 
-            <div v-if="['1', '2'].includes(material.type)" class="flex gap-4">
+            <div
+              v-if="['1', '2'].includes(material.type)"
+              class="buttons-group"
+            >
               <button
                 v-if="!done.includes(material.id)"
                 @click="downloadFile(material.file)"
@@ -214,6 +220,10 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.buttons-group {
+  @apply flex gap-4;
+}
+
 .student-course-page {
   background-color: rgb(236, 236, 236);
   padding: 20px;
@@ -258,13 +268,16 @@ onMounted(async () => {
   width: 100%;
   border-bottom: 1px solid #ccc;
   margin-bottom: 10px;
-}
 
-.header h1 {
-  font-family: "Uncage";
-  font-size: 24px;
-  margin: 0;
-  padding: 0;
+  h1 {
+    font-size: 24px;
+    margin: 0;
+    padding: 0;
+  }
+
+  span {
+    font-family: "Uncage";
+  }
 }
 
 .lesson-card {
@@ -322,5 +335,84 @@ onMounted(async () => {
   border-radius: 5px;
   cursor: pointer;
   text-decoration: none;
+}
+
+@media (max-width: 820px) {
+  .student-course-page {
+    margin: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .buttons-group {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 500px) {
+  .material-item {
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .buttons-group {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 425px) {
+  .buttons-group {
+    flex-direction: column;
+    width: 100%;
+
+    h2 {
+      text-align: center;
+    }
+  }
+  .btn {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  .material-item {
+    width: 100%;
+
+    span {
+      text-align: center;
+    }
+  }
+
+  .lesson-card {
+    h2 {
+      width: 100%;
+      text-align: center;
+    }
+  }
+}
+
+@media (max-width: 375px) {
+  .btn {
+    text-align: center;
+  }
+
+  .student-course-page {
+    margin: 20px 0;
+  }
+}
+
+@media (max-width: 320px) {
+  .student-course-page {
+    padding: 0;
+    background-color: white;
+  }
+
+  .lesson-card {
+    background-color: rgb(236, 236, 236);
+  }
+
+  .material-item {
+    background-color: white;
+  }
 }
 </style>
