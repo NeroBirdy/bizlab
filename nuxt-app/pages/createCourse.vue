@@ -211,6 +211,7 @@ const handleSubmit = async () => {
 
     console.log("Курс успешно создан:", response.data);
     alert("Курс успешно создан!");
+    navigateTo("/course");
   } catch (error) {
     if (error.response.data.error == "Курс с таким названием уже существует") {
       alert("Курс с таким названием уже существует");

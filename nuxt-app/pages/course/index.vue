@@ -125,6 +125,10 @@
           </div>
         </div>
       </div>
+
+      <p v-else class="no-courses course-card">
+        {{ loading ? "Загрузка..." : "Нет доступных курсов" }}
+      </p>
     </div>
   </ClientOnly>
 </template>
