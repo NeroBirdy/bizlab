@@ -1,117 +1,132 @@
 <template>
-  <Backimages :variable="1" />
-  <div class="logout">
-    <p class="logout-btn" @click="logout">ВЫЙТИ ИЗ ЛИЧНОГО КАБИНЕТА</p>
-    <a v-if="role == 2" class="logout-btn admin" href="/admin">Админка</a>
-  </div>
-
-  <BizlabLogo />
-  <div v-if="role == 1 || role == 2" class="teacher-courses">
-    <div class="flex gap-10 mb-10">
-      <h1 class="teacher-link text-[#3840a9] items-center text-center flex">
-        Мои курсы
-      </h1>
-      <button
-        @click="navigateTo('/createCourse')"
-        class="teacher-link btn create-btn"
-      >
-        Создать курс
-      </button>
-      <button
-        @click="openStudentRegistrationModal"
-        class="teacher-link btn student-btn"
-      >
-        Зарегистрировать студента
-      </button>
+  <ClientOnly>
+    <div class="logout">
+      <p class="logout-btn" @click="logout">ВЫЙТИ ИЗ ЛИЧНОГО КАБИНЕТА</p>
+      <a v-if="role == 2" class="logout-btn admin" href="/admin">Админка</a>
     </div>
 
-    <AddStudentModal ref="addStudentModalRef" />
-    <!-- Список курсов -->
-    <div v-if="courses.length > 0" class="courses-list" id="courses-list">
-      <div
-        v-for="(course, index) in courses"
-        :key="course.id"
-        class="course-card"
-      >
-        <div class="flex">
-          <img
-            :src="course.picture"
-            alt="Картинка курса"
-            class="course-image"
-            @click="navigateTo(`/course/${course.id}`)"
-          />
-          <div class="card-buttons">
-            <p class="text-center">
-              Ожидают проверки {{ course.needToCheck }} работ
-            </p>
-            <div class="flex justify-center">
-              <button @click="openUserModal(course.id)" class="btn course-btn">
-                Зачислить ученика
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Название курса -->
-        <div class="course-info">
-          <h3 style="cursor: pointer">
-            Курс {{ index + 1 }}: {{ course.name }}
-          </h3>
-        </div>
-      </div>
+    <BizlabLogo />
+    <div class="bg-template">
+      <Backimages :variable="1" />
     </div>
 
-    <!-- Сообщение при отсутствии курсов -->
-    <p v-else class="no-courses">
-      {{ loading ? "Загрузка..." : "Нет доступных курсов" }}
-    </p>
-
-    <!-- Модальное окно -->
-    <AddUserOnCourse ref="addUserModalRef" />
-  </div>
-  <div v-if="role == 0" class="teacher-courses">
-    <div class="header flex">
-      <div class="logo flex">
+    <div v-if="role == 1 || role == 2" class="teacher-courses">
+      <div class="teacher-header">
         <h1 class="teacher-link text-[#3840a9] items-center text-center flex">
-          МОИ КУРСЫ
+          Мои курсы
         </h1>
+        <button
+          @click="navigateTo('/createCourse')"
+          class="teacher-link btn create-btn"
+        >
+          Создать курс
+        </button>
+        <button
+          @click="openStudentRegistrationModal"
+          class="teacher-link btn student-btn"
+        >
+          Зарегистрировать студента
+        </button>
       </div>
-    </div>
 
-    <div
-      v-if="coursesForStudent.length > 0"
-      v-for="(course, index) in coursesForStudent"
-      class="courses-list"
-    >
-      <div
-        @click="navigateTo(`/courseForStudent/${course.id}`)"
-        class="course-card mb-10"
-      >
-        <div class="flex items-center">
-          <div class="image">
+      <AddStudentModal ref="addStudentModalRef" />
+      <!-- Список курсов -->
+      <div v-if="courses.length > 0" class="courses-list" id="courses-list">
+        <div
+          v-for="(course, index) in courses"
+          :key="course.id"
+          class="course-card"
+        >
+          <div class="card-container">
             <img
               :src="course.picture"
               alt="Картинка курса"
               class="course-image"
+              @click="navigateTo(`/course/${course.id}`)"
             />
+            <div class="card-buttons">
+              <p
+                class="text-center"
+                @click="navigateTo(`/course/${course.id}`)"
+              >
+                Ожидают проверки {{ course.needToCheck }} работ
+              </p>
+              <div class="flex justify-center">
+                <button
+                  @click="openUserModal(course.id)"
+                  class="btn course-btn"
+                >
+                  Зачислить ученика
+                </button>
+              </div>
+            </div>
           </div>
-          <div class="course-bar">
-            <h1>ТЕКУЩИЙ ПРОГРЕСС КУРСА</h1>
-            <ProgressBar
-              :show-value="false"
-              :value="course.progress"
-            ></ProgressBar>
-            <p>{{ parseInt(course.progress) }} %</p>
+
+          <!-- Название курса -->
+          <div class="course-info">
+            <h3 style="cursor: pointer">
+              Курс {{ index + 1 }}: {{ course.name }}
+            </h3>
+            <button
+              @click="openUserModal(course.id)"
+              class="btn course-btn adaptive-btn"
+            >
+              Зачислить ученика
+            </button>
           </div>
         </div>
-        <div class="course-info">
-          <h3 style="cursor: pointer">
-            Курс {{ index + 1 }}: {{ course.name }}
-          </h3>
+      </div>
+
+      <p v-else class="no-courses">
+        {{ loading ? "Загрузка..." : "Нет доступных курсов" }}
+      </p>
+
+      <AddUserOnCourse ref="addUserModalRef" />
+    </div>
+    <div v-if="role == 0" class="teacher-courses">
+      <div class="header flex">
+        <div class="logo flex">
+          <h1 class="teacher-link text-[#3840a9] items-center text-center flex">
+            МОИ КУРСЫ
+          </h1>
+        </div>
+      </div>
+
+      <div
+        v-if="coursesForStudent.length > 0"
+        v-for="(course, index) in coursesForStudent"
+        class="courses-list"
+      >
+        <div
+          @click="navigateTo(`/courseForStudent/${course.id}`)"
+          class="course-card mb-10"
+        >
+          <div class="card-container-student">
+            <div class="image">
+              <img
+                :src="course.picture"
+                alt="Картинка курса"
+                class="course-image"
+              />
+            </div>
+            <div class="course-bar">
+              <h1>ТЕКУЩИЙ ПРОГРЕСС КУРСА</h1>
+              <ProgressBar
+                :show-value="false"
+                :value="course.progress"
+              ></ProgressBar>
+              <p>{{ parseInt(course.progress) }} %</p>
+            </div>
+          </div>
+          <div class="course-info">
+            <h3 style="cursor: pointer">
+              Курс {{ index + 1 }}: {{ course.name }}
+            </h3>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">
@@ -208,18 +223,6 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
-.p-progressbar {
-  background: #3288624a !important;
-}
-
-.background-vectors {
-  z-index: -1;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
 .teacher-link {
   font-size: 24px;
   text-transform: uppercase;
@@ -254,6 +257,10 @@ onMounted(async () => {
   justify-content: center;
 }
 
+.bg-template {
+  width: 100vw;
+}
+
 .card-buttons {
   @apply flex gap-10 flex-col w-full justify-center items-center;
   font-size: 24px;
@@ -279,6 +286,10 @@ onMounted(async () => {
   &:hover {
     transform: translateX(-10px);
   }
+}
+
+.teacher-header {
+  @apply flex gap-10 mb-10;
 }
 
 .admin {
@@ -318,6 +329,10 @@ onMounted(async () => {
   border-radius: 15px;
 }
 
+.adaptive-btn {
+  display: none;
+}
+
 .course-info {
   width: 100%;
   font-size: 30px;
@@ -347,7 +362,203 @@ onMounted(async () => {
   background-color: #3840a9;
   border-radius: 20px;
   color: white;
-
+  z-index: 10;
   padding: 10px 20px;
+}
+
+.card-container {
+  display: flex;
+}
+
+.card-container-student {
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 1110px) {
+  .teacher-courses {
+    max-width: auto;
+    margin: 20px 20px;
+  }
+}
+
+@media (max-width: 1070px) {
+  .logout {
+    display: flex;
+    flex-direction: row-reverse;
+  }
+}
+
+@media (max-width: 1024px) {
+  .teacher-courses {
+    max-width: auto;
+    margin: 20px 10px;
+  }
+
+  .course-image {
+    max-width: 40vw;
+    min-width: 40vw;
+  }
+
+  .image {
+    width: max-content;
+    margin-right: 10px;
+  }
+
+  .teacher-header {
+    @apply justify-center;
+  }
+
+  .btn {
+    font-size: 2.4vw;
+  }
+}
+
+@media (max-width: 768px) {
+  .teacher-courses {
+    max-width: auto;
+    margin: 20px 50px;
+  }
+
+  .image {
+    margin-right: 0;
+  }
+
+  .course-card {
+    display: flex;
+    flex-direction: column-reverse;
+    padding: 15px 10px;
+    position: relative;
+  }
+
+  .card-container-student {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    width: max-content;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .course-image {
+    max-width: 70vw;
+    min-width: 70vw;
+  }
+
+  .course-bar {
+    width: 100%;
+    padding: 10px 20px;
+    background-color: #edefffa6;
+    border-radius: 15px;
+    position: absolute;
+    bottom: 0;
+
+    h1 {
+      font-size: 16px;
+    }
+  }
+
+  .card-container {
+    margin-top: 20px;
+    flex-direction: column-reverse;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    width: max-content;
+    margin-left: auto;
+    margin-right: auto;
+
+    .course-image {
+      margin: 0;
+    }
+  }
+
+  .card-buttons {
+    flex-direction: column-reverse;
+    gap: 10px;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(175, 175, 175, 0.507);
+    border-radius: 15px;
+    .course-btn {
+      display: none;
+    }
+
+    p {
+      width: max-content;
+      font-size: 4vw;
+    }
+  }
+
+  .adaptive-btn {
+    display: block;
+  }
+
+  .course-info {
+    display: flex;
+    justify-content: space-around;
+
+    h3 {
+      font-size: 4vw;
+    }
+  }
+}
+
+@media (max-width: 560px) {
+  .teacher-header {
+    flex-direction: column;
+    gap: 2vw;
+    margin-top: 20px;
+    .btn {
+      font-size: 20px;
+    }
+  }
+}
+
+@media (max-width: 425px) {
+  .teacher-header {
+    h1 {
+      margin-bottom: 20px;
+    }
+  }
+
+  .teacher-courses {
+    max-width: auto;
+    margin: 20px 10px;
+  }
+
+  .course-image {
+    max-width: 90vw;
+    min-width: 90vw;
+  }
+
+  .logout {
+    flex-direction: column;
+  }
+
+  .course-info {
+    h3 {
+      font-size: 5vw;
+      text-align: center;
+    }
+    .btn {
+      font-size: 4vw;
+    }
+  }
+}
+
+@media (max-width: 375px) {
+  .course-card {
+    padding: 0;
+  }
+
+  .card-container {
+    margin-bottom: 10px;
+  }
+
+  .course-info {
+    padding: 10px;
+  }
 }
 </style>

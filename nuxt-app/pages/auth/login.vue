@@ -87,7 +87,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex justify-center">
+  <div class="back-image">
     <img class="back" src="../../assets/images/back-login.svg" alt="" />
   </div>
   <div class="log-form">
@@ -127,12 +127,9 @@ onMounted(() => {
 <style lang="scss" scoped>
 @use "~/assets/scss/main.scss" as main;
 @use "sass:color";
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
-
 .back {
-  margin-top: 5%;
-  position: absolute;
   opacity: 30%;
+  scale: 0.8;
 }
 
 h1 {
@@ -164,6 +161,14 @@ p {
   align-items: center;
 }
 
+.back-image {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
 input {
   border: 2px solid #328862;
   font-size: 20px;
@@ -234,108 +239,32 @@ input {
 }
 
 @media (max-width: 1024px) {
-  .log-form {
-    display: block;
-    width: 600px;
-    height: 400px;
-    top: 5vh;
-    padding: 50px;
+  .input {
+    height: 50px;
+    width: 450px;
+  }
 
-    * {
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    input,
-    .login-form {
-      width: 480px;
-      font-size: 16px;
-      height: 50px;
-    }
-
-    .btn {
-      width: 230px;
-      margin: 0;
-      font-size: 16px;
-      height: 50px;
-      text-align: center;
-      align-items: center;
-      display: flex;
-      justify-content: center;
-    }
-
-    div:has(.btn) {
-      margin: 0;
-    }
+  .btn {
+    height: 50px;
   }
 }
 
-@media (max-width: 680px) {
-  .HelloText {
-    font-size: 24px;
-    line-height: 25px;
-    font-weight: bolder;
+@media (max-width: 768px) {
+  .back {
+    scale: 1;
   }
-
-  .log-form {
-    width: 480px;
-    height: 330px;
-    top: 2vh;
-    padding: 20px;
-
-    * {
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .login-form {
-      width: 420px;
-      height: max-content;
-
-      input {
-        width: 420px;
-        font-size: 16px;
-        height: 40px;
-      }
-    }
-
-    .btn {
-      width: 420px;
-      margin: 5px 0 0 0;
-      font-size: 16px;
-      height: 40px;
-    }
-
-    div:has(.btn) {
-      margin: 0;
-      display: block;
-    }
+  .input {
+    width: 400px;
   }
 }
 
-@media (max-width: 560px) {
-  .HelloText {
-    font-size: 20px;
-    line-height: 25px;
-    font-weight: bolder;
-  }
-}
-
-@media (max-width: 500px) {
-  .HelloText {
-    font-size: 4vw;
-    line-height: 20px;
-    font-weight: bolder;
-    margin: 0;
-    padding-left: 0;
-    padding-right: 0;
+@media (max-width: 425px) {
+  .input {
+    width: 300px;
   }
 
-  .log-form,
-  .btn,
-  .login-form,
-  input {
-    width: 100% !important;
+  .back {
+    scale: 2;
   }
 }
 </style>
