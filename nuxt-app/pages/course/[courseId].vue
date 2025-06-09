@@ -60,13 +60,15 @@
             Загрузить материал
           </button>
 
-          <!-- Подключение модала -->
           <AddMaterialModal
             ref="addMaterialModal"
             :course="course"
             :courseId="courseId"
             @material-created="onMaterialCreated"
           />
+          <button class="add-prepod" @click="openAddMaterialModal">
+            Добавить преподавателя
+          </button>
         </div>
         <!-- Список уроков -->
         <div v-if="course" class="lessons-container">
@@ -658,7 +660,8 @@ onMounted(async () => {
   justify-content: space-evenly;
   margin-top: 10px;
   .create-lesson,
-  .upload-material {
+  .upload-material,
+  .add-prepod {
     font-family: "Uncage";
     color: white;
     border: none;
@@ -678,6 +681,10 @@ onMounted(async () => {
 
   .upload-material {
     background-color: #3840a9;
+  }
+
+  .add-prepod {
+    background-color: #f0ac02;
   }
 }
 
@@ -831,6 +838,11 @@ onMounted(async () => {
   .lesson-header {
     gap: 10px;
   }
+
+  .actions {
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
 }
 
 @media (max-width: 500px) {
@@ -924,6 +936,12 @@ onMounted(async () => {
     button {
       font-size: 5vw;
     }
+  }
+}
+
+@media (max-width: 320px) {
+  .course-page {
+    margin: 20px 0;
   }
 }
 </style>
