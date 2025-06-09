@@ -20,59 +20,39 @@
   height: 100%;
   overflow: hidden;
 }
+
+@media (max-width: 850px) {
+  .background-vectors {
+    display: none;
+  }
+}
 </style>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import { initPositions } from "~/utils/shuffleback";
 
-const props = defineProps(["variable"]);
-
 const positions = ref([]);
 
-let images;
-
-if (props.variable === 1) {
-  images = [
-    { src: "/images/vectors/zigzak.png", width: 150 },
-    { src: "/images/vectors/town.png", width: 200 },
-    { src: "/images/vectors/grown.png", width: 200 },
-    { src: "/images/vectors/zigzak.png", width: 150 },
-    { src: "/images/vectors/town.png", width: 200 },
-    { src: "/images/vectors/grown.png", width: 200 },
-    { src: "/images/vectors/zigzak.png", width: 150 },
-    { src: "/images/vectors/town.png", width: 200 },
-  ];
-} else if (props.variable === 2) {
-  images = [
-    { src: "/images/vectors/yellow-rainbow.svg", width: 100, height: 100 },
-    { src: "/images/vectors/blue-zigzag.svg", width: 100, height: 100 },
-    { src: "/images/vectors/yellow-cup.svg", width: 100, height: 100 },
-    { src: "/images/vectors/red-zigzag.svg", width: 100, height: 100 },
-    { src: "/images/vectors/yellow-star.svg", width: 100, height: 100 },
-    { src: "/images/vectors/red-bubna.svg", width: 100, height: 100 },
-    { src: "/images/vectors/green-kaplya.svg", width: 100, height: 100 },
-    { src: "/images/vectors/blue-sixgranik.svg", width: 100, height: 100 },
-    { src: "/images/vectors/yellow-moon.svg", width: 100, height: 100 },
-    { src: "/images/vectors/green-zigzag.svg", width: 100, height: 100 },
-    { src: "/images/vectors/green-wave.svg", width: 100, height: 100 },
-    { src: "/images/vectors/yellow-ranbow-left.svg", width: 100, height: 100 },
-  ];
-} else {
-  images = [
-    { src: "/images/vectors/31.png", width: 150 },
-    { src: "/images/vectors/32.png", width: 200 },
-    { src: "/images/vectors/33.png", width: 200 },
-    { src: "/images/vectors/34.png", width: 200 },
-    { src: "/images/vectors/31.png", width: 150 },
-    { src: "/images/vectors/32.png", width: 200 },
-  ];
-}
+let images = [
+  { src: "/images/vectors/yellow-rainbow.svg", width: 100, height: 100 },
+  { src: "/images/vectors/blue-zigzag.svg", width: 100, height: 100 },
+  { src: "/images/vectors/yellow-cup.svg", width: 100, height: 100 },
+  { src: "/images/vectors/red-zigzag.svg", width: 100, height: 100 },
+  { src: "/images/vectors/yellow-star.svg", width: 100, height: 100 },
+  { src: "/images/vectors/red-bubna.svg", width: 100, height: 100 },
+  { src: "/images/vectors/green-kaplya.svg", width: 100, height: 100 },
+  { src: "/images/vectors/blue-sixgranik.svg", width: 100, height: 100 },
+  { src: "/images/vectors/yellow-moon.svg", width: 100, height: 100 },
+  { src: "/images/vectors/green-zigzag.svg", width: 100, height: 100 },
+  { src: "/images/vectors/green-wave.svg", width: 100, height: 100 },
+  { src: "/images/vectors/yellow-ranbow-left.svg", width: 100, height: 100 },
+];
 
 let lastWidth = window?.innerWidth || 0;
 let lastHeight = window?.innerHeight || 0;
 
-const resizeThreshold = 100; 
+const resizeThreshold = 100;
 
 onMounted(() => {
   if (!window) return;
@@ -91,7 +71,7 @@ onMounted(() => {
       lastWidth = currentWidth;
       lastHeight = currentHeight;
     }
-  }, 200); 
+  }, 200);
 
   window.addEventListener("resize", handleResize);
 

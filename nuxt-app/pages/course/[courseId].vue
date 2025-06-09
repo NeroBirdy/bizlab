@@ -1,5 +1,5 @@
 <template>
-  <Backimages :variable="2" />
+  <Backimages />
   <BizlabLogo />
   <DeleteModal
     ref="deleteElementRef"
@@ -23,7 +23,9 @@
     <header
       class="header flex-col flex items-center justify-center mr-auto ml-auto"
     >
-      <h1>Курс {{ courseName }}</h1>
+      <h1>
+        Курс <strong>{{ courseName }}</strong>
+      </h1>
       <nav class="nav-buttons">
         <button
           @click="chooseHomework = false"
@@ -73,6 +75,24 @@
             :key="lessonId"
             class="lesson-card"
           >
+            <button
+              v-if="editingLesson !== lessonId"
+              class="mobile-edit-btn"
+              @click="editLesson(lessonId)"
+            >
+              <Icon name="material-symbols:edit" class="icon" size="32"></Icon>
+            </button>
+            <button
+              v-if="editingLesson == lessonId"
+              class="mobile-edit-btn save-cl"
+              @click="saveLesson(lessonId)"
+            >
+              <Icon
+                name="material-symbols:save-rounded"
+                class="icon"
+                size="32"
+              ></Icon>
+            </button>
             <div class="lesson-header">
               <!-- Режим редактирования -->
               <div v-if="editingLesson === lessonId" class="edit-mode">
@@ -82,14 +102,11 @@
                   placeholder="Название урока"
                   class="lesson-name-input"
                 />
-                <button @click="saveLesson(lessonId)" class="save-button btn">
-                  Сохранить
-                </button>
               </div>
 
               <!-- Обычный режим -->
               <div v-else class="lesson-text">
-                <span>Урок {{ index + 1 }} {{ lesson.name }}</span>
+                <span>Урок {{ index + 1 }}: {{ lesson.name }}</span>
                 <p class="text-black">
                   {{ Object.keys(lesson.materials).length }} материала
                 </p>
@@ -109,7 +126,21 @@
                   @click="deleteElement(lessonId, NaN, 2)"
                   class="delete-button btn"
                 >
-                  удалить
+                  <div class="mobile-save-btn">
+                    <Icon
+                      name="material-symbols:delete-forever"
+                      class="icon"
+                      size="32"
+                    ></Icon>
+                  </div>
+                  <div class="hide-block">удалить</div>
+                </button>
+                <button
+                  v-if="editingLesson == lessonId"
+                  @click="saveLesson(lessonId)"
+                  class="save-button btn hide-block"
+                >
+                  Сохранить
                 </button>
               </div>
             </div>
@@ -138,7 +169,14 @@
                   @element-deleted="handleChanges"
                   class="delete-button btn"
                 >
-                  Удалить
+                  <div class="mobile-save-btn">
+                    <Icon
+                      name="material-symbols:delete-forever"
+                      class="icon"
+                      size="32"
+                    ></Icon>
+                  </div>
+                  <div class="hide-block">удалить</div>
                 </button>
               </li>
             </ul>
@@ -172,12 +210,15 @@
             <div class="buttons">
               <button
                 @click="downloadFile(homework.file)"
-                class="btn bg-[#3840A9]"
+                class="btn download-btn bg-[#3840A9]"
               >
                 Скачать
               </button>
-              <button @click="openModal(homework.id)" class="btn bg-[#328862]">
-                проверено
+              <button
+                @click="openModal(homework.id)"
+                class="btn correct-btn bg-[#328862]"
+              >
+                Проверить
               </button>
             </div>
           </div>
@@ -186,7 +227,7 @@
     </div>
   </div>
   <div class="flex justify-center">
-    <button class="btn delete-button" @click="deleteElement(courseId, 1, 1)">
+    <button class="btn course-del-btn" @click="deleteElement(courseId, 1, 1)">
       Удалить курс
     </button>
   </div>
@@ -255,7 +296,6 @@ const onMaterialCreated = (lessonId: number, material: any) => {
   });
 };
 
-// Данные курса
 const course = ref<{
   [lessonId: number]: {
     id: number;
@@ -277,7 +317,6 @@ const onLessonCreated = (lessonId: number, lessonName: string) => {
   alert(`Урок "${lessonName}" успешно создан`);
 };
 
-// === Получение данных курса ===
 const getCourseDetails = async () => {
   try {
     const response = await axios.post(`${apiBase}/api/getCourseForTeacher`, {
@@ -293,7 +332,6 @@ const getCourseDetails = async () => {
   }
 };
 
-// === Получение домашних работ ===
 const getHomeworks = async () => {
   try {
     const response = await axios.post(`${apiBase}/api/homework`, { courseId });
@@ -302,8 +340,6 @@ const getHomeworks = async () => {
     console.error("Ошибка при получении домашних работ:", error);
   }
 };
-
-// === Обработчики событий ===
 
 const deleteElement = (elId: number, lessonId: number, tp: number) => {
   console.log(deleteElementRef.value.openModal());
@@ -321,7 +357,6 @@ const deleteElement = (elId: number, lessonId: number, tp: number) => {
   deleteElementRef.value.openModal();
 };
 
-// Скачивание файла
 const downloadFile = async (fileUrl: string) => {
   const response = await fetch(`${apiBase}/api/download`, {
     method: "POST",
@@ -348,7 +383,6 @@ const downloadFile = async (fileUrl: string) => {
   window.URL.revokeObjectURL(url);
 };
 
-// Пометить домашнюю работу как проверенную
 const markAsChecked = async (homeworkId: number) => {
   const response = await axios.post(`${apiBase}/api/homework/checked`, {
     userProgressId: homeworkId,
@@ -423,6 +457,30 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.course-del-btn {
+  background-color: #e74c3c;
+  font-size: 16px;
+}
+
+.mobile-save-btn {
+  display: none;
+}
+
+.mobile-edit-btn {
+  background-color: var(--p-sky-600);
+  border-radius: 50%;
+  width: 40px;
+  color: white;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+}
+
+.save-cl {
+  background-color: #328862;
+}
+
 .h1-modal {
   text-align: center;
   font-size: 18px;
@@ -577,15 +635,20 @@ onMounted(async () => {
   padding: 10px 0;
   border-bottom: 1px solid #ccc;
   height: max-content;
-}
 
-.header img {
-  width: 150px;
-}
+  img {
+    width: 150px;
+  }
 
-.header h1 {
-  font-size: 24px;
-  margin: 0;
+  h1 {
+    font-size: 24px;
+    font-family: "Inter";
+    margin: 0;
+  }
+
+  strong {
+    font-family: "Uncage";
+  }
 }
 
 .actions {
@@ -627,6 +690,7 @@ onMounted(async () => {
 }
 
 .lesson-header {
+  gap: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -719,6 +783,146 @@ onMounted(async () => {
     }
     .info-item {
       font-size: 18px;
+    }
+  }
+}
+
+@media (max-width: 820px) {
+  .course-page {
+    margin: 20px;
+  }
+
+  .nav-buttons {
+    button {
+      font-size: 3vw;
+    }
+  }
+}
+
+@media (max-width: 580px) {
+  .lesson-card {
+    position: relative;
+
+    .edit-button {
+      display: none;
+    }
+  }
+
+  .save-button {
+    display: none;
+  }
+
+  .material-item {
+    gap: 10px;
+    justify-content: inherit;
+
+    .edit-material {
+      width: 100%;
+    }
+  }
+
+  .mobile-edit-btn {
+    display: flex;
+    position: absolute;
+    right: -10px;
+    top: -5px;
+  }
+
+  .lesson-header {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 500px) {
+  .nav-buttons {
+    button {
+      font-size: 4vw;
+    }
+  }
+
+  .hide-block {
+    display: none;
+  }
+
+  .mobile-save-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: max-content;
+  }
+
+  .save-button,
+  .delete-button {
+    margin-left: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .save-button {
+    display: none;
+  }
+
+  .material-item {
+    justify-content: start;
+  }
+
+  .save-button {
+    margin-left: 0;
+  }
+
+  .homework-item {
+    flex-direction: column;
+
+    .buttons {
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .homework-info {
+      text-align: center;
+      width: 100%;
+      strong {
+        display: block;
+      }
+    }
+  }
+}
+
+@media (max-width: 425px) {
+  .nav-buttons {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .lesson-text {
+    span,
+    p {
+      align-items: start;
+    }
+  }
+
+  .lesson-header,
+  .material-item {
+    gap: 0;
+  }
+  .lesson-name-input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 385px) {
+}
+
+@media (max-width: 375px) {
+  .nav-buttons {
+    button {
+      font-size: 5vw;
     }
   }
 }

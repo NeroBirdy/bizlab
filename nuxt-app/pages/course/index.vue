@@ -7,7 +7,7 @@
 
     <BizlabLogo />
     <div class="bg-template">
-      <Backimages :variable="2" />
+      <Backimages />
     </div>
 
     <div v-if="role == 1 || role == 2" class="teacher-courses">
@@ -375,9 +375,8 @@ onMounted(async () => {
   align-items: center;
 }
 
-@media (max-width: 1110px) {
+@media (max-width: 1040px) {
   .teacher-courses {
-    max-width: auto;
     margin: 20px 20px;
   }
 }
@@ -392,7 +391,7 @@ onMounted(async () => {
 @media (max-width: 1024px) {
   .teacher-courses {
     max-width: auto;
-    margin: 20px 10px;
+    margin: 20px 20px;
   }
 
   .course-image {

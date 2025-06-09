@@ -26,9 +26,15 @@ a {
   }
 }
 
-@media (max-width: 425px) {
+@media (max-width: 560px) {
   img {
-    width: 50vw;
+    width: 48vw;
+  }
+}
+
+@media (max-width: 420px) {
+  img {
+    width: 55vw;
   }
 }
 </style>

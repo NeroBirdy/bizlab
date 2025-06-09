@@ -107,7 +107,11 @@
             placeholder="Введите составляющую"
             required
           />
-          <button @click="removeCompound(index)" class="remove-button">
+          <button
+            @click="removeCompound(index)"
+            type="button"
+            class="remove-button"
+          >
             Удалить
           </button>
         </div>
@@ -328,6 +332,10 @@ onMounted(() => {
   cursor: pointer;
 }
 
+.remove-button {
+  background-color: rgb(134, 0, 0);
+}
+
 .submit-button {
   padding: 10px 20px;
   background-color: #27ae60;
@@ -376,9 +384,8 @@ form-image,
   text-align: center;
 
   @media (max-width: 768px) {
-    width: 100%;
-    max-width: 300px;
-    height: 200px;
+    width: 35vw;
+    height: 35vw;
     margin: 0 auto;
     font-size: 18px;
   }
@@ -405,6 +412,83 @@ form-image,
   }
   .image-name {
     width: 40%;
+  }
+}
+
+@media (max-width: 850px) {
+  .create-course {
+    margin: 20px;
+  }
+
+  .image-name {
+    margin-right: 10px;
+  }
+}
+
+@media (max-width: 560px) {
+  .form-image {
+    flex-direction: column;
+
+    .image-name {
+      width: 100%;
+
+      .image-alt {
+        width: 60vw;
+        height: 40vw;
+        margin-right: auto;
+        margin-left: auto;
+      }
+    }
+    .description {
+      width: 100% !important;
+    }
+  }
+}
+
+@media (max-width: 450px) {
+  .option-buttons {
+    height: 40px;
+
+    .btn {
+      font-size: 14px;
+    }
+  }
+}
+
+@media (max-width: 375px) {
+  .option-buttons {
+    height: max-content;
+    padding: 0 10px;
+
+    .btn {
+      margin: 0;
+    }
+  }
+
+  .compound-item {
+    flex-direction: column;
+    gap: 5px;
+    justify-content: center;
+    input {
+      width: 100%;
+      margin: 0;
+    }
+  }
+
+  .add-button {
+    width: 100%;
+  }
+  .form-image {
+    .image-name {
+      margin-bottom: 10px;
+      width: 100%;
+      .image-alt {
+        width: 100%;
+        height: 200px;
+        margin: 0;
+        padding: 0;
+      }
+    }
   }
 }
 </style>
