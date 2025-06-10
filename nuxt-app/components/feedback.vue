@@ -1,5 +1,5 @@
 <template>
-  <div class="feedbackContent">
+  <div class="feedbackContent"  id="feedback">
     <!-- <img
       src="/assets/images/teachersPage/vectorStar.svg"
       alt="Star"

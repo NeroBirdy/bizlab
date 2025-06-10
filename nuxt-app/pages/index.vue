@@ -53,7 +53,7 @@ import { ClientOnly } from "#components";
     <Courses />
     <Teachers />
     <Reviews />
-    <Feedback />
+    <Feedback/>
     <Contacts />
   </div>
 </template>

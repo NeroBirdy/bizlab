@@ -78,7 +78,7 @@
                     <div class="second-half">
                       <div class="flex justify-between">
                         <div class="course-link">
-                          <a href="#">Записаться</a>
+                          <a href="#feedback">Записаться</a>
                         </div>
                         <div class="last-price">
                           <p
@@ -117,6 +117,7 @@
     <img src="/assets/images/welcomePage/town.png" class="vector two" />
     <h1 class="text-center">Курсы</h1>
     <ClientOnly>
+      <CourseDesc ref="courseDescRef" ></CourseDesc>
         <swiper-container ref="containerRef" class="swiper-container">
           <swiper-slide
             lazy="true"
@@ -124,7 +125,7 @@
             :key="idx"
             class="slide"
           >
-            <div class="course-card">
+            <div class="course-card" @click="openFullCourse(course)">
               <div class="main-info">
                 <div class="mini-picture">
                   <div class="">
@@ -163,6 +164,7 @@
 import { ref } from "vue";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import CourseDesc from "./CourseDesc.vue";
 
 const containerRef = ref(null);
 const slides = ref(Array.from({ length: 10 }));
@@ -176,6 +178,7 @@ const config = useRuntimeConfig();
 const apiBase = config.public.apiBase;
 const courses = ref();
 const description = ref(true);
+const courseDescRef = ref();
 
 const getCourses = async () => {
   const response = await axios.get(`${apiBase}/api/getCourseForMain`, {
@@ -186,9 +189,12 @@ const getCourses = async () => {
   courses.value = response.data;
 };
 
+const openFullCourse = (course) => {
+  courseDescRef.value.openModal(course);
+};
+
 onMounted(() => {
   getCourses();
-  console.log(courses);
 });
 
 const fixprice = (price) => {
