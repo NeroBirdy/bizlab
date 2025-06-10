@@ -1,13 +1,13 @@
 <template>
-  <div class="relative">
-    <img src="/assets/images/welcomePage/grown.png" class="vector one" />
-    <img src="/assets/images/welcomePage/town.png" class="vector two" />
+  <div class="relative content">
+    <img src="/assets/images/welcomePage/grown.png" class="vector one desktop" />
+    <img src="/assets/images/welcomePage/town.png" class="vector two desktop" />
 
-    <div class="container">
+    <div class="container desktop">
       <h1 class="text-center">Курсы</h1>
       <div class="flex justify-between">
         <button @click="swiper.prev()" class="arrow">
-          <img src="/assets/images/welcomePage/arrow-prev.svg" />
+          <img src="/assets/images/welcomePage/arrow-prev.svg" style="width: 3vw;"/>
         </button>
         <ClientOnly>
           <swiper-container ref="containerRef" class="swiper-container">
@@ -50,12 +50,12 @@
                       />
                       <sub
                         class="justify-center flex mt-5"
-                        style="font-size: 20px"
+                        style="font-size: 1.4vw"
                         >в расрочку от
                         {{ fixprice(course.credit) }} руб/мес</sub
                       >
                     </div>
-                    <div class="text-block second-half">
+                    <div class="text-block hide-scrollbar">
                       <div v-if="description" class="course-description">
                         {{ course.description }}
                       </div>
@@ -79,7 +79,7 @@
                           <p
                             style="
                               text-decoration: line-through;
-                              font-size: 24px;
+                              font-size: 1.6vw;
                             "
                           >
                             {{ fixprice(course.price) }} ₽
@@ -92,7 +92,7 @@
                     <div class="second-half flex justify-end">
                       <div class="flex-row justify-end price">
                         <p>{{ fixprice(course.salePrice) }} ₽</p>
-                        <sup style="font-size: 14px">*{{ course.sale }}</sup>
+                        <sup style="font-size: 1vw">*{{ course.sale }}</sup>
                       </div>
                     </div>
                   </div>
@@ -102,10 +102,55 @@
           </swiper-container>
         </ClientOnly>
         <button @click="swiper.next()">
-          <img src="/assets/images/welcomePage/arrow-next.svg" class="arrow" />
+          <img src="/assets/images/welcomePage/arrow-next.svg" class="arrow" style="width: 3vw; z-index: 3;"/>
         </button>
       </div>
     </div>
+  </div>
+  <div class="mobile content-mobile">
+    <img src="/assets/images/welcomePage/grown.png" class="vector one" />
+    <img src="/assets/images/welcomePage/town.png" class="vector two" />
+    <h1 class="text-center">Курсы</h1>
+    <ClientOnly>
+        <swiper-container ref="containerRef" class="swiper-container">
+          <swiper-slide
+            lazy="true"
+            v-for="(course, idx) in courses"
+            :key="idx"
+            class="slide"
+          >
+            <div class="course-card">
+              <div class="main-info">
+                <div class="mini-picture">
+                  <div class="">
+                    <img
+                      loading="lazy"
+                      class="course-picture"
+                      :src="course.picture"
+                      alt="Здесь должна быть картинка"
+                    />
+                  </div>
+                </div>
+                <div class="mini-info-container">
+                  <p class="mini-places">{{ course.places }} мест</p>
+                  <div class="mini-info-container-bottom">
+                    <h3 class="text-center">«{{ course.name }}»</h3>
+                    <div class="">
+                      <div class="">
+                        <div class="">
+                          <div class="course-link">
+                            <a href="#">Подробнее</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </swiper-slide>
+        </swiper-container>
+      </ClientOnly>
   </div>
 </template>
 
@@ -150,16 +195,20 @@ const fixprice = (price) => {
 <style lang="scss" scoped>
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 
+.container {
+  max-width: 83.3vw;
+}
+
 .course-link {
   background-color: #328862;
-  font-size: 24px;
+  font-size: 1.6vw;
   border-radius: 50px;
   padding: 5px 15px;
   color: white;
-  width: 300px;
+  width: 21vw;
   text-align: center;
   justify-content: center;
-  height: 50px;
+  height: 3.5vw;
   text-transform: uppercase;
   letter-spacing: 1px;
   font-family: "UnboundedRegular";
@@ -194,13 +243,13 @@ const fixprice = (price) => {
 }
 
 h3 {
-  font-size: 40px;
+  font-size: 3vw;
   color: #3840a9;
 }
 
 .active {
   background-color: #328862;
-  font-size: 18px;
+  font-size: 1.25vw;
   border-radius: 50px;
   padding: 5px 15px;
   color: white;
@@ -222,9 +271,10 @@ h3 {
 }
 
 .picture-block {
+  max-height: 20vw;
   img {
-    width: 500px;
-    height: 386px;
+    width: 35vw;
+    height: auto;
     top: 239px;
     left: 276px;
     border-radius: 48px;
@@ -234,11 +284,25 @@ h3 {
 .text-block {
   margin-left: 20px;
   border-radius: 5px;
+  padding-left: 2%;
+  width: 36vw;
+  max-height: 22vw;
+  overflow: scroll;
+}
+
+.hide-scrollbar {
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 .course-description {
-  width: 80%;
   white-space: pre-wrap;
+  font-size: 1vw;
 }
 
 .picture-block {
@@ -261,13 +325,14 @@ h3 {
 
 .slide {
   padding: 10px;
-  background-color: rgb(223, 235, 247);
+  // background-color: rgb(223, 235, 247);
   border-radius: 15px;
 }
 
 .course-places {
   color: white;
   font-family: "UnboundedRegular";
+  font-size: 1vw;
   position: absolute;
   top: 0px;
   right: 0px;
@@ -275,8 +340,8 @@ h3 {
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  width: 100px;
-  height: 100px;
+  width: 7vw;
+  height: 7vw;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -285,7 +350,7 @@ h3 {
 
 .course-buttons {
   margin: 0;
-  font-size: 18px;
+  font-size: 1.25vw;
   border-radius: 50px;
   padding: 5px 15px;
   align-items: center;
@@ -304,8 +369,85 @@ h3 {
     display: flex;
     justify-content: end;
     text-align: end;
-    font-size: 32px;
+    font-size: 2.2vw;
     font-family: "Inter", sans-serif;
+  }
+}
+
+.mobile {
+  display: none;
+  position: relative;
+}
+
+@media (max-width: 767px) {
+  .desktop, .content {
+    display: none;   
+  }
+  .mobile {
+    display: block;
+  }
+  .main-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .course-picture {
+    width: 100%;
+    border-radius: 15px;
+  }
+  .slide {
+    justify-items: center;
+  }
+  .mini-picture {
+    max-width: 65%;
+  }
+
+  .main-info-container {
+    width: 100%;
+    display: flex;
+  }
+
+  .mini-info-container {
+    height: 31vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .mini-places {
+    width: 20vw;
+    text-align: center;
+    background-color:rgb(226, 93, 53);
+    border-radius: 14px;
+    font-family: "UnboundedRegular";
+    color: white;
+    font-size: 2.5vw;
+  }
+
+  .mini-info-container-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 50%;
+    justify-content: space-between;
+  }
+  .swiper-container {
+    width: 90%;
+  }
+}
+
+@media (max-width: 1025px) {
+  .picture-block {
+    img {
+      height: 22vw;
+    }
+  }
+  .text-block {
+    height: 27vw;
+  }
+  .course-description {
+    font-size: 1.5vw;
   }
 }
 </style>

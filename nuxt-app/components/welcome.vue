@@ -1,27 +1,62 @@
 <template>
   <div class="content">
-    <img
-      src="/assets/images/welcomePage/background.png"
-      alt="back"
-      class="background"
-    />
-    <div style="display: none">Лучшее место для развития вашего ребенка</div>
-    <!-- <a class="parallelogram" href="#"
-      ><img src="/assets/images/welcomePage/link.svg" alt="link"
-    /></a> -->
+    <div class="main-container">
+      <div class="main-container-text">
+        <div class="line1">Лучшее</div>
+        <div class="line2">место для</div>
+        <div class="line3">развития</div>
+        <div class="line4">вашего ребенка</div>
+      </div>
+      <div class="main-container-img">
+        <img
+          src="/assets/images/welcomePage/background.svg"
+          alt="back"
+          class="background"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
 <style lang="scss" scooped>
 .content {
-  @apply w-full relative;
-  height: 100vh;
+  height: 90vh;
+  overflow: hidden;
+  width: 100vw;
+}
+
+.main-container {
+  height: 85vh;
+  display: flex;
+  flex-direction: column;
+  margin-top: 5vh;
+  max-width: 100vw;
+}
+
+.main-container-text {
+  display: none;
+  width: 100%;
+  height: 10%;
+  text-align: left;
+  font-size: 5vw;
+  font-family: 'UnboundedRegular';
+  padding-left: 5vw;
+  z-index: 2;
+  line-height: 12vw;
+}
+
+.main-container-img {
+  width: 100%;
+  height: 90%;
+  display: flex;
+  align-items: center;
 }
 
 .background {
   position: absolute;
-  width: 100%;
-  height: 100vh;
+  width: 93vw;
+  margin-right: 7vw;
+  // height: 100vh;
 }
 
 .bizLogo {
@@ -47,4 +82,54 @@
     transform: scaleX(1.1);
   }
 }
+
+.line1, .line2, .line3, .line4 {
+  font-family: "Uncage";
+}
+
+.line2, .line3 {
+  position: relative;
+  left: 8vw;
+}
+
+.line1 {
+  color: rgb(226, 93, 53);
+  font-size: 15vw;
+}
+
+.line2 {
+  font-size: 8vw;
+}
+
+.line3 {
+  color: rgb(240, 172, 2);
+  font-size: 12vw;
+}
+
+.line4 {
+  font-size: 6vw;
+  line-height: 8vw;
+}
+
+@media (max-width: 426px) {
+  .main-container-text {
+    display: block;
+  }
+  .background {
+    content:  url("/assets/images/welcomePage/back_withoutwork.svg");
+    width: 100vw;
+    margin-right: 0;
+    position: relative;
+    left: 23vw;
+    scale: 1.8;
+  }
+  header {
+    margin-left: 5vw;
+    margin-right: 5vw;
+  }
+}
 </style>
+
+
+
+

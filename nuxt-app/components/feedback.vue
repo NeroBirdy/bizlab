@@ -1,6 +1,6 @@
 <template>
-  <div class="relative">
-    <img
+  <div class="feedbackContent">
+    <!-- <img
       src="/assets/images/teachersPage/vectorStar.svg"
       alt="Star"
       class="star2"
@@ -9,21 +9,16 @@
       src="/assets/images/teachersPage/vectorWave.svg"
       alt="Wave"
       class="wave2"
-    />
-    <div class="container flex relative">
-      <img
-        src="/assets/images/welcomePage/callback.png
-    "
-        class="bg-card"
-      />
+    /> -->
+    <div class="feedback-block">
       <div class="form-div">
         <form @submit.prevent="sendRequest" class="">
           <h3>ЗАПОЛНЯЙ АНКЕТУ</h3>
-          <div class="mt-10 input-div">
+          <div class="input-div">
             <input type="text" placeholder="ФИО" />
             <input type="text" placeholder="Телефон" />
           </div>
-          <div class="mt-10 checkbox-div">
+          <div class="checkbox-div">
             <div>
               <div class="checkbox-wrapper">
                 <input type="checkbox" id="check" />
@@ -71,19 +66,36 @@ const sendRequest = async () => {
 </script>
 
 <style lang="scss" scoped>
+.feedbackContent {
+  width: 100vw;
+  height: 90vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.feedback-block {
+  background-image: url("/assets/images/welcomePage/callback.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 78%;
+  height: 40%;
+  display: flex;
+  justify-content: end;
+}
+
 .bg-card {
   width: 80%;
 }
 
 .form-div {
-  position: absolute;
-  height: 120%;
-  border: #2b7454 10px solid;
+  height: 130%;
+  width: 50%;
+  border: #2b7454 0.7vw solid;
   background-color: white;
-  right: 0;
-  top: -50px;
-  width: 500px;
-  border-radius: 50px;
+  border-radius: 3.5vw;
+  position: relative;
+  top: -15%;
 }
 
 form {
@@ -95,9 +107,9 @@ form {
     margin-top: 10%;
     width: 100%;
     text-align: center;
-    word-spacing: 100px;
+    // word-spacing: 100px;
     font-family: "UnboundedSemiBold";
-    font-size: 32px;
+    font-size: 2.2vw;
     color: #e15d34;
   }
   .input-div {
@@ -110,11 +122,11 @@ form {
       margin-right: auto;
       margin-left: auto;
       @apply shadow-md;
-      padding: 5px;
+      padding: 0.35vw;
       font-size: 1.5vw;
-      border: 5px solid #2b7454;
-      border-radius: 15px;
-      margin-top: 35px;
+      border: 0.35vw solid #2b7454;
+      border-radius: 1vw;
+      margin-top: 2.5vw;
       background-color: white;
       &::placeholder {
         color: #2b7454;
@@ -122,26 +134,27 @@ form {
     }
   }
   .btn {
-    margin-top: 40px;
+    margin-top: 2.7vw;
     margin-left: auto;
     margin-right: auto;
-    width: 230px;
-    border-radius: 50px;
-    height: 80px;
+    width: 16vw;
+    border-radius: 3.5vw;
+    height: 5.5vw;
     color: white;
     font-family: "Uncage";
     background-color: #e25d35;
+    font-size: 1.4vw;
   }
 
   .checkbox-wrapper {
     display: inline-flex;
     position: relative;
     margin: 0;
-    margin-right: 20px;
+    margin-right: 1.4vw;
     padding: 0;
     accent-color: #2b7454;
-    width: 40px;
-    height: 40px;
+    width: 2.7vw;
+    height: 2.7vw;
   }
 
   .checkbox-wrapper input[type="checkbox"] {
@@ -163,11 +176,19 @@ form {
     left: 0px;
     right: 0px;
     bottom: 0px;
-    border: 4px solid green;
+    border: 0.27vw solid green;
     border-radius: 4px;
     pointer-events: none;
     box-sizing: border-box;
     z-index: 1;
+  }
+
+  label {
+    font-size: 1.1vw;
+  }
+
+  a {
+    font-size: 1.1vw;
   }
 }
 
@@ -176,6 +197,7 @@ form {
   width: 80%;
   margin-right: auto;
   margin-left: auto;
+  margin-top: 3vw;
 }
 
 .star2,
@@ -193,5 +215,40 @@ form {
   left: -160px;
   top: -120px;
   height: 700px;
+}
+
+@media (max-width: 768px) {
+  form {
+    label {
+      font-size: 1.3vw;
+    }
+    a {
+      font-size: 1.3vw;
+    }
+  }
+}
+
+@media (max-width: 425px) {
+  form {
+    label {
+      font-size: 1.6vw;
+    }
+    a {
+      font-size: 1.6vw;
+    }
+    .input-div {
+      margin-top: 3vw;
+    }
+  }
+  .feedback-block {
+    background-image: none;
+    justify-content: center;
+  }
+  .form-div {
+    scale: 1.5;
+    height: 150%;
+    background-color: #f3f3f3;
+  }
+
 }
 </style>

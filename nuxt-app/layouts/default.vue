@@ -1,7 +1,5 @@
 <template>
-  <main class="main"">
-    <slot></slot>
-  </main>
+  <slot></slot>
   <footer class="footer relative mt-20">
     <div class="container flex justify-between">
       <div class="left-fot">
@@ -46,17 +44,17 @@ main{
 
 .footer {
   background-color: #171717;
-  padding: 80px;
+  padding: 5.5vw;
 
   .container {
-    width: 80%;
+    width: 90%;
   }
 }
 
 .left-fot {
   width: 30%;
   p {
-    margin-top: 50px;
+    margin-top: 2.5vw;
     color: #525252;
   }
 }
@@ -64,25 +62,30 @@ main{
 .grid-div {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-row-gap: 10px;
+  gap: 10px;
   a {
-    font-size: 18px;
-    color: white;
+    font-size: 1.25vw;
+    color: rgba(227, 227, 227, 0.7);
   }
 }
 
+.grid-div a:nth-child(7) {
+  grid-column: 1 / span 2;
+  grid-row: 7 / 8;
+}
+
 .right-fot {
-  width: 30%;
+  max-width: 45%;
   color: #525252;
 
   h2 {
     font-family: "Uncage";
-    font-size: 24px;
+    font-size: 2vw;
   }
 
   p {
     margin-top: 50px;
-    font-size: 18px;
+    font-size: 1.25vw;
   }
 }
 
@@ -92,5 +95,55 @@ main{
   bottom: 0;
   left: 10%;
   right: 10%;
+}
+
+@media (max-width: 768px) {
+  .right-fot {
+    h2 {
+      font-size: 3vw;
+    }
+    p {
+      font-size: 1.7vw;
+    }
+  }
+  .grid-div {
+    a {
+      font-size: 2vw;
+    }
+  }
+  .left-fot {
+    p {
+      font-size: 1.7vw;
+    }
+  }
+}
+
+@media (max-width: 425px) {
+  .right-fot {
+    h2 {
+      font-size: 4vw;
+    }
+    p {
+      font-size: 2.5vw;
+    }
+  }
+  .grid-div {
+    a {
+      font-size: 2.3vw;
+    }
+  }
+  .left-fot {
+    p {
+      font-size: 2.3vw;
+    }
+  }
+}
+
+@media (min-width: 1441px) {
+  .left-fot {
+    p {
+      font-size: 1.25vw;
+    }
+  }
 }
 </style>

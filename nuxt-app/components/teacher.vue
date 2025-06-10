@@ -14,7 +14,7 @@ const imgSrc = (await import(`@/assets/images/teachersPage/${props.photo}.png`))
 </script>
 
 <template>
-  <div class="text-center">
+  <div class="text-center teacher">
     <div
       :style="{
         backgroundImage: 'url(' + bgImg + ')',
@@ -32,10 +32,17 @@ const imgSrc = (await import(`@/assets/images/teachersPage/${props.photo}.png`))
 </template>
 
 <style scoped>
+.teacher {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 17.5vw;
+}
+
 .photo-card {
   position: relative;
-  width: 200px;
-  min-height: 200px;
+  width: 14.8vw;
+  min-height: 14.8vw;
   background-size: 100% 90%;
   background-position: bottom;
   background-repeat: no-repeat;
@@ -49,5 +56,12 @@ const imgSrc = (await import(`@/assets/images/teachersPage/${props.photo}.png`))
   bottom: 0;
   height: 100%;
   width: auto;
+}
+
+@media (max-width: 425px) {
+  .photo-card {
+    width: 35vw;
+    min-height: 35vw;
+  }
 }
 </style>
