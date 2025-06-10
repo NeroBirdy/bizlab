@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import Registration, Login, Logout, welcomeToTeacher, parseFile, downloadFile, getTeachers, deleteTeacher, createComment, getFeedback, getCourseForMain, sendEmailToAdmin, getUser, getCourseByUser, getDoneUserProgress, getCourseForUser, checked, getCourseForTeacher, updateLesson, updateMaterial, uploadFile, createCourse, getCoursesForTeacher, createMaterial, getUsersByCourse, createTask, inviteUserOnCourse, getFilesForTeacher
+from .views import Registration, Login, Logout, deleteMaterial, deleteUserFromCourse, deleteTeacherFromCourse, accessForCourse, accessForCourseForStudent, accessForTest, getTeachersForCourse, deleteLesson, deleteCourse, welcomeToTeacher, parseFile, downloadFile, getTeachers, deleteTeacher, createComment, getFeedback, getCourseForMain, sendEmailToAdmin, getUser, getCourseByUser, getDoneUserProgress, getCourseForUser, checked, getCourseForTeacher, updateLesson, updateMaterial, uploadFile, createCourse, getCoursesForTeacher, createMaterial, getUsersByCourse, createTask, inviteUserOnCourse, getFilesForTeacher
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -8,12 +8,12 @@ from rest_framework_simplejwt.views import (
 from django.urls import re_path
 
 urlpatterns = [
-    path('auth/registration', Registration.as_view(), name='registration'),
-    path('auth/login', Login.as_view(), name='login'),
-    path('auth/logout', Logout.as_view(), name='logout'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    path('auth/registration', Registration.as_view(), name='registration'),
+    path('auth/login', Login.as_view(), name='login'),
+    path('auth/logout', Logout.as_view(), name='logout'),
     path('download', downloadFile.as_view(), name='downloadFile'),
     path('upload', uploadFile.as_view(), name='uploadFile'),
     path('createCourse', createCourse.as_view(), name='createCourse'),
@@ -38,5 +38,14 @@ urlpatterns = [
     path('getFeedback', getFeedback.as_view(), name='getFeedback'),
     path('createComment', createComment.as_view(), name='createComment'),
     path('parseFile', parseFile.as_view(), name='parseFile'),
+    path('deleteMaterial', deleteMaterial.as_view(), name='deleteMaterial'),
+    path('deleteLesson', deleteLesson.as_view(), name='deleteLesson'),
+    path('deleteCourse', deleteCourse.as_view(), name='deleteCourse'),
     path('welcomeToTeacher', welcomeToTeacher.as_view(), name='welcomeToTeacher'),
+    path('getTeachersForCourse', getTeachersForCourse.as_view(), name='getTeachersForCourse'),
+    path('accessForCourse', accessForCourse.as_view(), name='accessForCourse'),
+    path('accessForCourseForStudent', accessForCourseForStudent.as_view(), name='accessForCourseForStudent'),
+    path('accessForTest', accessForTest.as_view(), name='accessForTest'),
+    path('deleteUserFromCourse', deleteUserFromCourse.as_view(), name='deleteUserFromCourse'),
+    path('deleteTeacherFromCourse', deleteTeacherFromCourse.as_view(), name='deleteTeacherFromCourse'),
 ]

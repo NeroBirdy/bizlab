@@ -1,22 +1,23 @@
 <template>
-  <Backimages :variable="1" />
-  <p class="logout" @click="logout">ВЫЙТИ ИЗ ЛИЧНОГО КАБИНЕТА</p>
-  <img src="/assets/images/bizlap-logo.svg" alt="logo" class="bizlab-logo" />
-  <div v-if="role == 1" class="teacher-courses">
-    <div class="flex gap-10 mb-10">
+  <div class="logout">
+    <p class="logout-btn" @click="logout">ВЫЙТИ ИЗ ЛИЧНОГО КАБИНЕТА</p>
+    <a v-if="role == 2" class="logout-btn admin" href="/admin">Админка</a>
+  </div>
+
+  <BizlabLogo />
+  <div class="bg-template">
+    <Backimages />
+  </div>
+
+  <div v-if="role == 1 || role == 2" class="teacher-courses">
+    <div class="teacher-header">
       <h1 class="teacher-link text-[#3840a9] items-center text-center flex">
         Мои курсы
       </h1>
-      <button
-        @click="navigateTo('/createCourse')"
-        class="teacher-link btn create-btn"
-      >
+      <button @click="navigateTo('/createCourse')" class="teacher-link btn create-btn">
         Создать курс
       </button>
-      <button
-        @click="openStudentRegistrationModal"
-        class="teacher-link btn student-btn"
-      >
+      <button @click="openStudentRegistrationModal" class="teacher-link btn student-btn">
         Зарегистрировать студента
       </button>
     </div>
@@ -24,27 +25,20 @@
     <AddStudentModal ref="addStudentModalRef" />
     <!-- Список курсов -->
     <div v-if="courses.length > 0" class="courses-list" id="courses-list">
-      <div
-        v-for="(course, index) in courses"
-        :key="course.id"
-        class="course-card"
-      >
-        <div class="flex">
-          <img
-            :src="course.picture"
-            alt="Картинка курса"
-            class="course-image"
-            @click="navigateTo(`/course/${course.id}`)"
-          />
+      <div v-for="(course, index) in courses" :key="course.id" class="course-card">
+        <div class="card-container">
+          <img :src="course.picture" alt="Картинка курса" class="course-image"
+            @click="navigateTo(`/course/${course.id}`)" />
           <div class="card-buttons">
-            <p class="text-center">
+            <p class="text-center" @click="navigateTo(`/course/${course.id}`)">
               Ожидают проверки {{ course.needToCheck }} работ
             </p>
             <div class="flex justify-center">
-              <button @click="openUserModal(course.id)" class="btn course-btn">
-                Зачислить ученика
+              <button @click="toggle($event); courseId = course.id;" class="btn course-btn">
+                Добавить пользователя
               </button>
             </div>
+
           </div>
         </div>
 
@@ -53,17 +47,29 @@
           <h3 style="cursor: pointer">
             Курс {{ index + 1 }}: {{ course.name }}
           </h3>
+          <button @click="toggle($event); courseId = course.id;" class="btn course-btn adaptive-btn">
+            Добавить пользователя
+          </button>
+
         </div>
       </div>
     </div>
 
-    <!-- Сообщение при отсутствии курсов -->
+ 
+
     <p v-else class="no-courses">
       {{ loading ? "Загрузка..." : "Нет доступных курсов" }}
     </p>
 
-    <!-- Модальное окно -->
-    <AddUserOnCourse ref="addUserModalRef" />
+    <Menu ref="menu" :model="items" :popup="true" class="custom-menu-size">
+    <template #item="{ item }" class="flex justify-center">
+      <button class="btn course-btn width-btn-menu" @click="openUserModal(courseId); roleForAdd = item.role">
+        {{ item.text }}
+      </button>
+    </template>
+  </Menu>
+
+    <AddUserOnCourse :role="roleForAdd" :action="0" ref="addUserModalRef" />
   </div>
   <div v-if="role == 0" class="teacher-courses">
     <div class="header flex">
@@ -74,29 +80,15 @@
       </div>
     </div>
 
-    <div
-      v-if="coursesForStudent.length > 0"
-      v-for="(course, index) in coursesForStudent"
-      class="courses-list"
-    >
-      <div
-        @click="navigateTo(`/courseForStudent/${course.id}`)"
-        class="course-card mb-10"
-      >
-        <div class="flex items-center">
+    <div v-if="coursesForStudent.length > 0" v-for="(course, index) in coursesForStudent" class="courses-list">
+      <div @click="navigateTo(`/courseForStudent/${course.id}`)" class="course-card mb-10">
+        <div class="card-container-student">
           <div class="image">
-            <img
-              :src="course.picture"
-              alt="Картинка курса"
-              class="course-image"
-            />
+            <img :src="course.picture" alt="Картинка курса" class="course-image" />
           </div>
           <div class="course-bar">
             <h1>ТЕКУЩИЙ ПРОГРЕСС КУРСА</h1>
-            <ProgressBar
-              :show-value="false"
-              :value="course.progress"
-            ></ProgressBar>
+            <ProgressBar :show-value="false" :value="course.progress"></ProgressBar>
             <p>{{ parseInt(course.progress) }} %</p>
           </div>
         </div>
@@ -106,7 +98,12 @@
           </h3>
         </div>
       </div>
+
+
     </div>
+    <p v-else class="no-courses course-card">
+      {{ loading ? "Загрузка..." : "Нет доступных курсов" }}
+    </p>
   </div>
 </template>
 
@@ -116,7 +113,8 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import AddStudentModal from "../../components/AddStudent.vue";
 import ProgressBar from "primevue/progressbar";
-// === Переменные ===
+// import Menu from 'primevue/menu';
+
 const addStudentModalRef = ref();
 const courses = ref([]);
 const userId = ref<number | null>(null);
@@ -125,20 +123,13 @@ const role = ref();
 const coursesForStudent = ref();
 const userStore = useAuthStore();
 const addUserModalRef = ref();
+const roleForAdd = ref();
+const menu = ref();
+const courseId = ref();
 
-const positions = ref([]);
-
-const images = [
-  { src: "images/vectors/zigzak.png", width: 150 },
-  { src: "images/vectors/town.png", width: 200 },
-  { src: "images/vectors/vector.svg", width: 200 },
-  { src: "images/vectors/grown.png", width: 200 },
-  { src: "images/vectors/zigzak.png", width: 150 },
-  { src: "images/vectors/town.png", width: 200 },
-  { src: "images/vectors/grown.png", width: 200 },
-  { src: "images/vectors/zigzak.png", width: 150 },
-  { src: "images/vectors/town.png", width: 200 },
-];
+const toggle = (event) => {
+  menu.value.toggle(event);
+};
 
 const config = useRuntimeConfig();
 const apiBase = config.public.apiBase as string;
@@ -152,6 +143,23 @@ const logout = async () => {
   userStore.logoutUser();
   navigateTo("/");
 };
+
+const items = ref([
+  {
+    items: [
+      {
+        text: 'Добавить ученика',
+        role: 0
+      },
+      {
+        text: 'Добавить учителя',
+        role: 1
+      }
+    ]
+  }
+])
+
+
 
 const getCoursesByUser = async () => {
   const response = await axios.post(`${apiBase}/api/getCourseByUser`, {
@@ -207,26 +215,19 @@ const getTeacherCourses = async () => {
   }
 };
 
-// === Обработчик клика по курсу ===
 const openUserModal = (courseId: number) => {
   addUserModalRef.value?.openModal(courseId);
 };
 
-// === Инициализация ===
 onMounted(async () => {
-  window.addEventListener("resize", initPositions);
   await fetchUserData();
   await getTeacherCourses();
 });
 </script>
 
 <style lang="scss" scoped>
-.background-vectors {
-  z-index: -1;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+.width-btn-menu{
+  width: 80%;
 }
 
 .teacher-link {
@@ -249,15 +250,12 @@ onMounted(async () => {
   transition: all 0.2s;
   color: white;
   padding: 5px 20px;
+  font-family: "Uncage";
+
   &:hover {
     transform: translateY(-10px);
     opacity: 0.8;
   }
-}
-
-.bizlab-logo {
-  margin-left: 5%;
-  margin-top: 2%;
 }
 
 .teacher-courses {
@@ -266,6 +264,10 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.bg-template {
+  width: 100vw;
 }
 
 .card-buttons {
@@ -279,18 +281,30 @@ onMounted(async () => {
 }
 
 .logout {
-  cursor: pointer;
   position: absolute;
   top: 2%;
   right: 2%;
-  display: flex;
+}
+
+.logout-btn {
+  cursor: pointer;
   width: 100px;
   font-family: "Uncage";
   color: #e15d34;
   transition: all 0.5s;
+
   &:hover {
     transform: translateX(-10px);
   }
+}
+
+.teacher-header {
+  @apply flex gap-10 mb-10;
+}
+
+.admin {
+  color: var(--p-cyan-400);
+  display: block;
 }
 
 .courses-list {
@@ -298,6 +312,7 @@ onMounted(async () => {
   flex-wrap: wrap;
   gap: 20px;
 }
+
 .image {
   width: 50%;
 }
@@ -307,7 +322,7 @@ onMounted(async () => {
 }
 
 .course-card {
-  background-color: rgba(223, 235, 247, 0.418);
+  background-color: rgb(223, 235, 247);
   width: 100% !important;
   padding: 15px 30px;
   border-radius: 5px;
@@ -323,6 +338,10 @@ onMounted(async () => {
   object-fit: cover;
   margin-bottom: 10px;
   border-radius: 15px;
+}
+
+.adaptive-btn {
+  display: none;
 }
 
 .course-info {
@@ -354,7 +373,224 @@ onMounted(async () => {
   background-color: #3840a9;
   border-radius: 20px;
   color: white;
-
+  z-index: 10;
   padding: 10px 20px;
+}
+
+.card-container {
+  display: flex;
+}
+
+.card-container-student {
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 1040px) {
+  .teacher-courses {
+    margin: 20px 20px;
+  }
+}
+
+@media (max-width: 1070px) {
+  .logout {
+    display: flex;
+    flex-direction: row-reverse;
+  }
+}
+
+@media (max-width: 1024px) {
+  .teacher-courses {
+    max-width: auto;
+    margin: 20px 20px;
+  }
+
+  .course-image {
+    max-width: 40vw;
+    min-width: 40vw;
+  }
+
+  .image {
+    width: max-content;
+    margin-right: 10px;
+  }
+
+  .teacher-header {
+    @apply justify-center;
+  }
+
+  .course-info{
+    .btn{
+      font-size: 2.4vw;
+    }
+  }
+
+  .btn {
+    font-size: 2.4vw;
+  }
+}
+
+@media (max-width: 768px) {
+  .teacher-courses {
+    max-width: auto;
+    margin: 20px 50px;
+  }
+
+  .image {
+    margin-right: 0;
+  }
+
+  .course-card {
+    display: flex;
+    flex-direction: column-reverse;
+    padding: 15px 10px;
+    position: relative;
+  }
+
+  .card-container-student {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    width: max-content;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .course-image {
+    max-width: 70vw;
+    min-width: 70vw;
+  }
+
+  .course-bar {
+    width: 100%;
+    padding: 10px 20px;
+    background-color: #edefffa6;
+    border-radius: 15px;
+    position: absolute;
+    bottom: 0;
+
+    h1 {
+      font-size: 16px;
+    }
+  }
+
+  .card-container {
+    margin-top: 20px;
+    flex-direction: column-reverse;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    width: max-content;
+    margin-left: auto;
+    margin-right: auto;
+
+    .course-image {
+      margin: 0;
+    }
+  }
+
+  .card-buttons {
+    flex-direction: column-reverse;
+    gap: 10px;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(175, 175, 175, 0.507);
+    border-radius: 15px;
+
+    .course-btn {
+      display: none;
+    }
+
+    p {
+      width: max-content;
+      font-size: 4vw;
+    }
+  }
+
+  .adaptive-btn {
+    display: block;
+  }
+
+  .course-info {
+    display: flex;
+    justify-content: space-around;
+
+    h3 {
+      font-size: 4vw;
+    }
+  }
+}
+
+@media (max-width: 560px) {
+  .teacher-header {
+    flex-direction: column;
+    gap: 2vw;
+    margin-top: 20px;
+
+    .btn {
+      font-size: 20px;
+    }
+  }
+
+  .btn{
+    font-size: 3vw;
+  }
+}
+
+@media (max-width: 425px) {
+  .teacher-header {
+    h1 {
+      margin-bottom: 20px;
+    }
+  }
+
+  .teacher-courses {
+    max-width: auto;
+    margin: 20px 10px;
+  }
+
+  .course-image {
+    max-width: 90vw;
+    min-width: 90vw;
+  }
+
+  .logout {
+    flex-direction: column;
+  }
+
+   .btn{
+    font-size: 5vw;
+  }
+
+  .course-info {
+    flex-direction: column;
+
+    h3 {
+      font-size: 6vw;
+      text-align: center;
+    }
+
+    .btn {
+      margin-top: 10px;
+      font-size: 5vw;
+    }
+  }
+
+ 
+}
+
+@media (max-width: 375px) {
+  .course-card {
+    padding: 0;
+  }
+
+  .card-container {
+    margin-bottom: 10px;
+  }
+
+  .course-info {
+    padding: 10px;
+  }
 }
 </style>

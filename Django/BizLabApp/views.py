@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
-from .models import User, Course, CourseAndUser, UserProgress, Material, Lesson, Compound, Feedback
+from .models import User, Course, CourseAndUser, UserProgress, Material, Lesson, Compound, Feedback, CourseAndTeacher
 from django.contrib.auth import authenticate, login, logout
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.serializers import serialize
@@ -104,11 +104,16 @@ class Logout(APIView):
 class getUsersByCourse(APIView):
     def get(self, request):
         courseId = request.query_params.get('courseId')
+        action = request.query_params.get('action')
 
         course = Course.objects.get(id = courseId)
 
-        existing_user_ids = CourseAndUser.objects.filter(course=course).values_list('user_id', flat=True)
-        usrs = User.objects.exclude(id__in=existing_user_ids).filter(role = 0)
+        if action == '0':
+            existing_user_ids = CourseAndUser.objects.filter(course=course).values_list('user_id', flat=True)
+            usrs = User.objects.exclude(id__in=existing_user_ids).filter(role = 0)
+        else:
+            temp = CourseAndUser.objects.filter(course=course)
+            usrs = [CAU.user for CAU in temp]
         users = []
     
         for user in usrs:
@@ -117,7 +122,30 @@ class getUsersByCourse(APIView):
                 'FIO': f'{user.secondName} {user.firstName} {user.lastName}',
                 'email': user.email
             })
-        print(users)
+        return Response({'users': users}, status=status.HTTP_200_OK)
+    
+class getTeachersForCourse(APIView):
+    def get(self, request):
+        courseId = request.query_params.get('courseId')
+        action = request.query_params.get('action')
+        userId = request.query_params.get('userId')
+
+        course = Course.objects.get(id = courseId)
+        
+        if action == '0':
+            existing_user_ids = CourseAndTeacher.objects.filter(course=course).values_list('teacher_id', flat=True)
+            usrs = User.objects.exclude(id__in=existing_user_ids).filter(role__in=[1, 2])
+        else:
+            temp = CourseAndTeacher.objects.filter(course=course)
+            usrs = [CAT.teacher for CAT in temp if CAT.teacher.id != int(userId)]
+        users = []
+
+        for user in usrs:
+            users.append({
+                'id': user.id,
+                'FIO': f'{user.secondName} {user.firstName} {user.lastName}',
+                'email': user.email
+            })
         return Response({'users': users}, status=status.HTTP_200_OK)
     
 class getUser(APIView):
@@ -133,9 +161,14 @@ class inviteUserOnCourse(APIView):
     def post(self, request):
         userId = request.data.get('userId')
         courseId = request.data.get('courseId')
+        role = request.data.get('role')
         user = User.objects.get(id = userId)
         course = Course.objects.get(id = courseId)
 
+        if role != 0:
+            CourseAndTeacher.objects.create(teacher = user, course = course)
+            return Response(status=status.HTTP_201_CREATED)
+        
         CourseAndUser.objects.create(user = user, course = course)
 
         lessons = Lesson.objects.filter(course = course)
@@ -154,9 +187,11 @@ class createTask(APIView):
         name = request.data.get('name')
 
         course = Course.objects.get(id = courseId)
-        Lesson.objects.create(name = name, course = course)
+        if Lesson.objects.filter(course=course, name=name).exists():
+            return Response({'message': 'Урок с таким названием уже есть'}, status=status.HTTP_400_BAD_REQUEST)
+        lesson = Lesson.objects.create(name = name, course = course)
 
-        return Response(status=status.HTTP_201_CREATED)
+        return Response({'lessonId': lesson.id},status=status.HTTP_201_CREATED)
 
 #Создать материал
 class createMaterial(APIView):
@@ -171,6 +206,8 @@ class createMaterial(APIView):
 
         lesson = Lesson.objects.get(course = course, name = lessonName)
 
+        if Material.objects.filter(lesson = lesson, name=name).exists():
+            return Response({'message': 'Материал с таким названием уже есть'}, status=status.HTTP_400_BAD_REQUEST)
 
         if type == '4':
             link = request.data.get('link')
@@ -241,8 +278,11 @@ class createCourse(APIView):
         course = Course.objects.create(teacher = teacher, name = name, description = description, places = places, price = price,
                               salePrice = salePrice, sale = sale, credit = credit, picture = f'/images/courses/{picName}')
         
+        CourseAndTeacher.objects.create(teacher=teacher, course=course)
+        
         for compound in compounds:
-            Compound.objects.create(course = course, name = compound)
+            if (compound.strip() !=''):
+                Compound.objects.create(course = course, name = compound)
 
         return Response(status=status.HTTP_201_CREATED)
 
@@ -305,7 +345,7 @@ class getCourseForUser(APIView):
             course[lesson.name] = materials
 
 
-        return Response({'course': course}, status=status.HTTP_200_OK)
+        return Response({'course': course,'courseName':crs.name}, status=status.HTTP_200_OK)
 
 #Скачать файл
 class downloadFile(APIView):
@@ -402,7 +442,8 @@ class getCoursesForTeacher(APIView):
         teacherId = request.query_params.get('teacherId')
         teacher = User.objects.get(id = teacherId)
 
-        crs = Course.objects.filter(teacher = teacher)
+        crs = CourseAndTeacher.objects.filter(teacher = teacher)
+        crs = [CAT.course for CAT in crs]
 
         courses = []
 
@@ -437,10 +478,9 @@ class getCourseForTeacher(APIView):
                     
                 })
                
-            course[lesson.name] = materials
+            course[lesson.id] = {'id': lesson.id, 'name': lesson.name, 'materials':materials}
 
-
-        return Response({'course': course}, status=status.HTTP_200_OK)
+        return Response({'course': course, 'courseName': crs.name}, status=status.HTTP_200_OK)
     
 class updateLesson(APIView):
     def post(self, request):
@@ -666,7 +706,7 @@ class parseFile(APIView):
                 test_data.append(question)
             else:
                 i += 1
-        return Response(test_data,status=status.HTTP_200_OK)
+        return Response({'test_data':test_data,'test_name':materialName},status=status.HTTP_200_OK)
     
 class welcomeToTeacher(APIView):
     def post(self, request):
@@ -713,6 +753,111 @@ class welcomeToTeacher(APIView):
         userProgress.save()
         
         return Response(status=status.HTTP_200_OK)
+
+class deleteMaterial(APIView):
+    def post(self, request):
+        matId = request.data.get('matId')
+        material = Material.objects.get(id=matId)
+        material.delete()
+        return Response(status=status.HTTP_200_OK)
+
+class deleteLesson(APIView):
+    def post(self, request):
+        lesId = request.data.get('lesId')
+        courseId = request.data.get('courseId')
+        course = Course.objects.get(id=courseId)
+        lesson = Lesson.objects.get(id=lesId, course=course)
+        lesson.delete()
+        return Response(status=status.HTTP_200_OK)
+
+class deleteCourse(APIView):
+    def post(self, request):
+        courseId = request.data.get('courseId')
+        course = Course.objects.get(id=courseId)
+        course.delete()
+        return Response(status=status.HTTP_200_OK)
+    
+class accessForCourse(APIView):
+    def post(self, request):
+        teacherId = request.data.get('userId')
+        courseId = request.data.get('courseId')
+
+        user = User.objects.get(id = teacherId)
+        course = Course.objects.get(id = courseId)
+
+        if course == None:
+            return Response(False, status=status.HTTP_200_OK)
+        
+        res = CourseAndTeacher.objects.filter(teacher = user, course = course).exists()
+
+        return Response(res, status=status.HTTP_200_OK)
+    
+class accessForCourseForStudent(APIView):
+    def post(self, request):
+        userId = request.data.get('userId')
+        courseId = request.data.get('courseId')
+
+        user = User.objects.get(id = userId)
+
+        course = Course.objects.get(id = courseId)
+
+        if course == None:
+            return Response(False, status=status.HTTP_200_OK)
+
+        res = CourseAndUser.objects.filter(user = user, course = course).exists()
+
+        return Response(res, status=status.HTTP_200_OK)
+    
+class accessForTest(APIView):
+    def post(self, request):
+        materialId = request.data.get('materialId')
+        userId = request.data.get('userId')
+
+        user = User.objects.get(id = userId)
+        material = Material.objects.get(id = materialId)
+
+        if material == None:
+            return Response(False, status=status.HTTP_200_OK)
+
+        course = material.lesson.course
+
+        res = CourseAndUser.objects.filter(user = user, course = course).exists()
+
+        return Response(res, status=status.HTTP_200_OK)
+    
+class deleteUserFromCourse(APIView):
+    def post(self, request):
+        courseId = request.data.get('courseId')
+        userId = request.data.get('userId')
+
+        try:
+            user = User.objects.get(id = userId)
+            course = Course.objects.get(id = courseId)
+
+            CAU = CourseAndUser.objects.get(user = user, course = course)
+
+            CAU.delete()
+
+            return Response(status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+class deleteTeacherFromCourse(APIView):
+    def post(self, request):
+        courseId = request.data.get('courseId')
+        userId = request.data.get('userId')
+
+        try:
+            user = User.objects.get(id = userId)
+            course = Course.objects.get(id = courseId)
+
+            CAT = CourseAndTeacher.objects.get(teacher = user, course = course)
+
+            CAT.delete()
+
+            return Response(status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 

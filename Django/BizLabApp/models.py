@@ -95,6 +95,11 @@ class CourseAndUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='userId_courseanduser')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='courseId_courseanduser')
 
+class CourseAndTeacher(models.Model):
+    id = models.AutoField(primary_key=True)
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='userId_courseandTeacher')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='courseId_courseandTeacher') 
+
 class Lesson(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, unique=True)

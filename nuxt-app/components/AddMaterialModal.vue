@@ -1,15 +1,21 @@
 <template>
   <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
     <div class="modal">
-      <h3>Добавление материала</h3>
+      <h1>Добавление материала</h1>
 
       <!-- Выбор урока -->
       <label for="lessonSelect">Выберите урок:</label>
       <select id="lessonSelect" v-model="selectedLessonId" required>
         <option disabled value="">-- Выберите урок --</option>
-        {{ course }}
-        <option v-for="(_, lessonName) in course" :key="lessonName" :value="lessonName">
-          {{ lessonName }}
+        {{
+          course
+        }}
+        <option
+          v-for="(lesson, lessonId) in course"
+          :key="lessonId"
+          :value="lessonId"
+        >
+          {{ lesson.name }}
         </option>
       </select>
 
@@ -54,127 +60,150 @@
       <!-- Кнопки управления -->
       <div class="modal-buttons">
         <button @click="closeModal">Отмена</button>
-        <button @click="createMaterial" :disabled="!isValidForm">Создать материал</button>
+        <button @click="createMaterial" :disabled="!isValidForm">
+          Создать материал
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineExpose, defineEmits } from 'vue'
-import axios from 'axios'
+import { ref, defineProps, defineExpose, defineEmits } from "vue";
+import axios from "axios";
 
-const config = useRuntimeConfig()
-const apiBase = config.public.apiBase as string
+const config = useRuntimeConfig();
+const apiBase = config.public.apiBase as string;
 
 // === Props ===
 const props = defineProps<{
   course: {
-    [lessonName: string]: {
-      id: number
-      name: string
-      type: string
-    }[]
-  }
-  courseId: number
-}>()
-
+    [lessonId: number]: {
+      id: number;
+      name: string;
+      materials: {
+        id: number;
+        name: string;
+        type: string;
+      }[];
+    };
+  };
+  courseId: number;
+}>();
 
 // === Emits ===
 const emit = defineEmits<{
-  (e: 'material-created', lessonName: string, material: {
-    id: number
-    name: string
-    type: string
-    file?: string
-    link?: string
-  }): void
-}>()
+  (
+    e: "material-created",
+    lessonId: number,
+    material: {
+      id: number;
+      name: string;
+      type: string;
+      file?: string;
+      link?: string;
+    }
+  ): void;
+}>();
 
 // === Локальное состояние ===
-const showModal = ref(false)
-const selectedLessonId = ref<string | null>(null)
-const selectedType = ref('1')
-const newMaterialName = ref('')
-const newLink = ref('')
-const fileInput = ref<HTMLInputElement | null>(null)
+const showModal = ref(false);
+const selectedLessonId = ref<number | null>(null);
+const selectedType = ref("1");
+const newMaterialName = ref("");
+const newLink = ref("");
+const fileInput = ref<HTMLInputElement | null>(null);
 
 // === Проверка формы ===
 const isValidForm = computed(() => {
-  if (!selectedLessonId.value) return false
-  if (!newMaterialName.value.trim()) return false
+  if (!selectedLessonId.value) return false;
+  if (!newMaterialName.value.trim()) return false;
 
-  if (selectedType.value === '4') {
-    return !!newLink.value.trim()
+  if (selectedType.value === "4") {
+    return !!newLink.value.trim();
   }
 
-  return !!fileInput.value?.files?.length
-})
+  return !!fileInput.value?.files?.length;
+});
 
 // === Обработка загрузки файла ===
 const handleFileUpload = () => {
-  const file = fileInput.value?.files?.[0]
+  const file = fileInput.value?.files?.[0];
   if (file) {
-    console.log('Файл выбран:', file.name)
+    console.log("Файл выбран:", file.name);
   }
-}
+};
 
 // === Создание материала ===
 const createMaterial = async () => {
   try {
-    const formData = new FormData()
-    const lessonName = selectedLessonId.value!
-    formData.append('courseId', props.courseId.toString())
-    formData.append('lessonName', lessonName)
-    formData.append('type', selectedType.value)
-    formData.append('name', newMaterialName.value)
+    const formData = new FormData();
+    const lessonName = props.course[selectedLessonId.value!].name;
+    const lessonId = props.course[selectedLessonId.value!].id;
+    formData.append("courseId", props.courseId.toString());
+    formData.append("lessonName", lessonName);
+    formData.append("type", selectedType.value);
+    formData.append("name", newMaterialName.value);
 
-    if (selectedType.value === '4') {
-      formData.append('link', newLink.value)
+    if (selectedType.value === "4") {
+      formData.append("link", newLink.value);
     } else {
-      const file = fileInput.value?.files?.[0]
+      const file = fileInput.value?.files?.[0];
       if (file) {
-        formData.append('file', file)
+        formData.append("file", file);
       }
     }
 
-    const response = await axios.post(`${apiBase}/api/createMaterial`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
+    const response = await axios.post(
+      `${apiBase}/api/createMaterial`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
 
-    closeModal()
-    emit('material-created', lessonName, response.data.material || response.data)
-    
+    closeModal();
+    emit("material-created", lessonId, response.data.material);
   } catch (error) {
-    console.error('Ошибка при создании материала:', error)
-    alert('Не удалось создать материал')
+    if (error.response.data.message == "Материал с таким названием уже есть") {
+      alert("Материал с таким названием уже есть");
+    } else {
+      console.error("Ошибка при создании материала:", error);
+      alert("Не удалось создать материал");
+    }
   }
-}
+};
 
 // === Открытие/закрытие модального окна ===
 const openModal = () => {
-  showModal.value = true
+  showModal.value = true;
   nextTick(() => {
-    fileInput.value && (fileInput.value.value = '')
-  })
-}
+    fileInput.value && (fileInput.value.value = "");
+  });
+};
 
 const closeModal = () => {
-  showModal.value = false
-  selectedLessonId.value = null
-  selectedType.value = '1'
-  newMaterialName.value = ''
-  newLink.value = ''
-   fileInput.value && (fileInput.value.value = '')
-}
+  showModal.value = false;
+  selectedLessonId.value = null;
+  selectedType.value = "1";
+  newMaterialName.value = "";
+  newLink.value = "";
+  fileInput.value && (fileInput.value.value = "");
+};
 
 // === Экспорт методов для вызова извне ===
-defineExpose({ openModal })
+defineExpose({ openModal });
 </script>
 
 <style scoped>
+h1 {
+  text-align: center;
+  font-size: 18px;
+  font-family: "Uncage";
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;

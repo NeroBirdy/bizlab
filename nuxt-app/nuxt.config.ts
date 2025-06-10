@@ -51,9 +51,12 @@ export default defineNuxtConfig({
           page.meta = page.meta || {};
           page.meta.middleware = ["auth"];
 
-          // Рекурсия для дочерних страниц
           if (page.children && page.children.length > 0) {
             setMiddleware(page.children);
+          }
+
+          if (page.name == "admin") {
+            page.meta.middleware = ["admin"];
           }
         }
       }
