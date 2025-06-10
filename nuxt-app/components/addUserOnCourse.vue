@@ -1,7 +1,7 @@
 <template>
   <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
     <div class="modal">
-      <h1>{{ !action ? 'Добавление пользователя на курс' : 'Удаление пользователя с курса' }}</h1>
+      <h1>{{ !action ? `Добавление ${!props.role ? 'ученика' : 'учителя'} на курс` : `Удаление ${!props.role ? 'ученика' : 'учителя'} с курса` }}</h1>
 
       <!-- Поле поиска -->
       <input ref="searchInput" type="text" v-model="searchQuery" placeholder="Искать по ФИО или email" class="input"
@@ -49,6 +49,7 @@ const selectedUser = ref<{ id: number; FIO: string; email: string } | null>(
 );
 const userId = ref<number | null>(null);
 const selectedCourse = ref();
+const userText = ref()
 
 const props = defineProps<{
   role: Number,

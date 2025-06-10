@@ -45,6 +45,31 @@ body {
   }
 }
 
+.p-menu-submenu-label {
+  padding: 0 !important;
+}
+
+.p-menu {
+  margin-top: 10px !important;
+}
+.p-menu-item {
+  &:hover {
+    background-color: transparent !important; 
+    color: transparent !important;
+  }
+}
+
+.p-menu-item-content{
+  @apply flex justify-center;
+
+  background-color: transparent !important; 
+  margin: 10px 0;
+
+  &:hover {
+    background-color: transparent !important; 
+  }
+}
+
 .p-progressbar-value {
   background: #4acc92 !important;
 }

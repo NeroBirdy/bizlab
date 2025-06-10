@@ -34,20 +34,11 @@
               Ожидают проверки {{ course.needToCheck }} работ
             </p>
             <div class="flex justify-center">
-              <button @click="openDialog.show; courseId = course.id" class="btn course-btn">
+              <button @click="toggle($event); courseId = course.id;" class="btn course-btn">
                 Добавить пользователя
               </button>
-              <Popover ref="openDialog">
-                <div class="flex flex-col gap-4">
-                  <button class="btn course-btn" @click="openUserModal(courseId); roleForAdd = 0">
-                    Удалить ученика
-                  </button>
-                  <button class="btn course-btn" @click="openUserModal(courseId); roleForAdd = 1">
-                    Удалить учителя
-                  </button>
-                </div>
-              </Popover>
             </div>
+
           </div>
         </div>
 
@@ -56,26 +47,28 @@
           <h3 style="cursor: pointer">
             Курс {{ index + 1 }}: {{ course.name }}
           </h3>
-          <button @click="openDialog.show; courseId = course.id" class="btn course-btn adaptive-btn">
+          <button @click="toggle($event); courseId = course.id;" class="btn course-btn adaptive-btn">
             Добавить пользователя
           </button>
-          <Popover ref="openDialog">
-            <div class="flex flex-col gap-4">
-              <button class="btn course-btn" @click="openUserModal(courseId); roleForAdd = 0">
-                Удалить ученика
-              </button>
-              <button class="btn course-btn" @click="openUserModal(courseId); roleForAdd = 1">
-                Удалить учителя
-              </button>
-            </div>
-          </Popover>
+
         </div>
       </div>
     </div>
 
+ 
+
     <p v-else class="no-courses">
       {{ loading ? "Загрузка..." : "Нет доступных курсов" }}
     </p>
+
+    <Menu ref="menu" :model="items" :popup="true" class="custom-menu-size">
+    <template #item="{ item }" class="flex justify-center">
+      <button class="btn course-btn width-btn-menu" @click="openUserModal(courseId); roleForAdd = item.role">
+        {{ item.text }}
+      </button>
+    </template>
+  </Menu>
+
     <AddUserOnCourse :role="roleForAdd" :action="0" ref="addUserModalRef" />
   </div>
   <div v-if="role == 0" class="teacher-courses">
@@ -106,10 +99,11 @@
         </div>
       </div>
 
-      <p v-else class="no-courses course-card">
-        {{ loading ? "Загрузка..." : "Нет доступных курсов" }}
-      </p>
+
     </div>
+    <p v-else class="no-courses course-card">
+      {{ loading ? "Загрузка..." : "Нет доступных курсов" }}
+    </p>
   </div>
 </template>
 
@@ -119,7 +113,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import AddStudentModal from "../../components/AddStudent.vue";
 import ProgressBar from "primevue/progressbar";
-import Popover from 'primevue/popover';
+// import Menu from 'primevue/menu';
 
 const addStudentModalRef = ref();
 const courses = ref([]);
@@ -130,8 +124,12 @@ const coursesForStudent = ref();
 const userStore = useAuthStore();
 const addUserModalRef = ref();
 const roleForAdd = ref();
-const openDialog = ref();
+const menu = ref();
 const courseId = ref();
+
+const toggle = (event) => {
+  menu.value.toggle(event);
+};
 
 const config = useRuntimeConfig();
 const apiBase = config.public.apiBase as string;
@@ -145,6 +143,23 @@ const logout = async () => {
   userStore.logoutUser();
   navigateTo("/");
 };
+
+const items = ref([
+  {
+    items: [
+      {
+        text: 'Добавить ученика',
+        role: 0
+      },
+      {
+        text: 'Добавить учителя',
+        role: 1
+      }
+    ]
+  }
+])
+
+
 
 const getCoursesByUser = async () => {
   const response = await axios.post(`${apiBase}/api/getCourseByUser`, {
@@ -211,6 +226,10 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
+.width-btn-menu{
+  width: 80%;
+}
+
 .teacher-link {
   font-size: 24px;
   text-transform: uppercase;
@@ -231,6 +250,7 @@ onMounted(async () => {
   transition: all 0.2s;
   color: white;
   padding: 5px 20px;
+  font-family: "Uncage";
 
   &:hover {
     transform: translateY(-10px);
@@ -399,6 +419,12 @@ onMounted(async () => {
     @apply justify-center;
   }
 
+  .course-info{
+    .btn{
+      font-size: 2.4vw;
+    }
+  }
+
   .btn {
     font-size: 2.4vw;
   }
@@ -506,6 +532,10 @@ onMounted(async () => {
       font-size: 20px;
     }
   }
+
+  .btn{
+    font-size: 3vw;
+  }
 }
 
 @media (max-width: 425px) {
@@ -529,16 +559,25 @@ onMounted(async () => {
     flex-direction: column;
   }
 
+   .btn{
+    font-size: 5vw;
+  }
+
   .course-info {
+    flex-direction: column;
+
     h3 {
-      font-size: 5vw;
+      font-size: 6vw;
       text-align: center;
     }
 
     .btn {
-      font-size: 4vw;
+      margin-top: 10px;
+      font-size: 5vw;
     }
   }
+
+ 
 }
 
 @media (max-width: 375px) {

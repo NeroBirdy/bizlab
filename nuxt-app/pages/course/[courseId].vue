@@ -48,16 +48,15 @@
           <button class="add-prepod" @click="openDialog.show">
             Удалить пользователя
           </button>
-          <Popover ref="openDialog">
-            <div class="flex flex-col gap-4">
-              <button class="btn course-del-btn" @click="openUserModal(courseId); roleForDelete = 0">
-                Удалить ученика
+
+          <Menu ref="openDialog" :model="items" :popup="true" class="custom-menu-size">
+            <template #item="{ item }" class="flex justify-center">
+              <button class="btn course-del-btn" @click="openUserModal(courseId); roleForDelete = item.role">
+                {{ item.text }}
               </button>
-              <button class="btn course-del-btn" @click="openUserModal(courseId); roleForDelete = 1">
-                Удалить учителя
-              </button>
-            </div>
-          </Popover>
+            </template>
+          </Menu>
+
           <AddUserOnCourse :role="roleForDelete" :action="1" ref="addUserModalRef" />
 
         </div>
@@ -166,7 +165,7 @@
 import AddLessonModal from "../../components/AddLessonModal.vue";
 import DeleteModal from "../../components/deleteModal.vue";
 import { ref, onMounted } from "vue";
-import Popover from 'primevue/popover';
+// import Menu from 'primevue/menu';
 import axios from "axios";
 
 const config = useRuntimeConfig();
@@ -185,6 +184,22 @@ const homeworks = ref<
     checked: boolean;
   }[]
 >([]);
+
+const items = ref([
+  {
+    items: [
+      {
+        text: 'Удалить ученика',
+        role: 0
+      },
+      {
+        text: 'Удалить учителя',
+        role: 1
+      }
+    ]
+  }
+])
+
 const courseId = Number(useRoute().params.courseId);
 const courseName = ref("");
 const chooseHomework = ref(false);
@@ -443,6 +458,7 @@ onMounted(async () => {
   gap: 10px;
   margin-top: 10px;
 }
+
 
 .modal-buttons button {
   padding: 10px 20px;
