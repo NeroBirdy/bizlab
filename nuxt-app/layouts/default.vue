@@ -1,5 +1,5 @@
 <template>
-  <slot></slot>
+    <slot></slot>
   <footer class="footer relative mt-20">
     <div class="container flex justify-between">
       <div class="left-fot">
@@ -28,7 +28,7 @@
       </div>
     </div>
     <img src="/assets/images/bot.png" class="bot" />
-  </footer>
+  </footer> -->
 </template>
 
 <style lang="scss" scooped>

@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import { ClientOnly } from "#components";
+</script>
+
 <template>
   <header>
     <div class="flex w-full h-full justify-between items-center relative header-desktop">
@@ -51,7 +55,7 @@
     <Reviews />
     <Feedback />
     <Contacts />
-  </div> 
+  </div>
 </template>
 
 <style lang="scss">
