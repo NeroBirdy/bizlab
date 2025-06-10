@@ -1,7 +1,7 @@
 <template>
   <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
     <div class="modal">
-      <h1>Добавление пользователя на курс</h1>
+      <h1>{{ !action ? 'Добавление пользователя на курс' : 'Удаление пользователя с курса' }}</h1>
 
       <!-- Поле поиска -->
       <input ref="searchInput" type="text" v-model="searchQuery" placeholder="Искать по ФИО или email" class="input"
@@ -23,7 +23,7 @@
       <div class="modal-buttons">
         <button @click="closeModal">Закрыть</button>
         <button @click="addSelectedUser" :disabled="!selectedUser">
-          Добавить
+          {{ !action ? 'Добавить' : 'Удалить'}}
         </button>
       </div>
     </div>
@@ -32,6 +32,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
+import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 
 const config = useRuntimeConfig();
@@ -46,11 +47,30 @@ const selectedOptionIndex = ref<number | null>(null);
 const selectedUser = ref<{ id: number; FIO: string; email: string } | null>(
   null
 );
+const userId = ref<number | null>(null);
 const selectedCourse = ref();
 
 const props = defineProps<{
-  role: Number
+  role: Number,
+  action: Number,
 }>();
+
+const fetchUserData = async () => {
+  const token = useCookie("auth_token").value;
+
+  if (!token) {
+    console.error("Токен отсутствует");
+    return;
+  }
+
+  try {
+    const decodedToken = jwtDecode(token);
+    userId.value = decodedToken.user_id || null;
+
+  } catch (error) {
+    console.error("Ошибка при декодировании токена:", error);
+  }
+};
 
 // === Получение пользователей с сервера ===
 const getUsers = async (courseId: number) => {
@@ -58,11 +78,24 @@ const getUsers = async (courseId: number) => {
     let response;
     if (props.role == 0) {
       response = await axios.get(
-        `${apiBase}/api/getUsersByCourse?courseId=${courseId}`
+        `${apiBase}/api/getUsersByCourse`,
+        {
+          params: {
+            courseId: courseId,
+            action: props.action
+          }
+        }
       );
     } else {
       response = await axios.get(
-        `${apiBase}/api/getTeachersForCourse?courseId=${courseId}`
+        `${apiBase}/api/getTeachersForCourse`,
+        {
+          params: {
+            courseId: courseId,
+            action: props.action,
+            userId: userId.value
+          }
+        }
       );
     }
 
@@ -148,20 +181,42 @@ const addSelectedUser = async () => {
     alert("Выберите пользователя");
     return;
   }
+  if (!props.action) {
+    try {
 
-  try {
-    await axios.post(`${apiBase}/api/inviteUserOnCourse`, {
-      courseId: selectedCourse.value,
-      userId: selectedUser.value.id,
-      role: props.role
-    });
+      await axios.post(`${apiBase}/api/inviteUserOnCourse`, {
+        courseId: selectedCourse.value,
+        userId: selectedUser.value.id,
+        role: props.role
+      });
 
-    alert(`Пользователь ${selectedUser.value.FIO} успешно добавлен на курс`);
-    closeModal();
-  } catch (error) {
-    console.error("Ошибка при добавлении пользователя:", error);
-    alert("Не удалось добавить пользователя");
+      alert(`Пользователь ${selectedUser.value.FIO} успешно добавлен на курс`);
+      closeModal();
+    } catch (error) {
+      console.error("Ошибка при добавлении пользователя:", error);
+      alert("Не удалось добавить пользователя");
+    }
+  } else {
+    try {
+      if (props.role == 0) {
+        await axios.post(`${apiBase}/api/deleteUserFromCourse`, {
+          courseId: selectedCourse.value,
+          userId: selectedUser.value.id,
+        });
+      } else {
+        await axios.post(`${apiBase}/api/deleteTeacherFromCourse`, {
+          courseId: selectedCourse.value,
+          userId: selectedUser.value.id,
+        });
+      }
+      alert(`Пользователь ${selectedUser.value.FIO} успешно удален с курса`);
+      closeModal();
+    } catch (error) {
+      console.error("Ошибка при добавлении пользователя:", error);
+      alert("Не удалось добавить пользователя");
+    }
   }
+
 };
 
 // === Открытие/закрытие модального окна ===
@@ -196,6 +251,10 @@ const hideDropdownWithDelay = () => {
 
 // Для фокуса
 const searchInput = ref<HTMLInputElement | null>(null);
+
+onMounted(async () => {
+  await fetchUserData();
+});
 
 defineExpose({ openModal });
 </script>

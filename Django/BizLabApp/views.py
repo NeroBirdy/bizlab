@@ -104,11 +104,16 @@ class Logout(APIView):
 class getUsersByCourse(APIView):
     def get(self, request):
         courseId = request.query_params.get('courseId')
+        action = request.query_params.get('action')
 
         course = Course.objects.get(id = courseId)
 
-        existing_user_ids = CourseAndUser.objects.filter(course=course).values_list('user_id', flat=True)
-        usrs = User.objects.exclude(id__in=existing_user_ids).filter(role = 0)
+        if action == '0':
+            existing_user_ids = CourseAndUser.objects.filter(course=course).values_list('user_id', flat=True)
+            usrs = User.objects.exclude(id__in=existing_user_ids).filter(role = 0)
+        else:
+            temp = CourseAndUser.objects.filter(course=course)
+            usrs = [CAU.user for CAU in temp]
         users = []
     
         for user in usrs:
@@ -117,26 +122,30 @@ class getUsersByCourse(APIView):
                 'FIO': f'{user.secondName} {user.firstName} {user.lastName}',
                 'email': user.email
             })
-        print(users)
         return Response({'users': users}, status=status.HTTP_200_OK)
     
 class getTeachersForCourse(APIView):
     def get(self, request):
         courseId = request.query_params.get('courseId')
+        action = request.query_params.get('action')
+        userId = request.query_params.get('userId')
 
         course = Course.objects.get(id = courseId)
-
-        existing_user_ids = CourseAndTeacher.objects.filter(course=course).values_list('teacher_id', flat=True)
-        usrs = User.objects.exclude(id__in=existing_user_ids).filter(role__in=[1, 2])
+        
+        if action == '0':
+            existing_user_ids = CourseAndTeacher.objects.filter(course=course).values_list('teacher_id', flat=True)
+            usrs = User.objects.exclude(id__in=existing_user_ids).filter(role__in=[1, 2])
+        else:
+            temp = CourseAndTeacher.objects.filter(course=course)
+            usrs = [CAT.teacher for CAT in temp if CAT.teacher.id != int(userId)]
         users = []
-    
+
         for user in usrs:
             users.append({
                 'id': user.id,
                 'FIO': f'{user.secondName} {user.firstName} {user.lastName}',
                 'email': user.email
             })
-        print(users)
         return Response({'users': users}, status=status.HTTP_200_OK)
     
 class getUser(APIView):
@@ -815,6 +824,41 @@ class accessForTest(APIView):
         res = CourseAndUser.objects.filter(user = user, course = course).exists()
 
         return Response(res, status=status.HTTP_200_OK)
+    
+class deleteUserFromCourse(APIView):
+    def post(self, request):
+        courseId = request.data.get('courseId')
+        userId = request.data.get('userId')
+
+        try:
+            user = User.objects.get(id = userId)
+            course = Course.objects.get(id = courseId)
+
+            CAU = CourseAndUser.objects.get(user = user, course = course)
+
+            CAU.delete()
+
+            return Response(status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+class deleteTeacherFromCourse(APIView):
+    def post(self, request):
+        courseId = request.data.get('courseId')
+        userId = request.data.get('userId')
+
+        try:
+            user = User.objects.get(id = userId)
+            course = Course.objects.get(id = courseId)
+
+            CAT = CourseAndTeacher.objects.get(teacher = user, course = course)
+
+            CAT.delete()
+
+            return Response(status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 
         

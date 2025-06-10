@@ -1,132 +1,112 @@
 <template>
-  <ClientOnly>
-    <div class="logout">
-      <p class="logout-btn" @click="logout">ВЫЙТИ ИЗ ЛИЧНОГО КАБИНЕТА</p>
-      <a v-if="role == 2" class="logout-btn admin" href="/admin">Админка</a>
+  <div class="logout">
+    <p class="logout-btn" @click="logout">ВЫЙТИ ИЗ ЛИЧНОГО КАБИНЕТА</p>
+    <a v-if="role == 2" class="logout-btn admin" href="/admin">Админка</a>
+  </div>
+
+  <BizlabLogo />
+  <div class="bg-template">
+    <Backimages />
+  </div>
+
+  <div v-if="role == 1 || role == 2" class="teacher-courses">
+    <div class="teacher-header">
+      <h1 class="teacher-link text-[#3840a9] items-center text-center flex">
+        Мои курсы
+      </h1>
+      <button @click="navigateTo('/createCourse')" class="teacher-link btn create-btn">
+        Создать курс
+      </button>
+      <button @click="openStudentRegistrationModal" class="teacher-link btn student-btn">
+        Зарегистрировать студента
+      </button>
     </div>
 
-    <BizlabLogo />
-    <div class="bg-template">
-      <Backimages />
+    <AddStudentModal ref="addStudentModalRef" />
+    <!-- Список курсов -->
+    <div v-if="courses.length > 0" class="courses-list" id="courses-list">
+      <div v-for="(course, index) in courses" :key="course.id" class="course-card">
+        <div class="card-container">
+          <img :src="course.picture" alt="Картинка курса" class="course-image"
+            @click="navigateTo(`/course/${course.id}`)" />
+          <div class="card-buttons">
+            <p class="text-center" @click="navigateTo(`/course/${course.id}`)">
+              Ожидают проверки {{ course.needToCheck }} работ
+            </p>
+            <div class="flex justify-center">
+              <button @click="openDialog.show; courseId = course.id" class="btn course-btn">
+                Добавить пользователя
+              </button>
+              <Popover ref="openDialog">
+                <div class="flex flex-col gap-4">
+                  <button class="btn course-btn" @click="openUserModal(courseId); roleForAdd = 0">
+                    Удалить ученика
+                  </button>
+                  <button class="btn course-btn" @click="openUserModal(courseId); roleForAdd = 1">
+                    Удалить учителя
+                  </button>
+                </div>
+              </Popover>
+            </div>
+          </div>
+        </div>
+
+        <!-- Название курса -->
+        <div class="course-info">
+          <h3 style="cursor: pointer">
+            Курс {{ index + 1 }}: {{ course.name }}
+          </h3>
+          <button @click="openDialog.show; courseId = course.id" class="btn course-btn adaptive-btn">
+            Добавить пользователя
+          </button>
+          <Popover ref="openDialog">
+            <div class="flex flex-col gap-4">
+              <button class="btn course-btn" @click="openUserModal(courseId); roleForAdd = 0">
+                Удалить ученика
+              </button>
+              <button class="btn course-btn" @click="openUserModal(courseId); roleForAdd = 1">
+                Удалить учителя
+              </button>
+            </div>
+          </Popover>
+        </div>
+      </div>
     </div>
 
-    <div v-if="role == 1 || role == 2" class="teacher-courses">
-      <div class="teacher-header">
+    <p v-else class="no-courses">
+      {{ loading ? "Загрузка..." : "Нет доступных курсов" }}
+    </p>
+    <AddUserOnCourse :role="roleForAdd" :action="0" ref="addUserModalRef" />
+  </div>
+  <div v-if="role == 0" class="teacher-courses">
+    <div class="header flex">
+      <div class="logo flex">
         <h1 class="teacher-link text-[#3840a9] items-center text-center flex">
-          Мои курсы
+          МОИ КУРСЫ
         </h1>
-        <button
-          @click="navigateTo('/createCourse')"
-          class="teacher-link btn create-btn"
-        >
-          Создать курс
-        </button>
-        <button
-          @click="openStudentRegistrationModal"
-          class="teacher-link btn student-btn"
-        >
-          Зарегистрировать студента
-        </button>
       </div>
-
-      <AddStudentModal ref="addStudentModalRef" />
-      <!-- Список курсов -->
-      <div v-if="courses.length > 0" class="courses-list" id="courses-list">
-        <div
-          v-for="(course, index) in courses"
-          :key="course.id"
-          class="course-card"
-        >
-          <div class="card-container">
-            <img
-              :src="course.picture"
-              alt="Картинка курса"
-              class="course-image"
-              @click="navigateTo(`/course/${course.id}`)"
-            />
-            <div class="card-buttons">
-              <p
-                class="text-center"
-                @click="navigateTo(`/course/${course.id}`)"
-              >
-                Ожидают проверки {{ course.needToCheck }} работ
-              </p>
-              <div class="flex justify-center">
-                <button
-                  @click="openUserModal(course.id)"
-                  class="btn course-btn"
-                >
-                  Зачислить ученика
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Название курса -->
-          <div class="course-info">
-            <h3 style="cursor: pointer">
-              Курс {{ index + 1 }}: {{ course.name }}
-            </h3>
-            <button
-              @click="openUserModal(course.id)"
-              class="btn course-btn adaptive-btn"
-            >
-              Зачислить ученика
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <p v-else class="no-courses">
-        {{ loading ? "Загрузка..." : "Нет доступных курсов" }}
-      </p>
-
-      <AddUserOnCourse :role="0" ref="addUserModalRef" />
     </div>
-    <div v-if="role == 0" class="teacher-courses">
-      <div class="header flex">
-        <div class="logo flex">
-          <h1 class="teacher-link text-[#3840a9] items-center text-center flex">
-            МОИ КУРСЫ
-          </h1>
-        </div>
-      </div>
 
-      <div
-        v-if="coursesForStudent.length > 0"
-        v-for="(course, index) in coursesForStudent"
-        class="courses-list"
-      >
-        <div
-          @click="navigateTo(`/courseForStudent/${course.id}`)"
-          class="course-card mb-10"
-        >
-          <div class="card-container-student">
-            <div class="image">
-              <img
-                :src="course.picture"
-                alt="Картинка курса"
-                class="course-image"
-              />
-            </div>
-            <div class="course-bar">
-              <h1>ТЕКУЩИЙ ПРОГРЕСС КУРСА</h1>
-              <ProgressBar
-                :show-value="false"
-                :value="course.progress"
-              ></ProgressBar>
-              <p>{{ parseInt(course.progress) }} %</p>
-            </div>
+    <div v-if="coursesForStudent.length > 0" v-for="(course, index) in coursesForStudent" class="courses-list">
+      <div @click="navigateTo(`/courseForStudent/${course.id}`)" class="course-card mb-10">
+        <div class="card-container-student">
+          <div class="image">
+            <img :src="course.picture" alt="Картинка курса" class="course-image" />
           </div>
-          <div class="course-info">
-            <h3 style="cursor: pointer">
-              Курс {{ index + 1 }}: {{ course.name }}
-            </h3>
+          <div class="course-bar">
+            <h1>ТЕКУЩИЙ ПРОГРЕСС КУРСА</h1>
+            <ProgressBar :show-value="false" :value="course.progress"></ProgressBar>
+            <p>{{ parseInt(course.progress) }} %</p>
           </div>
+        </div>
+        <div class="course-info">
+          <h3 style="cursor: pointer">
+            Курс {{ index + 1 }}: {{ course.name }}
+          </h3>
         </div>
       </div>
     </div>
-  </ClientOnly>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -135,6 +115,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import AddStudentModal from "../../components/AddStudent.vue";
 import ProgressBar from "primevue/progressbar";
+import Popover from 'primevue/popover';
 
 const addStudentModalRef = ref();
 const courses = ref([]);
@@ -144,6 +125,9 @@ const role = ref();
 const coursesForStudent = ref();
 const userStore = useAuthStore();
 const addUserModalRef = ref();
+const roleForAdd = ref();
+const openDialog = ref();
+const courseId = ref();
 
 const config = useRuntimeConfig();
 const apiBase = config.public.apiBase as string;
@@ -243,6 +227,7 @@ onMounted(async () => {
   transition: all 0.2s;
   color: white;
   padding: 5px 20px;
+
   &:hover {
     transform: translateY(-10px);
     opacity: 0.8;
@@ -283,6 +268,7 @@ onMounted(async () => {
   font-family: "Uncage";
   color: #e15d34;
   transition: all 0.5s;
+
   &:hover {
     transform: translateX(-10px);
   }
@@ -302,6 +288,7 @@ onMounted(async () => {
   flex-wrap: wrap;
   gap: 20px;
 }
+
 .image {
   width: 50%;
 }
@@ -480,6 +467,7 @@ onMounted(async () => {
     height: 100%;
     background-color: rgba(175, 175, 175, 0.507);
     border-radius: 15px;
+
     .course-btn {
       display: none;
     }
@@ -509,6 +497,7 @@ onMounted(async () => {
     flex-direction: column;
     gap: 2vw;
     margin-top: 20px;
+
     .btn {
       font-size: 20px;
     }
@@ -541,6 +530,7 @@ onMounted(async () => {
       font-size: 5vw;
       text-align: center;
     }
+
     .btn {
       font-size: 4vw;
     }

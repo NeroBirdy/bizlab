@@ -55,16 +55,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineExpose } from "vue";
+import { ref, defineExpose } from "vue";
 import axios from "axios";
 
 const config = useRuntimeConfig();
 const apiBase = config.public.apiBase as string;
 
-// === Props ===
-const props = defineProps<{
-  courseId: number;
-}>();
 
 // === Локальное состояние ===
 const showModal = ref(false);

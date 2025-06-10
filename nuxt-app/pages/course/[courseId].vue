@@ -14,9 +14,7 @@
   </div>
 
   <div class="course-page">
-    <header
-      class="header flex-col flex items-center justify-center mr-auto ml-auto"
-    >
+    <header class="header flex-col flex items-center justify-center mr-auto ml-auto">
       <h1>
         Курс <strong>{{ courseName }}</strong>
       </h1>
@@ -47,46 +45,35 @@
           <!-- Подключение модала -->
           <AddMaterialModal ref="addMaterialModal" :course="course" :courseId="courseId"
             @material-created="onMaterialCreated" />
-          <button class="add-prepod" @click="openUserModal(courseId)">
-            Добавить преподавателя
+          <button class="add-prepod" @click="openDialog.show">
+            Удалить пользователя
           </button>
-          <AddUserOnCourse :role="1" ref="addUserModalRef" />
+          <Popover ref="openDialog">
+            <div class="flex flex-col gap-4">
+              <button class="btn course-del-btn" @click="openUserModal(courseId); roleForDelete = 0">
+                Удалить ученика
+              </button>
+              <button class="btn course-del-btn" @click="openUserModal(courseId); roleForDelete = 1">
+                Удалить учителя
+              </button>
+            </div>
+          </Popover>
+          <AddUserOnCourse :role="roleForDelete" :action="1" ref="addUserModalRef" />
 
         </div>
         <!-- Список уроков -->
         <div v-if="course" class="lessons-container">
-          <div
-            v-for="(lesson, lessonId, index) in course"
-            :key="lessonId"
-            class="lesson-card"
-          >
-            <button
-              v-if="editingLesson !== lessonId"
-              class="mobile-edit-btn"
-              @click="editLesson(lessonId)"
-            >
+          <div v-for="(lesson, lessonId, index) in course" :key="lessonId" class="lesson-card">
+            <button v-if="editingLesson !== lessonId" class="mobile-edit-btn" @click="editLesson(lessonId)">
               <Icon name="material-symbols:edit" class="icon" size="32"></Icon>
             </button>
-            <button
-              v-if="editingLesson == lessonId"
-              class="mobile-edit-btn save-cl"
-              @click="saveLesson(lessonId)"
-            >
-              <Icon
-                name="material-symbols:save-rounded"
-                class="icon"
-                size="32"
-              ></Icon>
+            <button v-if="editingLesson == lessonId" class="mobile-edit-btn save-cl" @click="saveLesson(lessonId)">
+              <Icon name="material-symbols:save-rounded" class="icon" size="32"></Icon>
             </button>
             <div class="lesson-header">
               <!-- Режим редактирования -->
               <div v-if="editingLesson === lessonId" class="edit-mode">
-                <input
-                  v-model="editedLessonName"
-                  type="text"
-                  placeholder="Название урока"
-                  class="lesson-name-input"
-                />
+                <input v-model="editedLessonName" type="text" placeholder="Название урока" class="lesson-name-input" />
               </div>
 
               <!-- Обычный режим -->
@@ -102,25 +89,15 @@
                 <button v-if="editingLesson !== lessonId" @click="editLesson(lessonId)" class="edit-button btn">
                   Редактировать
                 </button>
-                <button
-                  v-if="editingLesson === lessonId"
-                  @click="deleteElement(lessonId, NaN, 2)"
-                  class="delete-button btn"
-                >
+                <button v-if="editingLesson === lessonId" @click="deleteElement(lessonId, NaN, 2)"
+                  class="delete-button btn">
                   <div class="mobile-save-btn">
-                    <Icon
-                      name="material-symbols:delete-forever"
-                      class="icon"
-                      size="32"
-                    ></Icon>
+                    <Icon name="material-symbols:delete-forever" class="icon" size="32"></Icon>
                   </div>
                   <div class="hide-block">удалить</div>
                 </button>
-                <button
-                  v-if="editingLesson == lessonId"
-                  @click="saveLesson(lessonId)"
-                  class="save-button btn hide-block"
-                >
+                <button v-if="editingLesson == lessonId" @click="saveLesson(lessonId)"
+                  class="save-button btn hide-block">
                   Сохранить
                 </button>
               </div>
@@ -133,18 +110,10 @@
                   <input v-model="editedMaterials[material.id]" type="text" class="material-name-input" />
                 </div>
                 <span v-else>{{ material.name }}</span>
-                <button
-                  v-if="editingLesson === lessonId"
-                  @click="deleteElement(material.id, lessonId, 0)"
-                  @element-deleted="handleChanges"
-                  class="delete-button btn"
-                >
+                <button v-if="editingLesson === lessonId" @click="deleteElement(material.id, lessonId, 0)"
+                  @element-deleted="handleChanges" class="delete-button btn">
                   <div class="mobile-save-btn">
-                    <Icon
-                      name="material-symbols:delete-forever"
-                      class="icon"
-                      size="32"
-                    ></Icon>
+                    <Icon name="material-symbols:delete-forever" class="icon" size="32"></Icon>
                   </div>
                   <div class="hide-block">удалить</div>
                 </button>
@@ -174,16 +143,10 @@
             </div>
 
             <div class="buttons">
-              <button
-                @click="downloadFile(homework.file)"
-                class="btn download-btn bg-[#3840A9]"
-              >
+              <button @click="downloadFile(homework.file)" class="btn download-btn bg-[#3840A9]">
                 Скачать
               </button>
-              <button
-                @click="openModal(homework.id)"
-                class="btn correct-btn bg-[#328862]"
-              >
+              <button @click="openModal(homework.id)" class="btn correct-btn bg-[#328862]">
                 Проверить
               </button>
             </div>
@@ -203,12 +166,14 @@
 import AddLessonModal from "../../components/AddLessonModal.vue";
 import DeleteModal from "../../components/deleteModal.vue";
 import { ref, onMounted } from "vue";
+import Popover from 'primevue/popover';
 import axios from "axios";
 
 const config = useRuntimeConfig();
 const apiBase = config.public.apiBase as string;
 
 // === Переменные ===
+const roleForDelete = ref();
 const loading = ref(true);
 const homeworks = ref<
   {
@@ -234,6 +199,7 @@ const toDelete = ref();
 const tempWorkId = ref();
 const showModal = ref(false);
 const addUserModalRef = ref();
+const openDialog = ref();
 
 const addMaterialModal = ref();
 
@@ -630,6 +596,7 @@ onMounted(async () => {
   margin-bottom: 10px;
   justify-content: space-evenly;
   margin-top: 10px;
+
   .create-lesson,
   .upload-material,
   .add-prepod {
@@ -640,6 +607,7 @@ onMounted(async () => {
     border-radius: 20px;
     cursor: pointer;
     transition: all 0.2s;
+
     &:hover {
       transform: translateY(-5px) scale(1.05);
       opacity: 70%;
@@ -872,6 +840,7 @@ onMounted(async () => {
     .homework-info {
       text-align: center;
       width: 100%;
+
       strong {
         display: block;
       }
@@ -887,6 +856,7 @@ onMounted(async () => {
   }
 
   .lesson-text {
+
     span,
     p {
       align-items: start;
@@ -897,13 +867,13 @@ onMounted(async () => {
   .material-item {
     gap: 0;
   }
+
   .lesson-name-input {
     width: 100%;
   }
 }
 
-@media (max-width: 385px) {
-}
+@media (max-width: 385px) {}
 
 @media (max-width: 375px) {
   .nav-buttons {
