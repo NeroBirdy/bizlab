@@ -72,12 +72,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
         return false;
       }
       try {
-        const response = await $fetch(
-          `${apiBase}/api/accessForCourse`,
-          {
-            method: "POST",
-            body: { userId: userId, courseId: temp_arr[2] },
-          });
+        const response = await $fetch(`${apiBase}/api/accessForCourse`, {
+          method: "POST",
+          body: { userId: userId, courseId: temp_arr[2] },
+        });
         if (response) {
           if (!userStore.isAuth) {
             userStore.loginUser();
@@ -85,19 +83,21 @@ export default defineNuxtRouteMiddleware(async (to) => {
           return true;
         } else return false;
       } catch (e) {
-        console.error(e)
+        console.error(e);
         return false;
-      } 
-    } else if (temp_arr[1] == 'courseForStudent'  && temp_arr.length == 3) {
-       if (!isPositiveInteger(temp_arr[2])) {
+      }
+    } else if (temp_arr[1] == "courseForStudent" && temp_arr.length == 3) {
+      if (!isPositiveInteger(temp_arr[2])) {
         return false;
-      } try {
+      }
+      try {
         const response = await $fetch(
           `${apiBase}/api/accessForCourseForStudent`,
           {
             method: "POST",
             body: { userId: userId, courseId: temp_arr[2] },
-          });
+          }
+        );
         if (response) {
           if (!userStore.isAuth) {
             userStore.loginUser();
@@ -105,19 +105,18 @@ export default defineNuxtRouteMiddleware(async (to) => {
           return true;
         } else return false;
       } catch (e) {
-        console.error(e)
+        console.error(e);
         return false;
-      } 
-    } else if (temp_arr[1] == 'test'  && temp_arr.length == 3) {
-       if (!isPositiveInteger(temp_arr[2])) {
+      }
+    } else if (temp_arr[1] == "test" && temp_arr.length == 3) {
+      if (!isPositiveInteger(temp_arr[2])) {
         return false;
-      } try {
-        const response = await $fetch(
-          `${apiBase}/api/accessForTest`,
-          {
-            method: "POST",
-            body: { userId: userId, materialId: temp_arr[2] },
-          });
+      }
+      try {
+        const response = await $fetch(`${apiBase}/api/accessForTest`, {
+          method: "POST",
+          body: { userId: userId, materialId: temp_arr[2] },
+        });
         if (response) {
           if (!userStore.isAuth) {
             userStore.loginUser();
@@ -125,9 +124,13 @@ export default defineNuxtRouteMiddleware(async (to) => {
           return true;
         } else return false;
       } catch (e) {
-        console.error(e)
+        console.error(e);
         return false;
-      } 
+      }
+    } else {
+      if (!userStore.isAuth) {
+        userStore.loginUser();
+      }
     }
   }
 
