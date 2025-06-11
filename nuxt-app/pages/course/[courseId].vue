@@ -363,7 +363,25 @@ const editLesson = (lessonId: number) => {
 
 const saveLesson = async (lessonId: number) => {
   try {
+    const get_next = Object.values(editedMaterials.value).some((material) => {
+      if (material.trim() == "") {
+        return false;
+      }
+      return true;
+    })
+    if (!get_next) {
+      alert("Не оставляйте названия материалов пустыми!!!");
+      return;
+    }
+
+
+
+
     const newLessonName = editedLessonName.value.trim();
+    if (newLessonName == ""){
+      alert("Не оставляйте название урока пустым!!!");
+      return;
+    }
 
     const oldName = course.value[lessonId].name;
     const flag = Object.values(course.value).some((lesson) => {
@@ -585,6 +603,7 @@ onMounted(async () => {
 
 .header {
   display: flex;
+  gap: 1vw;
   align-items: center;
   justify-content: space-between;
   padding: 10px 0;

@@ -74,7 +74,7 @@ class Course(models.Model):
 class Feedback(models.Model):
     id = models.AutoField(primary_key=True)
     sender = models.CharField(max_length=50)
-    text = models.CharField(max_length=100)
+    text = models.TextField
     visible = models.BooleanField(default=True)
 
     class Meta:

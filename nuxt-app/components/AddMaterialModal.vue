@@ -75,7 +75,6 @@ import axios from "axios";
 const config = useRuntimeConfig();
 const apiBase = config.public.apiBase as string;
 
-// === Props ===
 const props = defineProps<{
   course: {
     [lessonId: number]: {
@@ -91,7 +90,6 @@ const props = defineProps<{
   courseId: number;
 }>();
 
-// === Emits ===
 const emit = defineEmits<{
   (
     e: "material-created",
@@ -106,7 +104,6 @@ const emit = defineEmits<{
   ): void;
 }>();
 
-// === Локальное состояние ===
 const showModal = ref(false);
 const selectedLessonId = ref<number | null>(null);
 const selectedType = ref("1");
@@ -114,27 +111,26 @@ const newMaterialName = ref("");
 const newLink = ref("");
 const fileInput = ref<HTMLInputElement | null>(null);
 
-// === Проверка формы ===
 const isValidForm = computed(() => {
-  if (!selectedLessonId.value) return false;
-  if (!newMaterialName.value.trim()) return false;
-
-  if (selectedType.value === "4") {
-    return !!newLink.value.trim();
+  if (selectedType.value == "4") {
+    return (
+      !!selectedLessonId.value && !!newMaterialName.value.trim() && !!newLink.value.trim()
+    )
+  }else{
+    return (
+      !!selectedLessonId.value && !!newMaterialName.value.trim() && !!file.value
+    )
   }
-
-  return !!fileInput.value?.files?.length;
 });
+const file = ref();
 
-// === Обработка загрузки файла ===
 const handleFileUpload = () => {
-  const file = fileInput.value?.files?.[0];
+  file.value = fileInput.value?.files?.[0];
   if (file) {
-    console.log("Файл выбран:", file.name);
+    console.log("Файл выбран:", file);
   }
 };
 
-// === Создание материала ===
 const createMaterial = async () => {
   try {
     const formData = new FormData();
@@ -176,7 +172,6 @@ const createMaterial = async () => {
   }
 };
 
-// === Открытие/закрытие модального окна ===
 const openModal = () => {
   showModal.value = true;
   nextTick(() => {
@@ -191,9 +186,9 @@ const closeModal = () => {
   newMaterialName.value = "";
   newLink.value = "";
   fileInput.value && (fileInput.value.value = "");
+  file.value = null;
 };
 
-// === Экспорт методов для вызова извне ===
 defineExpose({ openModal });
 </script>
 
