@@ -1,5 +1,5 @@
 <template>
-  <div class="reviewContent">
+  <div class="reviewContent" id="reviews">
     <h1 class="text-center">ОТЗЫВЫ НАШИХ клиентов</h1>
     <div class="grid-container">
       <div class="cards">

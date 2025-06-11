@@ -1,5 +1,5 @@
 <template>
-  <div class="teacherContent">
+  <div class="teacherContent" id="teachers">
     <h1 class="text-center">наша команда</h1>
     <h5 class="text-center">Люди, которые знают своё дело</h5>
     <!-- <img

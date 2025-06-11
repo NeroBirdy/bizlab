@@ -1,11 +1,11 @@
 <template>
-  <div class="relative content">
+  <div class="relative content" id="courses">
     <img src="/assets/images/welcomePage/grown.png" class="vector one desktop" />
     <img src="/assets/images/welcomePage/town.png" class="vector two desktop" />
 
-    <div class="container desktop">
+    <div class="desktop" >
       <h1 class="text-center">Курсы</h1>
-      <div class="flex justify-between">
+      <div class="swiper-content flex justify-between">
         <button @click="swiper.prev()" class="arrow">
           <img src="/assets/images/welcomePage/arrow-prev.svg" style="width: 3vw;"/>
         </button>
@@ -21,7 +21,7 @@
               :key="idx"
               class="slide"
             >
-              <p class="course-places">{{ course.places }} мест</p>
+              <p class="course-places">мест {{ course.places }}</p>
               <div class="course-card">
                 <div class="main-info">
                   <div class="title flex half-prop">
@@ -65,7 +65,7 @@
                         {{ course.description }}
                       </div>
                       <div
-                        v-else
+                        v-else-if="!description && course.compounds.length != 0"
                         v-for="compound in course.compounds"
                         class="course-compounds"
                       >
@@ -106,7 +106,7 @@
             </swiper-slide>
           </swiper-container>
         </ClientOnly>
-        <button @click="swiper.next()">
+        <button @click="swiper.next()" style="z-index: 3;">
           <img src="/assets/images/welcomePage/arrow-next.svg" class="arrow" style="width: 3vw; z-index: 3;"/>
         </button>
       </div>
@@ -118,7 +118,7 @@
     <h1 class="text-center">Курсы</h1>
     <ClientOnly>
       <CourseDesc ref="courseDescRef" ></CourseDesc>
-        <swiper-container ref="containerRef" class="swiper-container">
+        <swiper-container ref="mobileSwiperRef" class="swiper-container"  pagination="true">
           <swiper-slide
             lazy="true"
             v-for="(course, idx) in courses"
@@ -168,8 +168,16 @@ import CourseDesc from "./CourseDesc.vue";
 
 const containerRef = ref(null);
 const slides = ref(Array.from({ length: 10 }));
+const mobileSwiperRef = ref(null);
+
 
 const swiper = useSwiper(containerRef, {
+  effect: "creative",
+  loop: true,
+  spaceBetween: 100,
+});
+
+const swiper2 = useSwiper(mobileSwiperRef, {
   effect: "creative",
   loop: true,
   spaceBetween: 100,
@@ -205,21 +213,42 @@ const fixprice = (price) => {
 </script>
 
 <style lang="scss" scoped>
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+.content {
+  height: 80vh;
+}
+
+.desktop {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.swiper-content {
+  width: 85%;
+  margin-top: 2vw;
+}
 
 .course-link {
   background-color: #328862;
-  font-size: 1.6vw;
+  font-size: 1.3vw;
   border-radius: 50px;
-  padding: 5px 15px;
+  padding: 0.27vw 0.79vw;
   color: white;
-  width: 21vw;
+  width: 17vw;
   text-align: center;
   justify-content: center;
-  height: 3.5vw;
+  height: 3.2vw;
   text-transform: uppercase;
   letter-spacing: 1px;
   font-family: "UnboundedRegular";
+  display: flex;
+  align-items: center;
+}
+
+.course-compounds {
+  font-size: 1.2vw;
 }
 
 .half-prop {
@@ -251,13 +280,14 @@ const fixprice = (price) => {
 }
 
 h3 {
-  font-size: 3vw;
+  font-size: 2.2vw;
   color: #3840a9;
+  margin-bottom: 1vw;
 }
 
 .active {
   background-color: #328862;
-  font-size: 1.25vw;
+  font-size: 1vw;
   border-radius: 50px;
   padding: 5px 15px;
   color: white;
@@ -279,10 +309,11 @@ h3 {
 }
 
 .picture-block {
-  max-height: 20vw;
+  width: 35vw;
   img {
     width: 35vw;
-    height: auto;
+    height: 17vw;
+    object-fit: contain;
     top: 239px;
     left: 276px;
     border-radius: 48px;
@@ -294,7 +325,7 @@ h3 {
   border-radius: 5px;
   padding-left: 2%;
   width: 36vw;
-  max-height: 22vw;
+  max-height: 18vw;
   overflow: scroll;
 }
 
@@ -310,7 +341,7 @@ h3 {
 
 .course-description {
   white-space: pre-wrap;
-  font-size: 1vw;
+  font-size: 1.2vw;
 }
 
 .picture-block {
@@ -340,7 +371,7 @@ h3 {
 .course-places {
   color: white;
   font-family: "UnboundedRegular";
-  font-size: 1vw;
+  font-size: 0.9vw;
   position: absolute;
   top: 0px;
   right: 0px;
@@ -348,8 +379,8 @@ h3 {
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  width: 7vw;
-  height: 7vw;
+  width: 5vw;
+  height: 5vw;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -358,7 +389,7 @@ h3 {
 
 .course-buttons {
   margin: 0;
-  font-size: 1.25vw;
+  font-size: 1vw;
   border-radius: 50px;
   padding: 5px 15px;
   align-items: center;
@@ -399,6 +430,11 @@ h3 {
     justify-content: space-between;
     align-items: center;
   }
+
+  .course-card{
+    position: relative;
+  }
+
   .course-picture {
     width: 100%;
     border-radius: 15px;
@@ -407,23 +443,35 @@ h3 {
     justify-items: center;
   }
   .mini-picture {
-    max-width: 65%;
+    max-width: 80%;
+    img{
+      aspect-ratio:16/9;
+    }
   }
 
   .main-info-container {
     width: 100%;
     display: flex;
+    
+  }
+
+  .main-info{
+    display: flex;
+    justify-content: center;
   }
 
   .mini-info-container {
-    height: 31vw;
+    width: 80%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    align-items: center;
+    align-items: end;
+    position: absolute;
   }
 
   .mini-places {
+    margin: 2%;
     width: 20vw;
     text-align: center;
     background-color:rgb(226, 93, 53);
@@ -434,15 +482,29 @@ h3 {
   }
 
   .mini-info-container-bottom {
+    width: 100%;
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-direction: row;
+    align-items: end;
     height: 50%;
     justify-content: space-between;
+
+      div{
+    margin: 2% 10%;
+  }
+
+    h3{
+      background-color:rgba(240, 248, 255, 0.517);
+      margin:0;
+      padding: 2%;
+      border-radius: 0 15px 0 15px;
+    }
   }
   .swiper-container {
     width: 90%;
   }
+
+
 }
 
 @media (max-width: 1025px) {
