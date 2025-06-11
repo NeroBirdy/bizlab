@@ -285,7 +285,7 @@ header {
 
 @media (max-width: 1023px) {
   .content {
-    height: 75vh;
+    height: 100vh;
   }
 }
 

@@ -214,7 +214,7 @@ const fixprice = (price) => {
 
 <style lang="scss" scoped>
 .content {
-  height: 80vh;
+  height: 100vh;
 }
 
 .desktop {

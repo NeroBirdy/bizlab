@@ -31,7 +31,7 @@ const imgSrc = (await import(`@/assets/images/teachersPage/${props.photo}.png`))
   </div>
 </template>
 
-<style scoped>
+<style  lang="scss" scoped>
 .teacher {
   display: flex;
   flex-direction: column;
