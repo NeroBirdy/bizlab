@@ -289,7 +289,7 @@ header {
   }
 }
 
-@media (max-width: 425px) {
+@media (max-width: 540px) {
   .content {
     height: 90vh;
   }

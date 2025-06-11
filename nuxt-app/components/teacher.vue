@@ -58,7 +58,7 @@ const imgSrc = (await import(`@/assets/images/teachersPage/${props.photo}.png`))
   width: auto;
 }
 
-@media (max-width: 425px) {
+@media (max-width: 540px) {
   .photo-card {
     width: 35vw;
     min-height: 35vw;
