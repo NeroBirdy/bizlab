@@ -1,5 +1,5 @@
 <template>
-  <div class="content">
+  <div class="content" id="welcome">
     <div class="main-container">
       <div class="main-container-text">
         <div class="line1">Лучшее</div>

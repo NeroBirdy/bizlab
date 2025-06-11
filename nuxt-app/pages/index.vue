@@ -1,5 +1,15 @@
 <script setup lang="ts">
 import { ClientOnly } from "#components";
+
+const mobilecheck = ref(false);
+
+function closeModal(){
+  mobilecheck.value = false;
+}
+
+function openModal(){
+  mobilecheck.value = true;
+}
 </script>
 
 <template>
@@ -10,12 +20,12 @@ import { ClientOnly } from "#components";
       </div>
       <!-- <img class="logo" src="/assets/images/bizlap-logo.svg" alt="bizlab" /> -->
       <nav class="navigate">
-        <a href="#">О нас</a>
-        <a href="#">Курсы</a>
-        <a href="#">Команда</a>
-        <a href="#">Отзывы</a>
-        <a href="#">Записаться</a>
-        <a href="#">Контакты</a>
+        <a href="#welcome">О нас</a>
+        <a href="#courses">Курсы</a>
+        <a href="#teachers">Команда</a>
+        <a href="#reviews">Отзывы</a>
+        <a href="#feedback">Записаться</a>
+        <a href="#contacts">Контакты</a>
       </nav>
       <div class="social-links">
         <a href="tel:+79995554443"
@@ -34,15 +44,15 @@ import { ClientOnly } from "#components";
       <div class="header-mobile-container">
         <img class="logo" src="/assets/images/bizlap-logo.svg" alt="bizlab" />
         <div class="menu">
-            <input type="checkbox" id="burger-checkbox" class="burger-checkbox">
+            <input type="checkbox" id="burger-checkbox" :checked="mobilecheck" @click="mobilecheck ? closeModal : closeModal" class="burger-checkbox">
             <label for="burger-checkbox" class="burger"></label>
             <ul class="menu-list">
-                <li><a href="#" class="menu-item">О нас</a></li>
-                <li><a href="#" class="menu-item">Курсы</a></li>
-                <li><a href="#" class="menu-item">Команда</a></li>
-                <li><a href="#" class="menu-item">Отзывы</a></li>
-                <li><a href="#" class="menu-item">Записаться</a></li>
-                <li><a href="#" class="menu-item">Контакты</a></li>
+                <li><a href="#welcome" class="menu-item" @click="closeModal">О нас</a></li>
+                <li><a href="#courses" class="menu-item"  @click="closeModal">Курсы</a></li>
+                <li><a href="#teachers" class="menu-item" @click="closeModal">Команда</a></li>
+                <li><a href="#reviews" class="menu-item" @click="closeModal">Отзывы</a></li>
+                <li><a href="#feedback" class="menu-item" @click="closeModal">Записаться</a></li>
+                <li><a href="#contacts" class="menu-item" @click="closeModal">Контакты</a></li>
             </ul>
         </div>
       </div>

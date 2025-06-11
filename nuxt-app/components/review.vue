@@ -31,7 +31,7 @@ const props = defineProps({
 .block {
   width: 370px;
   height: 212px;
-  padding: 1.5vw;
+  padding: 0 1.5vw;
   position: absolute;
   border-radius: 40px;
   z-index: 3;
@@ -44,7 +44,7 @@ const props = defineProps({
   }
 
   h2 {
-    margin-top: 2vw;
+    margin-top: 1vw;
     margin-bottom: 10px;
     font-family: "UnboundedSemiBold";
     font-size: 24px;
@@ -77,6 +77,7 @@ const props = defineProps({
     height: 170px;
     h2 {
       font-size: 18px;
+      margin-top: 1.5vw;
     }
     p {
       font-size: 14px;
@@ -108,6 +109,7 @@ const props = defineProps({
     }
     p {
       font-size: 10px;
+      line-height: 4vw;
     }
   }
 }

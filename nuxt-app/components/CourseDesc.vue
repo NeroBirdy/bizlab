@@ -1,5 +1,5 @@
 <template>
-    <div class="modal-overlay" v-if="show">
+    <div class="modal-overlay" v-if="show" @click.self="closeModal">
         <div class="modal">
             <div class="course-buttons flex gap-12 second-half justify-center">
                 <p @click="description = true" :class="{ active: description }">
@@ -9,42 +9,40 @@
                     Что входит в курс
                 </p>
             </div>
-            <div class="price-info half-prop flex justify-center mt-5">
-                <div class="second-half">
-                    <div class="flex justify-between flex-col">
-                        <div class="text-block">
-                            <div v-if="description" class="course-description">
+            <div class="">
+                <div class="">
+                    <div class="">
+                        <div class="course-text-area">
+                            <div v-if="description" class="text-area">
                                 {{ course.description }}
                             </div>
                             <div v-else v-for="compound in course.compounds" class="course-compounds">
-                                <p>{{ compound.name }}</p>
+                                <ul>
+                                    <li>{{ compound.name }}</li>
+                                </ul>
                             </div>
                         </div>
-                        <div class="bottom">
-                            <div class="prices right ">
-                                <div class="last-price flex flex-row justify-between">
-                                    <p style="
-                              font-size: 1.6vw;
-                            ">
-                                        {{ fixprice(course.salePrice) }} ₽
-                                    </p>
-                                    <sub class="mt-1" style="font-size: 1.6vw">в расрочку от
-                                        {{ fixprice(course.credit) }} руб/мес</sub>
-                                </div>
-                                <div class="last-price left">
+                        <div class="price-area">
+                            <div class="prices">
                                     <p style="
                               text-decoration: line-through;
-                              font-size: 1.6vw;
                             ">
                                         {{ fixprice(course.price) }} ₽
                                     </p>
-                                </div>
+                                    <p style="
+                            ">
+                                        {{ fixprice(course.salePrice) }} ₽
+                                    </p>
+                                    <p class="">в расрочку от
+                                        {{ fixprice(course.credit) }} руб/мес</p>
+                                          <div class="course-link">
+                        <div class=""><a href="#feedback" @click="closeModal">Записаться</a></div>
+                    </div>
                             </div>
                         </div>
                     </div>
-                    <div class="link flex justify-end">
-                        <div class="course-link flex justify-end"><a href="#feedback">Записаться</a></div>
-                    </div>
+                    
+                  
 
                 </div>
             </div>
@@ -96,12 +94,62 @@ defineExpose({ openModal });
 
 .modal {
     background-color: white;
-    padding: 20px;
+    // padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    max-width: 400px;
-    width: 100%;
+    width: 95%;
     position: relative;
+    height: 70vh;
+}
+
+.course-text-area {
+    width: 100%;
+    height: max-content;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5vw;
+}
+
+.course-compounds {
+    margin: 0 4.7vw;
+    display: flex;
+    justify-content: end;
+    ul {
+        width: 90%;
+        li {
+            list-style-type:circle;
+        }
+    }
+}
+
+.text-area {
+    width: 90%;
+    height: max-content;
+    overflow: scroll;
+    margin: 0 auto;
+}
+
+.price-area {
+    display: flex;
+    justify-content: end;
+    margin-bottom: 6vw;
+}
+
+.prices {
+    width: 50%;
+    p {
+        text-align: end;
+        padding: 0 4vw;
+        font-size: 4vw;
+    }
+}
+
+.prices p:nth-child(2) {
+    font-size: 5vw;
+}
+
+.prices p:nth-child(3) {
+    font-size: 2.8vw;
 }
 
 .link {
@@ -115,22 +163,23 @@ defineExpose({ openModal });
 
 .course-link {
     background-color: #328862;
-    font-size: 1.6vw;
+    font-size: 3.5vw;
     border-radius: 50px;
     padding: 5px 15px;
     color: white;
-    width: 21vw;
+    width: 40vw;
     text-align: center;
     justify-content: center;
-    height: 3.5vw;
+    // height: 6vw;
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: "UnboundedRegular";
+    margin: 0 auto;
 }
 
 .course-buttons {
     margin: 0;
-    font-size: 1.25vw;
+    font-size: 3vw;
     border-radius: 50px;
     padding: 5px 15px;
     align-items: center;
@@ -138,11 +187,15 @@ defineExpose({ openModal });
     letter-spacing: 1px;
     font-family: "UnboundedRegular";
     cursor: pointer;
+    height: 7vh;
+    p {
+        font-size: 3vw;
+    }
 }
 
 .active {
     background-color: #328862;
-    font-size: 1.25vw;
+    font-size: 4vw;
     border-radius: 50px;
     padding: 5px 15px;
     color: white;
@@ -152,8 +205,24 @@ defineExpose({ openModal });
 }
 
 @media (max-width: 425px) {
-    .modal {
-        width: 95%;
+    .course-text-area, .text-area{
+        height: 45.7vh;
+    }
+
+   
+
+    .price-area{
+        justify-content: start;
+
+        *{
+            width: 100%;
+        }
+    }
+
+         .course-link{
+        width: 60%;
+        margin-top:10px;
     }
 }
+
 </style>

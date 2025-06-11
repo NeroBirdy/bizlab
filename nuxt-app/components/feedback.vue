@@ -245,10 +245,13 @@ form {
     justify-content: center;
   }
   .form-div {
-    scale: 1.5;
+    scale: 2;
     height: 150%;
     background-color: #f3f3f3;
   }
 
+  .feedbackContent{
+    margin-bottom: 10vh;
+  }  
 }
 </style>

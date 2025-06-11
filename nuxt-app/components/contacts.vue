@@ -1,5 +1,5 @@
 <template>
-  <div class="contactsContent">
+  <div class="contactsContent" id="contacts">
     <h1 class="flex justify-center">
       <span class="highlight">Контакты </span> центра
     </h1>
