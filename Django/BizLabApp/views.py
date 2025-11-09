@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
-from .models import User, Course, CourseAndUser, UserProgress, Material, Lesson, Compound, Feedback, CourseAndTeacher
+from .models import User, Course, CourseAndUser, UserProgress, Material, Lesson, Compound, Feedback, CourseAndTeacher, Log
 from django.contrib.auth import authenticate, login, logout
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.serializers import serialize
@@ -16,6 +16,7 @@ from django.http import FileResponse, Http404
 from django.conf import settings
 from urllib.parse import quote
 from docx import Document
+import datetime
 
 class Registration(APIView):
     def post(self, request):
@@ -54,6 +55,8 @@ class Registration(APIView):
         
         email_message.send()
 
+        Log.objects.create(user=user, type = 4)
+
         return Response({'message': 'Регистрация успешна',},
                          status=status.HTTP_201_CREATED)
                          
@@ -87,6 +90,8 @@ class Login(APIView):
             return Response({'error': 'Неверное имя пользователя или пароль'}, status=status.HTTP_401_UNAUTHORIZED)
 
         refresh = RefreshToken.for_user(user)
+
+        Log.objects.create(user=user)
 
         return Response({
             'message': 'Авторизация успешна',
@@ -240,6 +245,8 @@ class createMaterial(APIView):
             'type': type,
             'id': material.id
         }
+
+        Log.objects.create(type=5, file = name)
         return Response({'material': tmp},status=status.HTTP_201_CREATED)
     
 #Создать курс
@@ -433,6 +440,8 @@ class checked(APIView):
         userProgress.needToCheck = False
         userProgress.done = True
         userProgress.save()
+
+        Log.objects.create(user=userProgress.user, type = 3)
 
         return Response(status=status.HTTP_200_OK)
 
@@ -752,6 +761,8 @@ class welcomeToTeacher(APIView):
         userProgress.needToCheck = True
         userProgress.save()
         
+        Log.objects.create(user=user, type=2)
+
         return Response(status=status.HTTP_200_OK)
 
 class deleteMaterial(APIView):
@@ -859,7 +870,43 @@ class deleteTeacherFromCourse(APIView):
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+class getLogs(APIView):
+    def post(self, request):
+        userId = request.data.get('userId')
+        type = request.data.get('type')
+        page = int(request.data.get('page', 1))
+        
+        limit = 20
+        offset = (page - 1) * limit
 
+        # Filter for logs created within the last 24 hours
+        one_day_ago = datetime.datetime.now() - datetime.timedelta(days=1)
+        
+        queryset = Log.objects.select_related('user').filter(
+            created__gte=one_day_ago
+        ).order_by('-created').reverse()
+
+        if userId is not None:
+            queryset = queryset.filter(user_id=userId)
+        
+        if type is not None:
+            queryset = queryset.filter(type=type)
+
+        queryset = queryset[offset:offset + limit]
+
+        logs = [
+            {
+                "id": log.id,
+                "type": log.type,
+                "name": f"{log.user.firstName} {log.user.lastName}",
+                "role": log.user.role,
+                "file": log.file,
+                "created": log.created
+            }
+            for log in queryset
+        ]
+
+        return Response(logs, status=status.HTTP_200_OK)
 
         
 

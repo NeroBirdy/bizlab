@@ -134,3 +134,14 @@ class UserProgress(models.Model):
     class Meta:
         db_table = 'UserProgress'
         managed = True
+
+class Log(models.Model):
+    id = models.AutoField(primary_key=True)
+    type = models.IntegerField(default=1)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='userId_log')
+    file = models.CharField(max_length=255)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'logs'
+        managed = True

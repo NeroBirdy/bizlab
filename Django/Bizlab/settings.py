@@ -100,7 +100,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',  
         'NAME': 'bizlab',                  
         'USER': 'root',                        
-        'PASSWORD': 'root',                
+        'PASSWORD': '',                
         'HOST': '127.0.0.1',                   
         'PORT': '3306',                        
         'OPTIONS': {
@@ -165,5 +165,5 @@ EMAIL_HOST = 'smtp.mail.ru'
 EMAIL_PORT = 587                      
 EMAIL_USE_TLS = True                  
 EMAIL_HOST_USER = 'baraholkaugu@mail.ru'      
-EMAIL_HOST_PASSWORD = 'PZdQ8NaNa7FF8h2rFadU'       
+EMAIL_HOST_PASSWORD = 'txFf02TN3nA8N0YT0ONu'       
 DEFAULT_FROM_EMAIL = 'baraholkaugu@mail.ru'
