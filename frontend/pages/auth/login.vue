@@ -88,13 +88,13 @@ onMounted(() => {
 
 <template>
   <div class="back-image">
-    <img class="back" src="../../assets/images/back-login.svg" alt="" />
+    <img class="back" src="/assets/images/back-login.svg" alt="" />
   </div>
   <div class="log-form">
     <div class="logo flex" @click="goHome()">
       <img
         class="h-12 self-center"
-        src="../../assets/images/bizlap-logo.svg"
+        src="/assets/images/bizlap-logo.svg"
         alt="Logo"
       />
       <h1 class="mb-10">АВТОРИЗАЦИЯ</h1>

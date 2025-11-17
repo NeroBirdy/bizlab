@@ -43,9 +43,9 @@
                 <div>
                     <div class="table">
                         <h1>Загруженные файлы</h1>
-                        <h1>{{ second.length }}</h1>
+                        <h1>{{ fifth.length }}</h1>
                         <div class="inside-table">
-                            <div class="row2" v-for="log in second">
+                            <div class="row2" v-for="log in fifth">
                                 <div class="column id">
                                     <p>{{ log.id }}</p>
                                 </div>
@@ -65,27 +65,6 @@
                 <div>
                     <div class="table">
                         <h1>Зарегистрированные пользователи</h1>
-                        <h1>{{ third.length }}</h1>
-                        <div class="inside-table">
-                            <div class="row2" v-for="log in third">
-                                <div class="column id">
-                                    <p>{{ log.id }}</p>
-                                </div>
-                                <div class="column text">
-                                    <p>{{ log.name }}</p>
-                                </div>
-                                <div class="column timestamp">
-                                    <p>{{ log.created.slice(0, 10).replaceAll('-', '.') + ' ' + log.created.slice(11,
-                                        19) }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="table">
-                        <h1>Выполненных заданий</h1>
                         <h1>{{ forth.length }}</h1>
                         <div class="inside-table">
                             <div class="row2" v-for="log in forth">
@@ -106,10 +85,31 @@
                 </div>
                 <div>
                     <div class="table">
-                        <h1>Проверенных заданий</h1>
-                        <h1>{{ fifth.length }}</h1>
+                        <h1>Выполненных заданий</h1>
+                        <h1>{{ second.length }}</h1>
                         <div class="inside-table">
-                            <div class="row2" v-for="log in fifth">
+                            <div class="row2" v-for="log in second">
+                                <div class="column id">
+                                    <p>{{ log.id }}</p>
+                                </div>
+                                <div class="column text">
+                                    <p>{{ log.name }}</p>
+                                </div>
+                                <div class="column timestamp">
+                                    <p>{{ log.created.slice(0, 10).replaceAll('-', '.') + ' ' + log.created.slice(11,
+                                        19) }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="table">
+                        <h1>Проверенных заданий</h1>
+                        <h1>{{ third.length }}</h1>
+                        <div class="inside-table">
+                            <div class="row2" v-for="log in third">
                                 <div class="column id">
                                     <p>{{ log.id }}</p>
                                 </div>

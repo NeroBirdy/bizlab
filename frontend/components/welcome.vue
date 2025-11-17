@@ -9,7 +9,7 @@
       </div>
       <div class="main-container-img">
         <img
-          src="/assets/images/welcomePage/background.svg"
+          src="/assets/images/welcomePage/Background.svg"
           alt="back"
           class="background"
         />

@@ -246,7 +246,7 @@ class createMaterial(APIView):
             'id': material.id
         }
 
-        Log.objects.create(type=5, file = name)
+        Log.objects.create(type=5, file = name, user=course.teacher)
         return Response({'material': tmp},status=status.HTTP_201_CREATED)
     
 #Создать курс
@@ -273,7 +273,7 @@ class createCourse(APIView):
         ext = os.path.splitext(picture.name)[1]
         picName = f'{name}{ext}'
 
-        target_directory = os.path.join(os.getcwd(), f'../nuxt-app/public/images/courses')
+        target_directory = os.path.join(os.getcwd(), f'../frontend/public/images/courses')
         os.makedirs(target_directory, exist_ok=True)
 
         target_path = os.path.join(target_directory, picName)
@@ -389,7 +389,7 @@ class uploadFile(APIView):
         lessonName = lesson.name
         courseName = lesson.course.name
 
-        target_directory = os.path.join(os.getcwd(), f'../files/users/{userId}/{courseName}/{lessonName}')
+        target_directory = os.path.join(os.getcwd(), '../files/users/{userId}/{courseName}/{lessonName}')
         os.makedirs(target_directory, exist_ok=True)
 
         target_path = os.path.join(target_directory, file.name)
@@ -402,6 +402,8 @@ class uploadFile(APIView):
         userProgress.file = f'../files/users/{userId}/{courseName}/{lessonName}/{file.name}'
         userProgress.needToCheck = True
         userProgress.save()
+
+        Log.objects.create(user=user, type=2)
 
         return Response(status=status.HTTP_200_OK)
     
@@ -636,7 +638,7 @@ class parseFile(APIView):
         doc = Document(material.file)
         lines = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
 
-        image_folder = f'../nuxt-app/public/images/tests/{materialName}'
+        image_folder = f'../frontend/public/images/tests/{materialName}'
         if not os.path.exists(image_folder):
             os.makedirs(image_folder)
 
@@ -760,8 +762,6 @@ class welcomeToTeacher(APIView):
         userProgress.file = f'{filePath}{userName}_{materialName}.docx'
         userProgress.needToCheck = True
         userProgress.save()
-        
-        Log.objects.create(user=user, type=2)
 
         return Response(status=status.HTTP_200_OK)
 
